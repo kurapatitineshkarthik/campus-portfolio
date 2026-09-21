@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Portfolio | UG Campus Portfolio</title>
+  
+  <script>
+    (function() {
+      try {
+        var savedTheme = localStorage.getItem('portfolio-theme');
+        var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        var theme = savedTheme ? savedTheme : (prefersDark ? 'dark' : 'light');
+        document.documentElement.setAttribute('data-theme', theme);
+      } catch (e) {}
+    })();
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="/style.css?v=2.2">
+
+  <style>
+    .portfolio-wrapper {
+      max-width: 960px;
+      margin: 100px auto 60px auto;
+      padding: 0 20px;
+    }
+    .profile-hero-card {
+      padding: 40px;
+      display: flex;
+      gap: 32px;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-bottom: 36px;
+      border-radius: var(--radius-lg);
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+      box-shadow: var(--shadow-card);
+    }
+    .profile-avatar-box {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      overflow: hidden;
+      border: 2px solid var(--accent);
+      box-shadow: 0 0 20px var(--accent-glow);
+      flex-shrink: 0;
+    }
+    .profile-avatar-box img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .profile-info {
+      flex: 1;
+      min-width: 280px;
+    }
+    .profile-name {
+      font-size: 2.2rem;
+      font-weight: 700;
+      letter-spacing: -0.025em;
+      margin-bottom: 6px;
+    }
+    .academic-pill {
+      display: inline-block;
+      font-size: 0.82rem;
+      font-weight: 600;
+      padding: 4px 14px;
+      border-radius: var(--radius-full);
+      background: var(--badge-bg);
+      color: var(--badge-text);
+      border: 1px solid var(--border-color);
+      margin-bottom: 12px;
+    }
+    .docs-btn {
+      background: var(--accent);
+      color: #ffffff !important;
+      border: 1px solid transparent;
+      box-shadow: 0 2px 8px var(--accent-glow);
+      border-radius: var(--radius-full);
+      font-weight: 500;
+      transition: all var(--transition-fast);
+    }
+    .docs-btn:hover {
+      background: var(--accent-hover);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 16px var(--accent-glow);
+    }
+    .share-badge-btn {
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.8rem;
+      font-weight: 500;
+      padding: 6px 14px;
+      border-radius: var(--radius-full);
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--border-color);
+      color: var(--text-secondary);
+      transition: all var(--transition-fast);
+    }
+    [data-theme="light"] .share-badge-btn {
+      background: rgba(0, 0, 0, 0.04);
+    }
+    .share-badge-btn:hover {
+      color: var(--text-primary);
+      border-color: var(--accent);
+    }
+    .section-box {
+      padding: 32px;
+      margin-bottom: 30px;
+      border-radius: var(--radius-lg);
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+      box-shadow: var(--shadow-card);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Header Navigation -->
+  <header class="header">
+    <div class="container nav-container">
+      <a href="/" class="brand-logo">
+        <span class="logo-accent">&lt;</span>Campus<span class="logo-accent">/&gt;</span>
+      </a>
+
+      <div class="nav-actions">
+        <a href="/" class="btn btn-ghost" style="padding: 8px 16px; font-size: 0.85rem;">
+          <i class="fas fa-arrow-left"></i> All Students
+        </a>
+        <button id="themeToggle" class="icon-btn" aria-label="Toggle theme" title="Toggle theme">
+          <i class="fas fa-moon" id="themeIcon"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="portfolio-wrapper" id="portfolioContainer">
+    <div style="text-align: center; padding: 100px 0;">
+      <i class="fas fa-spinner fa-spin" style="font-size: 2.5rem; color: var(--accent);"></i>
+      <p style="color: var(--text-secondary); margin-top: 16px;">Loading student portfolio...</p>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container footer-container">
+      <div class="footer-left">
+        <p>&copy; <span id="currentYear"></span> <strong>tinesh.in</strong> &bull; All UG Campus Portfolio Platform.</p>
+      </div>
+      <div class="footer-right">
+        <a href="/" class="btn btn-secondary" style="padding: 8px 16px; font-size: 0.85rem;">
+          <i class="fas fa-compass"></i> Discover More Portfolios
+        </a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", async () => {
+      initTheme();
+      document.getElementById("currentYear").textContent = new Date().getFullYear();
+
+      // Extract username/slug from URL path (e.g. /p/tinesh-karthik) or query (?u=tinesh-karthik)
+      let slug = "";
+      const pathParts = window.location.pathname.split("/").filter(Boolean);
+      if (pathParts.length >= 2 && pathParts[0] === "p") {
+        slug = pathParts[1];
+      } else {
+        const params = new URLSearchParams(window.location.search);
+        slug = params.get("u") || params.get("student") || "tinesh-karthik";
+      }
+
+      await loadStudentPortfolio(slug);
+    });
+
+    async function loadStudentPortfolio(slug) {
+      const container = document.getElementById("portfolioContainer");
+
+      try {
+        const res = await fetch(`/api/portfolio/${encodeURIComponent(slug)}`);
+        if (!res.ok) throw new Error("Student portfolio not found");
+
+        const student = await res.json();
+        renderPortfolio(student);
+      } catch (err) {
+        container.innerHTML = `
+          <div class="card glass-card section-box" style="text-align: center; padding: 80px 20px;">
+            <i class="fas fa-user-slash" style="font-size: 3rem; color: var(--text-muted); margin-bottom: 16px;"></i>
+            <h2 style="font-size: 1.5rem; margin-bottom: 8px;">Portfolio Not Found</h2>
+            <p style="color: var(--text-secondary); margin-bottom: 24px;">The student portfolio URL you are looking for does not exist or has been removed.</p>
+            <a href="/" class="btn btn-primary">
+              <i class="fas fa-arrow-left"></i> Return to Campus Showcase
+            </a>
+          </div>
+        `;
+      }
+    }
+
+    function renderPortfolio(s) {
+      document.title = `${s.name} | ${s.course || 'UG'} Portfolio`;
+
+      const shareUrl = window.location.href;
+      const container = document.getElementById("portfolioContainer");
+
+      container.innerHTML = `
+        <!-- Profile Hero Card -->
+        <div class="card glass-card profile-hero-card">
+          <div class="profile-avatar-box">
+            <img src="${s.avatarUrl || 'https://api.dicebear.com/7.x/bottts/svg?seed=' + encodeURIComponent(s.name)}" alt="${s.name}" style="pointer-events: none;">
+          </div>
+
+          <div class="profile-info">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 10px;">
+              <div>
+                <h1 class="profile-name">${s.name}</h1>
+                <span class="academic-pill">
+                  ${s.course || 'UG'} &bull; ${s.year || '1st Year'} ${s.branch ? '(' + s.branch + ')' : ''}
+                </span>
+              </div>
+              <button onclick="copyCurrentUrl()" class="share-badge-btn" id="shareBtn" title="Copy shareable portfolio link">
+                <i class="fas fa-share-nodes"></i> <span>Share Portfolio</span>
+              </button>
+            </div>
+
+            <p style="color: var(--text-secondary); font-size: 1rem; margin-bottom: 14px; line-height: 1.5;">
+              ${s.tagline || ''} &bull; <em>${s.college || 'College of Higher Education'}</em>
+            </p>
+
+            <!-- Social Links -->
+            <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+              ${s.socials && s.socials.github ? `<a href="${s.socials.github}" target="_blank" rel="noopener noreferrer" class="social-link" title="GitHub"><i class="fab fa-github"></i></a>` : ''}
+              ${s.socials && s.socials.linkedin ? `<a href="${s.socials.linkedin}" target="_blank" rel="noopener noreferrer" class="social-link" title="LinkedIn"><i class="fab fa-linkedin-in"></i></a>` : ''}
+              ${s.email ? `<a href="mailto:${s.email}" class="btn btn-secondary" style="padding: 6px 16px; font-size: 0.85rem;"><i class="fas fa-envelope"></i> Contact Me</a>` : ''}
+            </div>
+          </div>
+        </div>
+
+        <!-- About Me Section -->
+        <div class="card glass-card section-box">
+          <h2 style="font-size: 1.35rem; margin-bottom: 12px; display: flex; align-items: center; gap: 10px;">
+            <i class="fas fa-user logo-accent"></i> About Me
+          </h2>
+          <p style="color: var(--text-secondary); font-size: 1rem; line-height: 1.7;">
+            ${s.bio || 'Undergraduate student documenting coursework, skills, and projects.'}
+          </p>
+        </div>
+
+        <!-- What I Learned Section -->
+        <div class="card glass-card section-box">
+          <h2 style="font-size: 1.35rem; margin-bottom: 14px; display: flex; align-items: center; gap: 10px;">
+            <i class="fas fa-book-open logo-accent"></i> "What I Learned" (${s.course || 'UG'} &bull; ${s.year || '1st Year'})
+          </h2>
+          <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 18px;">
+            Key concepts, subjects, and milestones mastered across semesters:
+          </p>
+
+          <ul style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 10px;">
+            ${(s.whatILearned && s.whatILearned.length > 0)
+              ? s.whatILearned.map(l => `
+                <li style="display: flex; align-items: baseline; gap: 12px; color: var(--text-secondary); font-size: 0.95rem; line-height: 1.5;">
+                  <i class="fas fa-check-circle" style="color: var(--accent); font-size: 0.9rem;"></i>
+                  <span>${l}</span>
+                </li>
+              `).join('')
+              : '<li style="color: var(--text-muted); font-size: 0.9rem;">No learning points documented yet.</li>'
+            }
+          </ul>
+        </div>
+
+        <!-- Projects Section with Google Docs Links -->
+        <div class="card glass-card section-box">
+          <h2 style="font-size: 1.35rem; margin-bottom: 16px; display: flex; align-items: center; gap: 10px;">
+            <i class="fas fa-folder-open logo-accent"></i> Projects, Reports & Google Docs
+          </h2>
+
+          <div style="display: flex; flex-direction: column; gap: 20px;">
+            ${(s.projects && s.projects.length > 0)
+              ? s.projects.map(p => `
+                <div style="background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 22px;">
+                  <div style="display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 8px; margin-bottom: 8px;">
+                    <h3 style="font-size: 1.2rem; font-weight: 700; margin: 0;">${p.title}</h3>
+                    <span style="font-size: 0.75rem; font-weight: 600; padding: 3px 10px; border-radius: var(--radius-full); background: var(--badge-bg); color: var(--badge-text);">
+                      ${p.category || 'Project'}
+                    </span>
+                  </div>
+                  <p style="color: var(--text-secondary); font-size: 0.95rem; margin-bottom: 18px; line-height: 1.6;">
+                    ${p.description || ''}
+                  </p>
+
+                  <div style="display: flex; flex-wrap: wrap; gap: 12px; align-items: center;">
+                    ${p.googleDocsUrl ? `
+                      <a href="${p.googleDocsUrl}" target="_blank" rel="noopener noreferrer" class="btn docs-btn" style="padding: 8px 18px; font-size: 0.88rem;">
+                        <i class="fas fa-file-alt"></i>
+                        <span>Project Report (Google Docs)</span>
+                        <i class="fas fa-external-link-alt" style="font-size: 0.75rem;"></i>
+                      </a>
+                    ` : ''}
+
+                    ${p.githubUrl ? `
+                      <a href="${p.githubUrl}" target="_blank" rel="noopener noreferrer" class="btn btn-secondary" style="padding: 8px 18px; font-size: 0.88rem;">
+                        <i class="fab fa-github"></i>
+                        <span>GitHub</span>
+                      </a>
+                    ` : ''}
+
+                    ${p.liveUrl ? `
+                      <a href="${p.liveUrl}" target="_blank" rel="noopener noreferrer" class="btn btn-ghost" style="padding: 8px 18px; font-size: 0.88rem;">
+                        <i class="fas fa-globe"></i>
+                        <span>Live Demo</span>
+                      </a>
+                    ` : ''}
+                  </div>
+                </div>
+              `).join('')
+              : '<p style="color: var(--text-muted); font-size: 0.95rem; font-style: italic;">No projects added yet.</p>'
+            }
+          </div>
+        </div>
+
+        <!-- Skills Section -->
+        <div class="card glass-card section-box">
+          <h2 style="font-size: 1.35rem; margin-bottom: 14px; display: flex; align-items: center; gap: 10px;">
+            <i class="fas fa-code logo-accent"></i> Skills & Expertise
+          </h2>
+          <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+            ${(s.skills || []).map(skill => `<span class="project-tag" style="font-size: 0.9rem; padding: 6px 14px;">${skill}</span>`).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    function copyCurrentUrl() {
+      navigator.clipboard.writeText(window.location.href).then(() => {
+        const btn = document.getElementById("shareBtn");
+        const originalHtml = btn.innerHTML;
+        btn.innerHTML = `<i class="fas fa-check" style="color: #10b981;"></i> <span>Link Copied!</span>`;
+        setTimeout(() => { btn.innerHTML = originalHtml; }, 2500);
+      });
+    }
+
+    function initTheme() {
+      const themeToggle = document.getElementById('themeToggle');
+      const themeIcon = document.getElementById('themeIcon');
+      const html = document.documentElement;
+
+      const savedTheme = localStorage.getItem('portfolio-theme');
+      const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      let currentTheme = savedTheme || (systemPrefersDark ? 'dark' : 'light');
+
+      html.setAttribute('data-theme', currentTheme);
+      if (themeIcon) themeIcon.className = currentTheme === 'dark' ? 'fas fa-moon' : 'fas fa-sun';
+
+      if (themeToggle) {
+        themeToggle.addEventListener('click', () => {
+          currentTheme = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+          html.setAttribute('data-theme', currentTheme);
+          if (themeIcon) themeIcon.className = currentTheme === 'dark' ? 'fas fa-moon' : 'fas fa-sun';
+          localStorage.setItem('portfolio-theme', currentTheme);
+        });
+      }
+
+      window.addEventListener('storage', (e) => {
+        if (e.key === 'portfolio-theme' && e.newValue) {
+          html.setAttribute('data-theme', e.newValue);
+          if (themeIcon) themeIcon.className = e.newValue === 'dark' ? 'fas fa-moon' : 'fas fa-sun';
+        }
+      });
+    }
+  </script>
+</body>
+</html>

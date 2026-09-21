@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="All UG Students Portfolio & Project Showcase - Discover projects, learning journeys, and Google Docs reports across B.Tech, BCA, B.Sc, B.Com, BBA, BA & all undergraduate programs.">
+  <title>All UG Campus Portfolio | Student Showcase & Projects</title>
+
+  <script>
+    (function() {
+      try {
+        var savedTheme = localStorage.getItem('portfolio-theme');
+        var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        var theme = savedTheme ? savedTheme : (prefersDark ? 'dark' : 'light');
+        document.documentElement.setAttribute('data-theme', theme);
+      } catch (e) {}
+    })();
+  </script>
+
+  <!-- Google Fonts & Font Awesome -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+  <link rel="stylesheet" href="style.css?v=2.2">
+  <style>
+    .docs-btn {
+      background: var(--accent);
+      color: #ffffff !important;
+      border: 1px solid transparent;
+      box-shadow: 0 2px 8px var(--accent-glow);
+      border-radius: var(--radius-full);
+      font-weight: 500;
+      transition: all var(--transition-fast);
+    }
+    .docs-btn:hover {
+      background: var(--accent-hover);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 16px var(--accent-glow);
+    }
+    .student-detail-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+      z-index: 3000;
+      display: none;
+      overflow-y: auto;
+      padding: 40px 20px;
+    }
+    .student-detail-modal.active {
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+    }
+    .modal-content-wrapper {
+      width: 100%;
+      max-width: 880px;
+      background: var(--card-bg);
+      backdrop-filter: blur(24px) saturate(180%);
+      -webkit-backdrop-filter: blur(24px) saturate(180%);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 36px;
+      position: relative;
+      box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.08), 0 24px 64px rgba(0, 0, 0, 0.6);
+    }
+    .close-modal-btn {
+      position: absolute;
+      top: 24px;
+      right: 24px;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--border-color);
+      color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: all var(--transition-fast);
+    }
+    .close-modal-btn:hover {
+      color: var(--text-primary);
+      border-color: var(--accent);
+      background: rgba(255, 255, 255, 0.15);
+    }
+    .filter-group-label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+    .search-input-wrapper {
+      position: relative;
+    }
+    .search-input-field {
+      width: 100%;
+      padding: 9px 16px 9px 38px;
+      border-radius: var(--radius-full);
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--border-color);
+      color: var(--text-primary);
+      font-size: 0.9rem;
+      outline: none;
+      transition: all var(--transition-fast);
+    }
+    [data-theme="light"] .search-input-field {
+      background: rgba(0, 0, 0, 0.04);
+    }
+    .search-input-field:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-glow);
+      background: rgba(255, 255, 255, 0.1);
+    }
+    [data-theme="light"] .search-input-field:focus {
+      background: #ffffff;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ================= HEADER & NAVIGATION ================= -->
+  <header class="header" id="header">
+    <div class="container nav-container">
+      <a href="index.html" class="brand-logo">
+        <span class="logo-accent">&lt;</span>Campus<span class="logo-accent">/&gt;</span>
+      </a>
+
+      <!-- Desktop Search Bar -->
+      <div style="flex: 1; max-width: 420px; margin: 0 20px;">
+        <div class="search-input-wrapper">
+          <i class="fas fa-search" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 0.88rem;"></i>
+          <input type="text" id="searchInput" class="search-input-field" placeholder="Search student, course (BCA, B.Com), skill...">
+        </div>
+      </div>
+
+      <!-- Action Controls -->
+      <div class="nav-actions">
+        <button id="themeToggle" class="icon-btn" aria-label="Toggle theme" title="Toggle theme">
+          <i class="fas fa-moon" id="themeIcon"></i>
+        </button>
+
+        <a href="auth.html" id="authNavBtn" class="btn btn-primary" style="padding: 9px 20px; font-size: 0.88rem;">
+          <i class="fas fa-user-plus"></i>
+          <span id="authNavText">Sign In / Add Portfolio</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- ================= HERO SECTION ================= -->
+    <section class="section hero-section" style="padding-top: 120px; padding-bottom: 40px; min-height: auto;">
+      <div class="container text-center" style="max-width: 860px; margin: 0 auto;">
+        <div class="badge-container" style="margin-bottom: 16px;">
+          <span class="status-indicator"></span>
+          <span>All Undergraduate Programs &bull; B.Tech, BCA, B.Sc, B.Com, BBA, BA</span>
+        </div>
+
+        <h1 class="hero-title" style="font-size: 2.8rem; margin-bottom: 14px;">
+          Undergraduate <span class="gradient-text">Student Portfolios</span>
+        </h1>
+        <p class="hero-tagline" style="margin: 0 auto 28px auto; font-size: 1.1rem; max-width: 680px;">
+          Explore what undergraduate students are learning across semesters, their projects, and read their <strong>Google Docs reports</strong>.
+        </p>
+
+        <!-- COURSE FILTER TABS -->
+        <div style="margin-bottom: 16px;">
+          <div class="filter-group-label">Filter by Course / Degree:</div>
+          <div class="filter-tabs" id="courseFilterTabs" style="margin-bottom: 14px;">
+            <button class="filter-tab active" data-course="all">All Degrees</button>
+            <button class="filter-tab" data-course="B.Tech">B.Tech / B.E.</button>
+            <button class="filter-tab" data-course="BCA">BCA</button>
+            <button class="filter-tab" data-course="B.Sc">B.Sc</button>
+            <button class="filter-tab" data-course="B.Com">B.Com</button>
+            <button class="filter-tab" data-course="BBA">BBA / BMS</button>
+            <button class="filter-tab" data-course="BA">BA</button>
+            <button class="filter-tab" data-course="Other UG">Other UG</button>
+          </div>
+        </div>
+
+        <!-- YEAR FILTER TABS -->
+        <div>
+          <div class="filter-group-label">Filter by Year of Study:</div>
+          <div class="filter-tabs" id="yearFilterTabs" style="margin-bottom: 0;">
+            <button class="filter-tab active" data-year="all">All Years</button>
+            <button class="filter-tab" data-year="1st Year">🟢 1st Year</button>
+            <button class="filter-tab" data-year="2nd Year">🟡 2nd Year</button>
+            <button class="filter-tab" data-year="3rd Year">🟠 3rd Year</button>
+            <button class="filter-tab" data-year="4th Year">⚪ 4th Year</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= STUDENTS SHOWCASE GRID ================= -->
+    <section class="section" style="padding: 20px 0 100px 0;">
+      <div class="container">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 24px;">
+          <div id="studentsCount" style="color: var(--text-muted); font-size: 0.95rem; font-weight: 500;">
+            Showing all undergraduate students
+          </div>
+          <div id="filterAddPortfolioWrapper"></div>
+        </div>
+
+        <div class="projects-grid" id="studentsGrid">
+          <!-- Populated dynamically from API / data -->
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ================= DEDICATED STUDENT PORTFOLIO MODAL ================= -->
+  <div class="student-detail-modal" id="studentDetailModal" onclick="handleModalBackdropClick(event)">
+    <div class="modal-content-wrapper" id="modalContent">
+      <button class="close-modal-btn" onclick="closeStudentModal()" title="Close">
+        <i class="fas fa-times"></i>
+      </button>
+
+      <!-- Student Detail View Rendered Dynamically -->
+      <div id="studentDetailBody"></div>
+    </div>
+  </div>
+
+  <!-- ================= FOOTER ================= -->
+  <footer class="footer">
+    <div class="container footer-container">
+      <div class="footer-left">
+        <p>&copy; <span id="currentYear"></span> <strong>tinesh.in</strong> &bull; All UG Campus Portfolio Platform.</p>
+        <p class="footer-subtext">Open to all undergraduate students to document learning journeys and share Google Docs project reports.</p>
+      </div>
+
+      <div class="footer-right">
+        <a href="#header" class="back-to-top-btn" title="Back to top">
+          <i class="fas fa-chevron-up"></i>
+        </a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="script.js?v=2.2"></script>
+</body>
+</html>

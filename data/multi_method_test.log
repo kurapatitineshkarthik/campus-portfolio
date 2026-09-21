@@ -1,0 +1,768 @@
+[2026-09-21T12:03:42.483Z] ================================================================
+[2026-09-21T12:03:42.485Z] ⏳ STARTING 1-HOUR MULTI-METHOD COMPREHENSIVE TEST SUITE
+[2026-09-21T12:03:42.485Z] 🎯 Target Duration: 3600 seconds (1 Hour)
+[2026-09-21T12:03:42.496Z] 🏁 Scheduled End Time: 6:33:42 pm
+[2026-09-21T12:03:42.496Z] 📚 Methodologies: 10 Distinct Testing Dimensions Rotating Sequentially
+[2026-09-21T12:03:42.496Z] ================================================================
+
+[2026-09-21T12:03:42.511Z] 🚀 Multi-Method Test Server active on port 3995
+[2026-09-21T12:03:52.630Z] [CYCLE #1] (10s/3600s) [Method 1: Spike Testing] -> PASS (200 spikes in 114ms, 200/200 OK) | Heap: 15.47MB
+[2026-09-21T12:04:02.530Z] [CYCLE #2] (20s/3600s) [Method 2: Security Headers Audit] -> PASS (All 5 security headers compliant) | Heap: 13.18MB
+[2026-09-21T12:04:12.536Z] [CYCLE #3] (30s/3600s) [Method 3: RBAC Access Control] -> PASS (Student 403 Forbidden, Unauth 401 Unauthorized) | Heap: 13.41MB
+[2026-09-21T12:04:22.539Z] [CYCLE #4] (40s/3600s) [Method 4: Homoglyphs & Wildcard Fuzzing] -> PASS (Homoglyphs & wildcards safely handled) | Heap: 13.86MB
+[2026-09-21T12:04:32.541Z] [CYCLE #5] (50s/3600s) [Method 5: Socket Lifecycle & Drops] -> PASS (Socket pool healthy, 30s timeout active) | Heap: 13.98MB
+[2026-09-21T12:04:42.547Z] [CYCLE #6] (60s/3600s) [Method 6: Atomic Concurrency Race] -> PASS (20 concurrent atomic writes without corruption) | Heap: 14.08MB
+[2026-09-21T12:04:52.564Z] [CYCLE #7] (70s/3600s) [Method 7: 24-Cell Degree x Year Matrix] -> FAIL (Cell mismatch) | Heap: 13.76MB
+[2026-09-21T12:05:02.565Z] [CYCLE #8] (80s/3600s) [Method 8: DLP Egress Scrubbing] -> ERROR: Cannot read properties of undefined (reading 'passwordHash') | Heap: 13.85MB
+[2026-09-21T12:05:12.571Z] [CYCLE #9] (90s/3600s) [Method 9: Vault Disaster Recovery] -> PASS (Clean snapshot verified, 0 users) | Heap: 13.87MB
+[2026-09-21T12:05:22.575Z] [CYCLE #10] (100s/3600s) [Method 10: Event Loop & Memory Drift] -> PASS (Event loop lag: 0.16ms, Heap: 13.89MB) | Heap: 13.89MB
+[2026-09-21T12:05:32.655Z] [CYCLE #11] (110s/3600s) [Method 1: Spike Testing] -> PASS (200 spikes in 67ms, 200/200 OK) | Heap: 13.66MB
+[2026-09-21T12:05:42.595Z] [CYCLE #12] (120s/3600s) [Method 2: Security Headers Audit] -> PASS (All 5 security headers compliant) | Heap: 13.96MB
+[2026-09-21T12:05:52.608Z] [CYCLE #13] (130s/3600s) [Method 3: RBAC Access Control] -> FAIL (Student: 403, Unauth: 403) | Heap: 14.12MB
+[2026-09-21T12:06:02.620Z] [CYCLE #14] (140s/3600s) [Method 4: Homoglyphs & Wildcard Fuzzing] -> FAIL | Heap: 14.26MB
+[2026-09-21T12:06:12.620Z] [CYCLE #15] (150s/3600s) [Method 5: Socket Lifecycle & Drops] -> FAIL | Heap: 14.33MB
+[2026-09-21T12:06:22.627Z] [CYCLE #16] (160s/3600s) [Method 6: Atomic Concurrency Race] -> PASS (20 concurrent atomic writes without corruption) | Heap: 14.40MB
+[2026-09-21T12:06:32.626Z] [CYCLE #17] (170s/3600s) [Method 7: 24-Cell Degree x Year Matrix] -> FAIL (Cell mismatch) | Heap: 14.47MB
+[2026-09-21T12:06:42.631Z] [CYCLE #18] (180s/3600s) [Method 8: DLP Egress Scrubbing] -> ERROR: Cannot read properties of undefined (reading 'passwordHash') | Heap: 14.55MB
+[2026-09-21T12:06:52.629Z] [CYCLE #19] (190s/3600s) [Method 9: Vault Disaster Recovery] -> PASS (Clean snapshot verified, 0 users) | Heap: 14.56MB
+[2026-09-21T12:07:02.638Z] [CYCLE #20] (200s/3600s) [Method 10: Event Loop & Memory Drift] -> PASS (Event loop lag: 0.18ms, Heap: 14.57MB) | Heap: 14.57MB
+[2026-09-21T12:07:12.705Z] [CYCLE #21] (210s/3600s) [Method 1: Spike Testing] -> PASS (200 spikes in 60ms, 200/200 OK) | Heap: 16.75MB
+[2026-09-21T12:07:22.662Z] [CYCLE #22] (220s/3600s) [Method 2: Security Headers Audit] -> PASS (All 5 security headers compliant) | Heap: 16.97MB
+[2026-09-21T12:07:32.671Z] [CYCLE #23] (230s/3600s) [Method 3: RBAC Access Control] -> FAIL (Student: 403, Unauth: 403) | Heap: 17.09MB
+[2026-09-21T12:07:42.672Z] [CYCLE #24] (240s/3600s) [Method 4: Homoglyphs & Wildcard Fuzzing] -> FAIL | Heap: 17.20MB
+[2026-09-21T12:07:52.686Z] [CYCLE #25] (250s/3600s) [Method 5: Socket Lifecycle & Drops] -> FAIL | Heap: 17.27MB
+[2026-09-21T12:08:02.699Z] [CYCLE #26] (260s/3600s) [Method 6: Atomic Concurrency Race] -> PASS (20 concurrent atomic writes without corruption) | Heap: 17.34MB
+[2026-09-21T12:08:12.708Z] [CYCLE #27] (270s/3600s) [Method 7: 24-Cell Degree x Year Matrix] -> FAIL (Cell mismatch) | Heap: 17.40MB
+[2026-09-21T12:08:22.713Z] [CYCLE #28] (280s/3600s) [Method 8: DLP Egress Scrubbing] -> ERROR: Cannot read properties of undefined (reading 'passwordHash') | Heap: 17.47MB
+[2026-09-21T12:08:32.721Z] [CYCLE #29] (290s/3600s) [Method 9: Vault Disaster Recovery] -> PASS (Clean snapshot verified, 0 users) | Heap: 17.48MB
+[2026-09-21T12:08:42.732Z] [CYCLE #30] (300s/3600s) [Method 10: Event Loop & Memory Drift] -> PASS (Event loop lag: 0.07ms, Heap: 17.48MB) | Heap: 17.48MB
+[2026-09-21T12:08:52.787Z] [CYCLE #31] (310s/3600s) [Method 1: Spike Testing] -> PASS (200 spikes in 52ms, 200/200 OK) | Heap: 17.65MB
+[2026-09-21T12:09:02.746Z] [CYCLE #32] (320s/3600s) [Method 2: Security Headers Audit] -> PASS (All 5 security headers compliant) | Heap: 17.87MB
+[2026-09-21T12:09:12.747Z] [CYCLE #33] (330s/3600s) [Method 3: RBAC Access Control] -> FAIL (Student: 403, Unauth: 403) | Heap: 18.00MB
+[2026-09-21T12:09:22.748Z] [CYCLE #34] (340s/3600s) [Method 4: Homoglyphs & Wildcard Fuzzing] -> FAIL | Heap: 18.11MB
+[2026-09-21T12:09:32.754Z] [CYCLE #35] (350s/3600s) [Method 5: Socket Lifecycle & Drops] -> FAIL | Heap: 18.18MB
+[2026-09-21T12:09:42.762Z] [CYCLE #36] (360s/3600s) [Method 6: Atomic Concurrency Race] -> PASS (20 concurrent atomic writes without corruption) | Heap: 18.25MB
+[2026-09-21T12:09:52.766Z] [CYCLE #37] (370s/3600s) [Method 7: 24-Cell Degree x Year Matrix] -> FAIL (Cell mismatch) | Heap: 18.31MB
+[2026-09-21T12:10:02.774Z] [CYCLE #38] (380s/3600s) [Method 8: DLP Egress Scrubbing] -> ERROR: Cannot read properties of undefined (reading 'passwordHash') | Heap: 18.38MB
+[2026-09-21T12:10:12.775Z] [CYCLE #39] (390s/3600s) [Method 9: Vault Disaster Recovery] -> PASS (Clean snapshot verified, 0 users) | Heap: 18.39MB
+[2026-09-21T12:10:22.789Z] [CYCLE #40] (400s/3600s) [Method 10: Event Loop & Memory Drift] -> PASS (Event loop lag: 0.10ms, Heap: 18.39MB) | Heap: 18.39MB
+[2026-09-21T12:10:32.837Z] [CYCLE #41] (410s/3600s) [Method 1: Spike Testing] -> PASS (200 spikes in 44ms, 200/200 OK) | Heap: 18.07MB
+[2026-09-21T12:10:42.806Z] [CYCLE #42] (420s/3600s) [Method 2: Security Headers Audit] -> PASS (All 5 security headers compliant) | Heap: 12.20MB
+[2026-09-21T12:10:52.816Z] [CYCLE #43] (430s/3600s) [Method 3: RBAC Access Control] -> FAIL (Student: 403, Unauth: 403) | Heap: 12.41MB
+[2026-09-21T12:11:02.817Z] [CYCLE #44] (440s/3600s) [Method 4: Homoglyphs & Wildcard Fuzzing] -> FAIL | Heap: 12.46MB
+[2026-09-21T12:11:12.819Z] [CYCLE #45] (450s/3600s) [Method 5: Socket Lifecycle & Drops] -> FAIL | Heap: 12.54MB
+[2026-09-21T12:11:22.827Z] [CYCLE #46] (460s/3600s) [Method 6: Atomic Concurrency Race] -> PASS (20 concurrent atomic writes without corruption) | Heap: 12.61MB
+[2026-09-21T12:11:32.830Z] [CYCLE #47] (470s/3600s) [Method 7: 24-Cell Degree x Year Matrix] -> FAIL (Cell mismatch) | Heap: 12.68MB
+[2026-09-21T12:11:42.839Z] [CYCLE #48] (480s/3600s) [Method 8: DLP Egress Scrubbing] -> ERROR: Cannot read properties of undefined (reading 'passwordHash') | Heap: 12.06MB
+[2026-09-21T12:11:52.842Z] [CYCLE #49] (490s/3600s) [Method 9: Vault Disaster Recovery] -> PASS (Clean snapshot verified, 0 users) | Heap: 12.07MB
+[2026-09-21T12:12:02.846Z] [CYCLE #50] (500s/3600s) [Method 10: Event Loop & Memory Drift] -> PASS (Event loop lag: 0.21ms, Heap: 12.14MB) | Heap: 12.08MB
+[2026-09-21T12:12:12.915Z] [CYCLE #51] (510s/3600s) [Method 1: Spike Testing] -> PASS (200 spikes in 62ms, 200/200 OK) | Heap: 16.40MB
+[2026-09-21T12:12:22.862Z] [CYCLE #52] (520s/3600s) [Method 2: Security Headers Audit] -> PASS (All 5 security headers compliant) | Heap: 16.64MB
+[2026-09-21T12:12:32.877Z] [CYCLE #53] (530s/3600s) [Method 3: RBAC Access Control] -> FAIL (Student: 403, Unauth: 403) | Heap: 10.21MB
+[2026-09-21T12:12:42.877Z] [CYCLE #54] (540s/3600s) [Method 4: Homoglyphs & Wildcard Fuzzing] -> FAIL | Heap: 10.33MB
+[2026-09-21T12:12:52.891Z] [CYCLE #55] (550s/3600s) [Method 5: Socket Lifecycle & Drops] -> FAIL | Heap: 10.40MB
+[2026-09-21T12:13:02.907Z] [CYCLE #56] (560s/3600s) [Method 6: Atomic Concurrency Race] -> PASS (20 concurrent atomic writes without corruption) | Heap: 10.46MB
+[2026-09-21T12:13:12.919Z] [CYCLE #57] (570s/3600s) [Method 7: 24-Cell Degree x Year Matrix] -> FAIL (Cell mismatch) | Heap: 10.53MB
+[2026-09-21T12:13:22.927Z] [CYCLE #58] (580s/3600s) [Method 8: DLP Egress Scrubbing] -> ERROR: Cannot read properties of undefined (reading 'passwordHash') | Heap: 10.60MB
+[2026-09-21T12:13:32.938Z] [CYCLE #59] (590s/3600s) [Method 9: Vault Disaster Recovery] -> PASS (Clean snapshot verified, 0 users) | Heap: 10.61MB
+[2026-09-21T12:13:42.940Z] [CYCLE #60] (600s/3600s) [Method 10: Event Loop & Memory Drift] -> PASS (Event loop lag: 0.17ms, Heap: 10.62MB) | Heap: 10.62MB
+[2026-09-21T12:13:53.002Z] [CYCLE #61] (610s/3600s) [Method 1: Spike Testing] -> PASS (200 spikes in 61ms, 200/200 OK) | Heap: 14.40MB
+[2026-09-21T12:14:02.945Z] [CYCLE #62] (620s/3600s) [Method 2: Security Headers Audit] -> PASS (All 5 security headers compliant) | Heap: 14.63MB
+[2026-09-21T12:14:12.954Z] [CYCLE #63] (630s/3600s) [Method 3: RBAC Access Control] -> FAIL (Student: 403, Unauth: 403) | Heap: 14.75MB
+[2026-09-21T12:14:22.956Z] [CYCLE #64] (640s/3600s) [Method 4: Homoglyphs & Wildcard Fuzzing] -> FAIL | Heap: 14.87MB
+[2026-09-21T12:14:32.966Z] [CYCLE #65] (650s/3600s) [Method 5: Socket Lifecycle & Drops] -> FAIL | Heap: 14.93MB
+[2026-09-21T12:14:42.973Z] [CYCLE #66] (660s/3600s) [Method 6: Atomic Concurrency Race] -> PASS (20 concurrent atomic writes without corruption) | Heap: 12.58MB
+[2026-09-21T12:14:52.982Z] [CYCLE #67] (670s/3600s) [Method 7: 24-Cell Degree x Year Matrix] -> FAIL (Cell mismatch) | Heap: 12.65MB
+[2026-09-21T12:15:02.997Z] [CYCLE #68] (680s/3600s) [Method 8: DLP Egress Scrubbing] -> ERROR: Cannot read properties of undefined (reading 'passwordHash') | Heap: 12.72MB
+[2026-09-21T12:15:12.997Z] [CYCLE #69] (690s/3600s) [Method 9: Vault Disaster Recovery] -> PASS (Clean snapshot verified, 0 users) | Heap: 12.73MB
+[2026-09-21T12:15:23.007Z] [CYCLE #70] (700s/3600s) [Method 10: Event Loop & Memory Drift] -> PASS (Event loop lag: 0.08ms, Heap: 12.73MB) | Heap: 12.73MB
+[2026-09-21T12:15:33.075Z] [CYCLE #71] (710s/3600s) [Method 1: Spike Testing] -> PASS (200 spikes in 59ms, 200/200 OK) | Heap: 15.66MB
+[2026-09-21T12:15:43.025Z] [CYCLE #72] (720s/3600s) [Method 2: Security Headers Audit] -> PASS (All 5 security headers compliant) | Heap: 10.63MB
+[2026-09-21T12:15:53.031Z] [CYCLE #73] (730s/3600s) [Method 3: RBAC Access Control] -> FAIL (Student: 403, Unauth: 403) | Heap: 10.77MB
+[2026-09-21T12:16:03.038Z] [CYCLE #74] (740s/3600s) [Method 4: Homoglyphs & Wildcard Fuzzing] -> FAIL | Heap: 10.88MB
+[2026-09-21T12:16:13.042Z] [CYCLE #75] (750s/3600s) [Method 5: Socket Lifecycle & Drops] -> FAIL | Heap: 10.94MB
+[2026-09-21T12:16:23.057Z] [CYCLE #76] (760s/3600s) [Method 6: Atomic Concurrency Race] -> PASS (20 concurrent atomic writes without corruption) | Heap: 11.01MB
+[2026-09-21T12:16:33.069Z] [CYCLE #77] (770s/3600s) [Method 7: 24-Cell Degree x Year Matrix] -> FAIL (Cell mismatch) | Heap: 11.07MB
+[2026-09-21T12:16:43.072Z] [CYCLE #78] (780s/3600s) [Method 8: DLP Egress Scrubbing] -> ERROR: Cannot read properties of undefined (reading 'passwordHash') | Heap: 11.14MB
+[2026-09-21T12:16:53.074Z] [CYCLE #79] (790s/3600s) [Method 9: Vault Disaster Recovery] -> PASS (Clean snapshot verified, 0 users) | Heap: 11.14MB
+[2026-09-21T12:17:03.081Z] [CYCLE #80] (800s/3600s) [Method 10: Event Loop & Memory Drift] -> PASS (Event loop lag: 0.16ms, Heap: 11.15MB) | Heap: 11.15MB
+[2026-09-21T12:17:13.156Z] [CYCLE #81] (810s/3600s) [Method 1: Spike Testing] -> PASS (200 spikes in 60ms, 200/200 OK) | Heap: 13.64MB
+[2026-09-21T12:17:23.108Z] [CYCLE #82] (820s/3600s) [Method 2: Security Headers Audit] -> PASS (All 5 security headers compliant) | Heap: 13.86MB
+[2026-09-21T12:17:33.123Z] [CYCLE #83] (830s/3600s) [Method 3: RBAC Access Control] -> FAIL (Student: 403, Unauth: 403) | Heap: 13.98MB
+[2026-09-21T12:17:43.126Z] [CYCLE #84] (840s/3600s) [Method 4: Homoglyphs & Wildcard Fuzzing] -> FAIL | Heap: 14.09MB
+[2026-09-21T12:17:53.131Z] [CYCLE #85] (850s/3600s) [Method 5: Socket Lifecycle & Drops] -> FAIL | Heap: 14.15MB
+[2026-09-21T12:18:03.136Z] [CYCLE #86] (860s/3600s) [Method 6: Atomic Concurrency Race] -> PASS (20 concurrent atomic writes without corruption) | Heap: 14.23MB
+[2026-09-21T12:18:13.134Z] [CYCLE #87] (870s/3600s) [Method 7: 24-Cell Degree x Year Matrix] -> FAIL (Cell mismatch) | Heap: 14.29MB
+[2026-09-21T12:18:23.136Z] [CYCLE #88] (880s/3600s) [Method 8: DLP Egress Scrubbing] -> ERROR: Cannot read properties of undefined (reading 'passwordHash') | Heap: 14.36MB
+[2026-09-21T12:18:33.147Z] [CYCLE #89] (890s/3600s) [Method 9: Vault Disaster Recovery] -> PASS (Clean snapshot verified, 0 users) | Heap: 14.36MB
+[2026-09-21T12:18:43.162Z] [CYCLE #90] (900s/3600s) [Method 10: Event Loop & Memory Drift] -> PASS (Event loop lag: 0.13ms, Heap: 14.37MB) | Heap: 14.37MB
+[2026-09-21T12:18:53.225Z] [CYCLE #91] (910s/3600s) [Method 1: Spike Testing] -> PASS (200 spikes in 54ms, 200/200 OK) | Heap: 17.65MB
+[2026-09-21T12:19:03.177Z] [CYCLE #92] (920s/3600s) [Method 2: Security Headers Audit] -> PASS (All 5 security headers compliant) | Heap: 14.96MB
+[2026-09-21T12:19:13.186Z] [CYCLE #93] (930s/3600s) [Method 3: RBAC Access Control] -> FAIL (Student: 403, Unauth: 403) | Heap: 15.07MB
+[2026-09-21T12:19:23.198Z] [CYCLE #94] (940s/3600s) [Method 4: Homoglyphs & Wildcard Fuzzing] -> FAIL | Heap: 15.18MB
+[2026-09-21T12:19:33.210Z] [CYCLE #95] (950s/3600s) [Method 5: Socket Lifecycle & Drops] -> FAIL | Heap: 15.24MB
+[2026-09-21T12:19:43.216Z] [CYCLE #96] (960s/3600s) [Method 6: Atomic Concurrency Race] -> PASS (20 concurrent atomic writes without corruption) | Heap: 15.29MB
+[2026-09-21T12:19:53.217Z] [CYCLE #97] (970s/3600s) [Method 7: 24-Cell Degree x Year Matrix] -> FAIL (Cell mismatch) | Heap: 15.35MB
+[2026-09-21T12:20:03.225Z] [CYCLE #98] (980s/3600s) [Method 8: DLP Egress Scrubbing] -> ERROR: Cannot read properties of undefined (reading 'passwordHash') | Heap: 14.95MB
+[2026-09-21T12:20:13.235Z] [CYCLE #99] (990s/3600s) [Method 9: Vault Disaster Recovery] -> PASS (Clean snapshot verified, 0 users) | Heap: 14.96MB
+[2026-09-21T12:20:23.249Z] [CYCLE #100] (1000s/3600s) [Method 10: Event Loop & Memory Drift] -> PASS (Event loop lag: 0.23ms, Heap: 14.97MB) | Heap: 14.97MB
+[2026-09-21T12:20:33.314Z] [CYCLE #101] (1010s/3600s) [Method 1: Spike Testing] -> PASS (200 spikes in 53ms, 200/200 OK) | Heap: 19.96MB
+[2026-09-21T12:20:43.265Z] [CYCLE #102] (1020s/3600s) [Method 2: Security Headers Audit] -> PASS (All 5 security headers compliant) | Heap: 12.34MB
+[2026-09-21T12:20:53.270Z] [CYCLE #103] (1030s/3600s) [Method 3: RBAC Access Control] -> FAIL (Student: 403, Unauth: 403) | Heap: 12.46MB
+[2026-09-21T12:21:03.284Z] [CYCLE #104] (1040s/3600s) [Method 4: Homoglyphs & Wildcard Fuzzing] -> FAIL | Heap: 12.56MB
+[2026-09-21T12:21:13.286Z] [CYCLE #105] (1050s/3600s) [Method 5: Socket Lifecycle & Drops] -> FAIL | Heap: 12.62MB
+[2026-09-21T12:21:23.299Z] [CYCLE #106] (1060s/3600s) [Method 6: Atomic Concurrency Race] -> PASS (20 concurrent atomic writes without corruption) | Heap: 12.68MB
+[2026-09-21T12:21:33.307Z] [CYCLE #107] (1070s/3600s) [Method 7: 24-Cell Degree x Year Matrix] -> FAIL (Cell mismatch) | Heap: 12.74MB
+[2026-09-21T12:21:43.317Z] [CYCLE #108] (1080s/3600s) [Method 8: DLP Egress Scrubbing] -> ERROR: Cannot read properties of undefined (reading 'passwordHash') | Heap: 12.81MB
+[2026-09-21T12:21:53.322Z] [CYCLE #109] (1090s/3600s) [Method 9: Vault Disaster Recovery] -> PASS (Clean snapshot verified, 0 users) | Heap: 12.81MB
+[2026-09-21T12:22:03.325Z] [CYCLE #110] (1100s/3600s) [Method 10: Event Loop & Memory Drift] -> PASS (Event loop lag: 0.14ms, Heap: 12.82MB) | Heap: 12.82MB
+[2026-09-21T12:22:13.376Z] [CYCLE #111] (1110s/3600s) [Method 1: Spike Testing] -> PASS (200 spikes in 51ms, 200/200 OK) | Heap: 16.72MB
+[2026-09-21T12:22:23.329Z] [CYCLE #112] (1120s/3600s) [Method 2: Security Headers Audit] -> PASS (All 5 security headers compliant) | Heap: 14.45MB
+[2026-09-21T12:22:33.342Z] [CYCLE #113] (1130s/3600s) [Method 3: RBAC Access Control] -> FAIL (Student: 403, Unauth: 403) | Heap: 14.56MB
+[2026-09-21T12:22:43.349Z] [CYCLE #114] (1140s/3600s) [Method 4: Homoglyphs & Wildcard Fuzzing] -> FAIL | Heap: 14.67MB
+[2026-09-21T12:22:53.356Z] [CYCLE #115] (1150s/3600s) [Method 5: Socket Lifecycle & Drops] -> FAIL | Heap: 14.73MB
+[2026-09-21T12:23:03.362Z] [CYCLE #116] (1160s/3600s) [Method 6: Atomic Concurrency Race] -> PASS (20 concurrent atomic writes without corruption) | Heap: 14.78MB
+[2026-09-21T12:23:13.370Z] [CYCLE #117] (1170s/3600s) [Method 7: 24-Cell Degree x Year Matrix] -> FAIL (Cell mismatch) | Heap: 14.84MB
+[2026-09-21T12:23:23.381Z] [CYCLE #118] (1180s/3600s) [Method 8: DLP Egress Scrubbing] -> ERROR: Cannot read properties of undefined (reading 'passwordHash') | Heap: 14.35MB
+[2026-09-21T12:23:33.385Z] [CYCLE #119] (1190s/3600s) [Method 9: Vault Disaster Recovery] -> PASS (Clean snapshot verified, 0 users) | Heap: 14.35MB
+[2026-09-21T12:23:43.394Z] [CYCLE #120] (1200s/3600s) [Method 10: Event Loop & Memory Drift] -> PASS (Event loop lag: 0.07ms, Heap: 14.36MB) | Heap: 14.36MB
+[2026-09-21T12:23:53.459Z] [CYCLE #121] (1210s/3600s) [Method 1: Spike Testing] -> PASS (200 spikes in 53ms, 200/200 OK) | Heap: 18.79MB
+[2026-09-21T12:24:03.415Z] [CYCLE #122] (1220s/3600s) [Method 2: Security Headers Audit] -> PASS (All 5 security headers compliant) | Heap: 19.00MB
+[2026-09-21T12:24:13.426Z] [CYCLE #123] (1230s/3600s) [Method 3: RBAC Access Control] -> FAIL (Student: 403, Unauth: 403) | Heap: 19.11MB
+[2026-09-21T12:24:23.441Z] [CYCLE #124] (1240s/3600s) [Method 4: Homoglyphs & Wildcard Fuzzing] -> FAIL | Heap: 16.82MB
+[2026-09-21T12:24:33.445Z] [CYCLE #125] (1250s/3600s) [Method 5: Socket Lifecycle & Drops] -> FAIL | Heap: 16.88MB
+[2026-09-21T12:24:43.452Z] [CYCLE #126] (1260s/3600s) [Method 6: Atomic Concurrency Race] -> PASS (20 concurrent atomic writes without corruption) | Heap: 16.93MB
+[2026-09-21T12:24:53.465Z] [CYCLE #127] (1270s/3600s) [Method 7: 24-Cell Degree x Year Matrix] -> FAIL (Cell mismatch) | Heap: 16.99MB
+[2026-09-21T12:25:03.471Z] [CYCLE #128] (1280s/3600s) [Method 8: DLP Egress Scrubbing] -> ERROR: Cannot read properties of undefined (reading 'passwordHash') | Heap: 17.07MB
+[2026-09-21T12:25:13.481Z] [CYCLE #129] (1291s/3600s) [Method 9: Vault Disaster Recovery] -> PASS (Clean snapshot verified, 0 users) | Heap: 17.08MB
+[2026-09-21T12:25:23.485Z] [CYCLE #130] (1301s/3600s) [Method 10: Event Loop & Memory Drift] -> PASS (Event loop lag: 0.07ms, Heap: 17.08MB) | Heap: 17.08MB
+[2026-09-21T12:25:33.548Z] [CYCLE #131] (1311s/3600s) [Method 1: Spike Testing] -> PASS (200 spikes in 54ms, 200/200 OK) | Heap: 21.74MB
+[2026-09-21T12:25:43.497Z] [CYCLE #132] (1321s/3600s) [Method 2: Security Headers Audit] -> PASS (All 5 security headers compliant) | Heap: 12.21MB
+[2026-09-21T12:25:53.499Z] [CYCLE #133] (1331s/3600s) [Method 3: RBAC Access Control] -> FAIL (Student: 403, Unauth: 403) | Heap: 12.32MB
+[2026-09-21T12:26:03.502Z] [CYCLE #134] (1341s/3600s) [Method 4: Homoglyphs & Wildcard Fuzzing] -> FAIL | Heap: 12.43MB
+[2026-09-21T12:26:13.510Z] [CYCLE #135] (1351s/3600s) [Method 5: Socket Lifecycle & Drops] -> FAIL | Heap: 12.49MB
+[2026-09-21T12:26:23.519Z] [CYCLE #136] (1361s/3600s) [Method 6: Atomic Concurrency Race] -> PASS (20 concurrent atomic writes without corruption) | Heap: 12.55MB
+[2026-09-21T12:26:33.523Z] [CYCLE #137] (1371s/3600s) [Method 7: 24-Cell Degree x Year Matrix] -> FAIL (Cell mismatch) | Heap: 12.62MB
+[2026-09-21T12:26:43.533Z] [CYCLE #138] (1381s/3600s) [Method 8: DLP Egress Scrubbing] -> ERROR: Cannot read properties of undefined (reading 'passwordHash') | Heap: 12.68MB
+[2026-09-21T12:26:53.542Z] [CYCLE #139] (1391s/3600s) [Method 9: Vault Disaster Recovery] -> PASS (Clean snapshot verified, 0 users) | Heap: 12.69MB
+[2026-09-21T12:27:03.550Z] [CYCLE #140] (1401s/3600s) [Method 10: Event Loop & Memory Drift] -> PASS (Event loop lag: 0.16ms, Heap: 12.70MB) | Heap: 12.70MB
+[2026-09-21T12:27:13.611Z] [CYCLE #141] (1411s/3600s) [Method 1: Spike Testing] -> PASS (200 spikes in 51ms, 200/200 OK) | Heap: 16.92MB
+[2026-09-21T12:27:23.572Z] [CYCLE #142] (1421s/3600s) [Method 2: Security Headers Audit] -> PASS (All 5 security headers compliant) | Heap: 14.37MB
+[2026-09-21T12:27:33.585Z] [CYCLE #143] (1431s/3600s) [Method 3: RBAC Access Control] -> FAIL (Student: 403, Unauth: 403) | Heap: 14.48MB
+[2026-09-21T12:27:43.596Z] [CYCLE #144] (1441s/3600s) [Method 4: Homoglyphs & Wildcard Fuzzing] -> FAIL | Heap: 14.58MB
+[2026-09-21T12:27:53.606Z] [CYCLE #145] (1451s/3600s) [Method 5: Socket Lifecycle & Drops] -> FAIL | Heap: 14.64MB
+[2026-09-21T12:28:03.613Z] [CYCLE #146] (1461s/3600s) [Method 6: Atomic Concurrency Race] -> PASS (20 concurrent atomic writes without corruption) | Heap: 14.70MB
+[2026-09-21T12:28:13.619Z] [CYCLE #147] (1471s/3600s) [Method 7: 24-Cell Degree x Year Matrix] -> FAIL (Cell mismatch) | Heap: 14.76MB
+[2026-09-21T12:28:23.632Z] [CYCLE #148] (1481s/3600s) [Method 8: DLP Egress Scrubbing] -> ERROR: Cannot read properties of undefined (reading 'passwordHash') | Heap: 14.82MB
+[2026-09-21T12:28:33.644Z] [CYCLE #149] (1491s/3600s) [Method 9: Vault Disaster Recovery] -> PASS (Clean snapshot verified, 0 users) | Heap: 14.83MB
+[2026-09-21T12:28:43.656Z] [CYCLE #150] (1501s/3600s) [Method 10: Event Loop & Memory Drift] -> PASS (Event loop lag: 0.04ms, Heap: 14.84MB) | Heap: 14.84MB
+[2026-09-21T12:28:53.710Z] [CYCLE #151] (1511s/3600s) [Method 1: Spike Testing] -> PASS (200 spikes in 54ms, 200/200 OK) | Heap: 17.95MB
+[2026-09-21T12:29:03.659Z] [CYCLE #152] (1521s/3600s) [Method 2: Security Headers Audit] -> PASS (All 5 security headers compliant) | Heap: 18.16MB
+[2026-09-21T12:29:13.672Z] [CYCLE #153] (1531s/3600s) [Method 3: RBAC Access Control] -> FAIL (Student: 403, Unauth: 403) | Heap: 18.27MB
+[2026-09-21T12:29:23.674Z] [CYCLE #154] (1541s/3600s) [Method 4: Homoglyphs & Wildcard Fuzzing] -> FAIL | Heap: 18.37MB
+[2026-09-21T12:29:33.687Z] [CYCLE #155] (1551s/3600s) [Method 5: Socket Lifecycle & Drops] -> FAIL | Heap: 18.43MB
+[2026-09-21T12:29:43.705Z] [CYCLE #156] (1561s/3600s) [Method 6: Atomic Concurrency Race] -> PASS (20 concurrent atomic writes without corruption) | Heap: 18.48MB
+[2026-09-21T12:29:53.714Z] [CYCLE #157] (1571s/3600s) [Method 7: 24-Cell Degree x Year Matrix] -> FAIL (Cell mismatch) | Heap: 18.54MB
+[2026-09-21T12:30:03.715Z] [CYCLE #158] (1581s/3600s) [Method 8: DLP Egress Scrubbing] -> ERROR: Cannot read properties of undefined (reading 'passwordHash') | Heap: 18.60MB
+[2026-09-21T12:30:13.726Z] [CYCLE #159] (1591s/3600s) [Method 9: Vault Disaster Recovery] -> PASS (Clean snapshot verified, 0 users) | Heap: 18.61MB
+[2026-09-21T12:30:23.739Z] [CYCLE #160] (1601s/3600s) [Method 10: Event Loop & Memory Drift] -> PASS (Event loop lag: 0.07ms, Heap: 18.61MB) | Heap: 18.61MB
+[2026-09-21T12:30:33.798Z] [CYCLE #161] (1611s/3600s) [Method 1: Spike Testing] -> PASS (200 spikes in 54ms, 200/200 OK) | Heap: 14.55MB
+[2026-09-21T12:30:43.756Z] [CYCLE #162] (1621s/3600s) [Method 2: Security Headers Audit] -> PASS (All 5 security headers compliant) | Heap: 14.75MB
+[2026-09-21T12:30:53.759Z] [CYCLE #163] (1631s/3600s) [Method 3: RBAC Access Control] -> FAIL (Student: 403, Unauth: 403) | Heap: 14.86MB
+[2026-09-21T12:31:03.762Z] [CYCLE #164] (1641s/3600s) [Method 4: Homoglyphs & Wildcard Fuzzing] -> FAIL | Heap: 14.97MB
+[2026-09-21T12:31:13.776Z] [CYCLE #165] (1651s/3600s) [Method 5: Socket Lifecycle & Drops] -> FAIL | Heap: 15.03MB
+[2026-09-21T12:31:23.786Z] [CYCLE #166] (1661s/3600s) [Method 6: Atomic Concurrency Race] -> PASS (20 concurrent atomic writes without corruption) | Heap: 15.08MB
+[2026-09-21T12:31:33.792Z] [CYCLE #167] (1671s/3600s) [Method 7: 24-Cell Degree x Year Matrix] -> FAIL (Cell mismatch) | Heap: 15.14MB
+[2026-09-21T12:31:43.804Z] [CYCLE #168] (1681s/3600s) [Method 8: DLP Egress Scrubbing] -> ERROR: Cannot read properties of undefined (reading 'passwordHash') | Heap: 15.20MB
+[2026-09-21T12:31:53.812Z] [CYCLE #169] (1691s/3600s) [Method 9: Vault Disaster Recovery] -> PASS (Clean snapshot verified, 0 users) | Heap: 15.21MB
+[2026-09-21T12:32:03.818Z] [CYCLE #170] (1701s/3600s) [Method 10: Event Loop & Memory Drift] -> PASS (Event loop lag: 0.11ms, Heap: 15.22MB) | Heap: 15.22MB
+[2026-09-21T12:32:13.882Z] [CYCLE #171] (1711s/3600s) [Method 1: Spike Testing] -> PASS (200 spikes in 51ms, 200/200 OK) | Heap: 17.12MB
+[2026-09-21T12:32:23.839Z] [CYCLE #172] (1721s/3600s) [Method 2: Security Headers Audit] -> PASS (All 5 security headers compliant) | Heap: 17.33MB
+[2026-09-21T12:32:33.848Z] [CYCLE #173] (1731s/3600s) [Method 3: RBAC Access Control] -> FAIL (Student: 403, Unauth: 403) | Heap: 17.44MB
+[2026-09-21T12:32:43.856Z] [CYCLE #174] (1741s/3600s) [Method 4: Homoglyphs & Wildcard Fuzzing] -> FAIL | Heap: 17.54MB
+[2026-09-21T12:32:53.868Z] [CYCLE #175] (1751s/3600s) [Method 5: Socket Lifecycle & Drops] -> FAIL | Heap: 17.60MB
+[2026-09-21T12:33:03.883Z] [CYCLE #176] (1761s/3600s) [Method 6: Atomic Concurrency Race] -> PASS (20 concurrent atomic writes without corruption) | Heap: 17.65MB
+[2026-09-21T12:33:13.892Z] [CYCLE #177] (1771s/3600s) [Method 7: 24-Cell Degree x Year Matrix] -> FAIL (Cell mismatch) | Heap: 17.71MB
+[2026-09-21T12:33:23.901Z] [CYCLE #178] (1781s/3600s) [Method 8: DLP Egress Scrubbing] -> ERROR: Cannot read properties of undefined (reading 'passwordHash') | Heap: 17.77MB
+[2026-09-21T12:33:33.910Z] [CYCLE #179] (1791s/3600s) [Method 9: Vault Disaster Recovery] -> PASS (Clean snapshot verified, 0 users) | Heap: 17.78MB
+[2026-09-21T12:33:43.924Z] [CYCLE #180] (1801s/3600s) [Method 10: Event Loop & Memory Drift] -> PASS (Event loop lag: 0.09ms, Heap: 17.78MB) | Heap: 17.79MB
+[2026-09-21T12:33:53.986Z] [CYCLE #181] (1811s/3600s) [Method 1: Spike Testing] -> PASS (200 spikes in 49ms, 200/200 OK) | Heap: 19.15MB
+[2026-09-21T12:34:03.955Z] [CYCLE #182] (1821s/3600s) [Method 2: Security Headers Audit] -> PASS (All 5 security headers compliant) | Heap: 19.35MB
+[2026-09-21T12:34:13.959Z] [CYCLE #183] (1831s/3600s) [Method 3: RBAC Access Control] -> FAIL (Student: 403, Unauth: 403) | Heap: 17.38MB
+[2026-09-21T12:34:23.958Z] [CYCLE #184] (1841s/3600s) [Method 4: Homoglyphs & Wildcard Fuzzing] -> FAIL | Heap: 17.48MB
+[2026-09-21T12:34:33.967Z] [CYCLE #185] (1851s/3600s) [Method 5: Socket Lifecycle & Drops] -> FAIL | Heap: 17.54MB
+[2026-09-21T12:34:43.984Z] [CYCLE #186] (1861s/3600s) [Method 6: Atomic Concurrency Race] -> PASS (20 concurrent atomic writes without corruption) | Heap: 17.59MB
+[2026-09-21T12:34:53.985Z] [CYCLE #187] (1871s/3600s) [Method 7: 24-Cell Degree x Year Matrix] -> FAIL (Cell mismatch) | Heap: 17.65MB
+[2026-09-21T12:35:03.997Z] [CYCLE #188] (1881s/3600s) [Method 8: DLP Egress Scrubbing] -> ERROR: Cannot read properties of undefined (reading 'passwordHash') | Heap: 17.71MB
+[2026-09-21T12:35:14.005Z] [CYCLE #189] (1891s/3600s) [Method 9: Vault Disaster Recovery] -> PASS (Clean snapshot verified, 0 users) | Heap: 17.72MB
+[2026-09-21T12:35:24.019Z] [CYCLE #190] (1901s/3600s) [Method 10: Event Loop & Memory Drift] -> PASS (Event loop lag: 0.07ms, Heap: 17.73MB) | Heap: 17.73MB
+[2026-09-21T12:35:34.074Z] [CYCLE #191] (1911s/3600s) [Method 1: Spike Testing] -> PASS (200 spikes in 48ms, 200/200 OK) | Heap: 22.19MB
+[2026-09-21T12:35:44.038Z] [CYCLE #192] (1921s/3600s) [Method 2: Security Headers Audit] -> PASS (All 5 security headers compliant) | Heap: 12.09MB
+[2026-09-21T12:35:54.051Z] [CYCLE #193] (1931s/3600s) [Method 3: RBAC Access Control] -> FAIL (Student: 403, Unauth: 403) | Heap: 12.19MB
+[2026-09-21T12:36:04.056Z] [CYCLE #194] (1941s/3600s) [Method 4: Homoglyphs & Wildcard Fuzzing] -> FAIL | Heap: 12.30MB
+[2026-09-21T12:36:14.059Z] [CYCLE #195] (1951s/3600s) [Method 5: Socket Lifecycle & Drops] -> FAIL | Heap: 12.35MB
+[2026-09-21T12:36:24.071Z] [CYCLE #196] (1961s/3600s) [Method 6: Atomic Concurrency Race] -> PASS (20 concurrent atomic writes without corruption) | Heap: 12.41MB
+[2026-09-21T12:36:34.077Z] [CYCLE #197] (1971s/3600s) [Method 7: 24-Cell Degree x Year Matrix] -> FAIL (Cell mismatch) | Heap: 12.47MB
+[2026-09-21T12:36:44.093Z] [CYCLE #198] (1981s/3600s) [Method 8: DLP Egress Scrubbing] -> ERROR: Cannot read properties of undefined (reading 'passwordHash') | Heap: 12.53MB
+[2026-09-21T12:36:54.092Z] [CYCLE #199] (1991s/3600s) [Method 9: Vault Disaster Recovery] -> PASS (Clean snapshot verified, 0 users) | Heap: 12.54MB
+[2026-09-21T12:37:04.096Z] [CYCLE #200] (2001s/3600s) [Method 10: Event Loop & Memory Drift] -> PASS (Event loop lag: 0.10ms, Heap: 12.54MB) | Heap: 12.55MB
+[2026-09-21T12:37:14.158Z] [CYCLE #201] (2011s/3600s) [Method 1: Spike Testing] -> PASS (200 spikes in 48ms, 200/200 OK) | Heap: 14.12MB
+[2026-09-21T12:37:24.123Z] [CYCLE #202] (2021s/3600s) [Method 2: Security Headers Audit] -> PASS (All 5 security headers compliant) | Heap: 14.32MB
+[2026-09-21T12:37:34.125Z] [CYCLE #203] (2031s/3600s) [Method 3: RBAC Access Control] -> FAIL (Student: 403, Unauth: 403) | Heap: 14.43MB
+[2026-09-21T12:37:44.136Z] [CYCLE #204] (2041s/3600s) [Method 4: Homoglyphs & Wildcard Fuzzing] -> FAIL | Heap: 14.53MB
+[2026-09-21T12:37:54.135Z] [CYCLE #205] (2051s/3600s) [Method 5: Socket Lifecycle & Drops] -> FAIL | Heap: 14.59MB
+[2026-09-21T12:38:04.149Z] [CYCLE #206] (2061s/3600s) [Method 6: Atomic Concurrency Race] -> PASS (20 concurrent atomic writes without corruption) | Heap: 14.65MB
+[2026-09-21T12:38:14.158Z] [CYCLE #207] (2071s/3600s) [Method 7: 24-Cell Degree x Year Matrix] -> FAIL (Cell mismatch) | Heap: 14.71MB
+[2026-09-21T12:38:24.158Z] [CYCLE #208] (2081s/3600s) [Method 8: DLP Egress Scrubbing] -> ERROR: Cannot read properties of undefined (reading 'passwordHash') | Heap: 14.77MB
+[2026-09-21T12:38:34.172Z] [CYCLE #209] (2091s/3600s) [Method 9: Vault Disaster Recovery] -> PASS (Clean snapshot verified, 0 users) | Heap: 14.77MB
+[2026-09-21T12:38:44.172Z] [CYCLE #210] (2101s/3600s) [Method 10: Event Loop & Memory Drift] -> PASS (Event loop lag: 0.05ms, Heap: 14.78MB) | Heap: 14.78MB
+[2026-09-21T12:38:54.225Z] [CYCLE #211] (2111s/3600s) [Method 1: Spike Testing] -> PASS (200 spikes in 47ms, 200/200 OK) | Heap: 17.45MB
+[2026-09-21T12:39:04.184Z] [CYCLE #212] (2121s/3600s) [Method 2: Security Headers Audit] -> PASS (All 5 security headers compliant) | Heap: 17.65MB
+[2026-09-21T12:39:14.200Z] [CYCLE #213] (2131s/3600s) [Method 3: RBAC Access Control] -> FAIL (Student: 403, Unauth: 403) | Heap: 17.75MB
+[2026-09-21T12:39:24.201Z] [CYCLE #214] (2141s/3600s) [Method 4: Homoglyphs & Wildcard Fuzzing] -> FAIL | Heap: 17.85MB
+[2026-09-21T12:39:34.209Z] [CYCLE #215] (2151s/3600s) [Method 5: Socket Lifecycle & Drops] -> FAIL | Heap: 17.91MB
+[2026-09-21T12:39:44.227Z] [CYCLE #216] (2161s/3600s) [Method 6: Atomic Concurrency Race] -> PASS (20 concurrent atomic writes without corruption) | Heap: 17.97MB
+[2026-09-21T12:39:54.234Z] [CYCLE #217] (2171s/3600s) [Method 7: 24-Cell Degree x Year Matrix] -> FAIL (Cell mismatch) | Heap: 18.03MB
+[2026-09-21T12:40:04.249Z] [CYCLE #218] (2181s/3600s) [Method 8: DLP Egress Scrubbing] -> ERROR: Cannot read properties of undefined (reading 'passwordHash') | Heap: 18.09MB
+[2026-09-21T12:40:14.260Z] [CYCLE #219] (2191s/3600s) [Method 9: Vault Disaster Recovery] -> PASS (Clean snapshot verified, 0 users) | Heap: 18.09MB
+[2026-09-21T12:40:24.266Z] [CYCLE #220] (2201s/3600s) [Method 10: Event Loop & Memory Drift] -> PASS (Event loop lag: 0.07ms, Heap: 18.10MB) | Heap: 18.10MB
+[2026-09-21T12:40:34.320Z] [CYCLE #221] (2211s/3600s) [Method 1: Spike Testing] -> PASS (200 spikes in 50ms, 200/200 OK) | Heap: 14.67MB
+[2026-09-21T12:40:44.285Z] [CYCLE #222] (2221s/3600s) [Method 2: Security Headers Audit] -> PASS (All 5 security headers compliant) | Heap: 14.88MB
+[2026-09-21T12:40:54.293Z] [CYCLE #223] (2231s/3600s) [Method 3: RBAC Access Control] -> FAIL (Student: 403, Unauth: 403) | Heap: 14.98MB
+[2026-09-21T12:41:04.294Z] [CYCLE #224] (2241s/3600s) [Method 4: Homoglyphs & Wildcard Fuzzing] -> FAIL | Heap: 15.09MB
+[2026-09-21T12:41:14.304Z] [CYCLE #225] (2251s/3600s) [Method 5: Socket Lifecycle & Drops] -> FAIL | Heap: 15.14MB
+[2026-09-21T12:41:24.317Z] [CYCLE #226] (2261s/3600s) [Method 6: Atomic Concurrency Race] -> PASS (20 concurrent atomic writes without corruption) | Heap: 15.20MB
+[2026-09-21T12:41:34.329Z] [CYCLE #227] (2271s/3600s) [Method 7: 24-Cell Degree x Year Matrix] -> FAIL (Cell mismatch) | Heap: 15.26MB
+[2026-09-21T12:41:44.335Z] [CYCLE #228] (2281s/3600s) [Method 8: DLP Egress Scrubbing] -> ERROR: Cannot read properties of undefined (reading 'passwordHash') | Heap: 15.32MB
+[2026-09-21T12:41:54.346Z] [CYCLE #229] (2291s/3600s) [Method 9: Vault Disaster Recovery] -> PASS (Clean snapshot verified, 0 users) | Heap: 15.33MB
+[2026-09-21T12:42:04.352Z] [CYCLE #230] (2301s/3600s) [Method 10: Event Loop & Memory Drift] -> PASS (Event loop lag: 0.10ms, Heap: 15.33MB) | Heap: 15.33MB
+[2026-09-21T12:42:14.404Z] [CYCLE #231] (2311s/3600s) [Method 1: Spike Testing] -> PASS (200 spikes in 47ms, 200/200 OK) | Heap: 15.00MB
+[2026-09-21T12:42:24.366Z] [CYCLE #232] (2321s/3600s) [Method 2: Security Headers Audit] -> PASS (All 5 security headers compliant) | Heap: 15.24MB
+[2026-09-21T12:42:34.377Z] [CYCLE #233] (2331s/3600s) [Method 3: RBAC Access Control] -> FAIL (Student: 403, Unauth: 403) | Heap: 15.35MB
+[2026-09-21T12:42:44.392Z] [CYCLE #234] (2341s/3600s) [Method 4: Homoglyphs & Wildcard Fuzzing] -> FAIL | Heap: 15.45MB
+[2026-09-21T12:42:54.395Z] [CYCLE #235] (2351s/3600s) [Method 5: Socket Lifecycle & Drops] -> FAIL | Heap: 15.51MB
+[2026-09-21T12:43:04.406Z] [CYCLE #236] (2361s/3600s) [Method 6: Atomic Concurrency Race] -> PASS (20 concurrent atomic writes without corruption) | Heap: 15.56MB
+[2026-09-21T12:43:14.405Z] [CYCLE #237] (2371s/3600s) [Method 7: 24-Cell Degree x Year Matrix] -> FAIL (Cell mismatch) | Heap: 15.62MB
+[2026-09-21T12:43:24.417Z] [CYCLE #238] (2381s/3600s) [Method 8: DLP Egress Scrubbing] -> ERROR: Cannot read properties of undefined (reading 'passwordHash') | Heap: 15.68MB
+[2026-09-21T12:43:34.416Z] [CYCLE #239] (2391s/3600s) [Method 9: Vault Disaster Recovery] -> PASS (Clean snapshot verified, 0 users) | Heap: 15.69MB
+[2026-09-21T12:43:44.423Z] [CYCLE #240] (2401s/3600s) [Method 10: Event Loop & Memory Drift] -> PASS (Event loop lag: 0.08ms, Heap: 15.69MB) | Heap: 15.69MB
+[2026-09-21T12:43:54.474Z] [CYCLE #241] (2411s/3600s) [Method 1: Spike Testing] -> PASS (200 spikes in 46ms, 200/200 OK) | Heap: 17.61MB
+[2026-09-21T12:44:04.438Z] [CYCLE #242] (2421s/3600s) [Method 2: Security Headers Audit] -> PASS (All 5 security headers compliant) | Heap: 17.81MB
+[2026-09-21T12:44:14.447Z] [CYCLE #243] (2431s/3600s) [Method 3: RBAC Access Control] -> FAIL (Student: 403, Unauth: 403) | Heap: 17.92MB
+[2026-09-21T12:44:24.454Z] [CYCLE #244] (2441s/3600s) [Method 4: Homoglyphs & Wildcard Fuzzing] -> FAIL | Heap: 18.02MB
+[2026-09-21T12:44:34.458Z] [CYCLE #245] (2451s/3600s) [Method 5: Socket Lifecycle & Drops] -> FAIL | Heap: 18.07MB
+[2026-09-21T12:44:44.466Z] [CYCLE #246] (2461s/3600s) [Method 6: Atomic Concurrency Race] -> PASS (20 concurrent atomic writes without corruption) | Heap: 18.13MB
+[2026-09-21T12:44:54.475Z] [CYCLE #247] (2471s/3600s) [Method 7: 24-Cell Degree x Year Matrix] -> FAIL (Cell mismatch) | Heap: 18.19MB
+[2026-09-21T12:45:04.478Z] [CYCLE #248] (2481s/3600s) [Method 8: DLP Egress Scrubbing] -> ERROR: Cannot read properties of undefined (reading 'passwordHash') | Heap: 18.25MB
+[2026-09-21T12:45:14.489Z] [CYCLE #249] (2492s/3600s) [Method 9: Vault Disaster Recovery] -> PASS (Clean snapshot verified, 0 users) | Heap: 18.26MB
+[2026-09-21T12:45:24.500Z] [CYCLE #250] (2502s/3600s) [Method 10: Event Loop & Memory Drift] -> PASS (Event loop lag: 0.07ms, Heap: 18.26MB) | Heap: 18.26MB
+[2026-09-21T12:45:34.562Z] [CYCLE #251] (2512s/3600s) [Method 1: Spike Testing] -> PASS (200 spikes in 53ms, 200/200 OK) | Heap: 16.03MB
+[2026-09-21T12:45:44.520Z] [CYCLE #252] (2522s/3600s) [Method 2: Security Headers Audit] -> PASS (All 5 security headers compliant) | Heap: 16.24MB
+[2026-09-21T12:45:54.524Z] [CYCLE #253] (2532s/3600s) [Method 3: RBAC Access Control] -> FAIL (Student: 403, Unauth: 403) | Heap: 16.35MB
+[2026-09-21T12:46:04.523Z] [CYCLE #254] (2542s/3600s) [Method 4: Homoglyphs & Wildcard Fuzzing] -> FAIL | Heap: 16.45MB
+[2026-09-21T12:46:14.535Z] [CYCLE #255] (2552s/3600s) [Method 5: Socket Lifecycle & Drops] -> FAIL | Heap: 16.50MB
+[2026-09-21T12:46:24.553Z] [CYCLE #256] (2562s/3600s) [Method 6: Atomic Concurrency Race] -> PASS (20 concurrent atomic writes without corruption) | Heap: 16.58MB
+[2026-09-21T12:46:34.561Z] [CYCLE #257] (2572s/3600s) [Method 7: 24-Cell Degree x Year Matrix] -> FAIL (Cell mismatch) | Heap: 16.64MB
+[2026-09-21T12:46:44.566Z] [CYCLE #258] (2582s/3600s) [Method 8: DLP Egress Scrubbing] -> ERROR: Cannot read properties of undefined (reading 'passwordHash') | Heap: 16.70MB
+[2026-09-21T12:46:54.577Z] [CYCLE #259] (2592s/3600s) [Method 9: Vault Disaster Recovery] -> PASS (Clean snapshot verified, 0 users) | Heap: 16.71MB
+[2026-09-21T12:47:04.586Z] [CYCLE #260] (2602s/3600s) [Method 10: Event Loop & Memory Drift] -> PASS (Event loop lag: 0.14ms, Heap: 16.71MB) | Heap: 16.71MB
+[2026-09-21T12:47:14.641Z] [CYCLE #261] (2612s/3600s) [Method 1: Spike Testing] -> PASS (200 spikes in 48ms, 200/200 OK) | Heap: 18.04MB
+[2026-09-21T12:47:24.599Z] [CYCLE #262] (2622s/3600s) [Method 2: Security Headers Audit] -> PASS (All 5 security headers compliant) | Heap: 18.25MB
+[2026-09-21T12:47:34.601Z] [CYCLE #263] (2632s/3600s) [Method 3: RBAC Access Control] -> FAIL (Student: 403, Unauth: 403) | Heap: 18.35MB
+[2026-09-21T12:47:44.604Z] [CYCLE #264] (2642s/3600s) [Method 4: Homoglyphs & Wildcard Fuzzing] -> FAIL | Heap: 18.45MB
+[2026-09-21T12:47:54.610Z] [CYCLE #265] (2652s/3600s) [Method 5: Socket Lifecycle & Drops] -> FAIL | Heap: 18.50MB
+[2026-09-21T12:48:04.626Z] [CYCLE #266] (2662s/3600s) [Method 6: Atomic Concurrency Race] -> PASS (20 concurrent atomic writes without corruption) | Heap: 18.56MB
+[2026-09-21T12:48:14.635Z] [CYCLE #267] (2672s/3600s) [Method 7: 24-Cell Degree x Year Matrix] -> FAIL (Cell mismatch) | Heap: 18.62MB
+[2026-09-21T12:48:24.647Z] [CYCLE #268] (2682s/3600s) [Method 8: DLP Egress Scrubbing] -> ERROR: Cannot read properties of undefined (reading 'passwordHash') | Heap: 18.68MB
+[2026-09-21T12:48:34.658Z] [CYCLE #269] (2692s/3600s) [Method 9: Vault Disaster Recovery] -> PASS (Clean snapshot verified, 0 users) | Heap: 18.69MB
+[2026-09-21T12:48:44.667Z] [CYCLE #270] (2702s/3600s) [Method 10: Event Loop & Memory Drift] -> PASS (Event loop lag: 0.06ms, Heap: 18.69MB) | Heap: 18.69MB
+[2026-09-21T12:48:54.716Z] [CYCLE #271] (2712s/3600s) [Method 1: Spike Testing] -> PASS (200 spikes in 44ms, 200/200 OK) | Heap: 18.81MB
+[2026-09-21T12:49:04.680Z] [CYCLE #272] (2722s/3600s) [Method 2: Security Headers Audit] -> PASS (All 5 security headers compliant) | Heap: 19.01MB
+[2026-09-21T12:49:14.687Z] [CYCLE #273] (2732s/3600s) [Method 3: RBAC Access Control] -> FAIL (Student: 403, Unauth: 403) | Heap: 19.11MB
+[2026-09-21T12:49:24.699Z] [CYCLE #274] (2742s/3600s) [Method 4: Homoglyphs & Wildcard Fuzzing] -> FAIL | Heap: 19.21MB
+[2026-09-21T12:49:34.713Z] [CYCLE #275] (2752s/3600s) [Method 5: Socket Lifecycle & Drops] -> FAIL | Heap: 19.27MB
+[2026-09-21T12:49:44.722Z] [CYCLE #276] (2762s/3600s) [Method 6: Atomic Concurrency Race] -> PASS (20 concurrent atomic writes without corruption) | Heap: 19.33MB
+[2026-09-21T12:49:54.730Z] [CYCLE #277] (2772s/3600s) [Method 7: 24-Cell Degree x Year Matrix] -> FAIL (Cell mismatch) | Heap: 19.39MB
+[2026-09-21T12:50:04.739Z] [CYCLE #278] (2782s/3600s) [Method 8: DLP Egress Scrubbing] -> ERROR: Cannot read properties of undefined (reading 'passwordHash') | Heap: 19.44MB
+[2026-09-21T12:50:14.743Z] [CYCLE #279] (2792s/3600s) [Method 9: Vault Disaster Recovery] -> PASS (Clean snapshot verified, 0 users) | Heap: 19.45MB
+[2026-09-21T12:50:24.757Z] [CYCLE #280] (2802s/3600s) [Method 10: Event Loop & Memory Drift] -> PASS (Event loop lag: 0.07ms, Heap: 19.46MB) | Heap: 19.46MB
+[2026-09-21T12:50:34.812Z] [CYCLE #281] (2812s/3600s) [Method 1: Spike Testing] -> PASS (200 spikes in 50ms, 200/200 OK) | Heap: 16.85MB
+[2026-09-21T12:50:44.779Z] [CYCLE #282] (2822s/3600s) [Method 2: Security Headers Audit] -> PASS (All 5 security headers compliant) | Heap: 17.06MB
+[2026-09-21T12:50:54.783Z] [CYCLE #283] (2832s/3600s) [Method 3: RBAC Access Control] -> FAIL (Student: 403, Unauth: 403) | Heap: 17.17MB
+[2026-09-21T12:51:04.788Z] [CYCLE #284] (2842s/3600s) [Method 4: Homoglyphs & Wildcard Fuzzing] -> FAIL | Heap: 14.44MB
+[2026-09-21T12:51:14.793Z] [CYCLE #285] (2852s/3600s) [Method 5: Socket Lifecycle & Drops] -> FAIL | Heap: 14.50MB
+[2026-09-21T12:51:24.808Z] [CYCLE #286] (2862s/3600s) [Method 6: Atomic Concurrency Race] -> PASS (20 concurrent atomic writes without corruption) | Heap: 14.56MB
+[2026-09-21T12:51:34.819Z] [CYCLE #287] (2872s/3600s) [Method 7: 24-Cell Degree x Year Matrix] -> FAIL (Cell mismatch) | Heap: 14.62MB
+[2026-09-21T12:51:44.826Z] [CYCLE #288] (2882s/3600s) [Method 8: DLP Egress Scrubbing] -> ERROR: Cannot read properties of undefined (reading 'passwordHash') | Heap: 14.68MB
+[2026-09-21T12:51:54.839Z] [CYCLE #289] (2892s/3600s) [Method 9: Vault Disaster Recovery] -> PASS (Clean snapshot verified, 0 users) | Heap: 14.69MB
+[2026-09-21T12:52:04.853Z] [CYCLE #290] (2902s/3600s) [Method 10: Event Loop & Memory Drift] -> PASS (Event loop lag: 0.14ms, Heap: 14.69MB) | Heap: 14.69MB
+[2026-09-21T12:52:14.908Z] [CYCLE #291] (2912s/3600s) [Method 1: Spike Testing] -> PASS (200 spikes in 47ms, 200/200 OK) | Heap: 17.08MB
+[2026-09-21T12:52:24.871Z] [CYCLE #292] (2922s/3600s) [Method 2: Security Headers Audit] -> PASS (All 5 security headers compliant) | Heap: 11.13MB
+[2026-09-21T12:52:34.883Z] [CYCLE #293] (2932s/3600s) [Method 3: RBAC Access Control] -> FAIL (Student: 403, Unauth: 403) | Heap: 11.25MB
+[2026-09-21T12:52:44.894Z] [CYCLE #294] (2942s/3600s) [Method 4: Homoglyphs & Wildcard Fuzzing] -> FAIL | Heap: 11.36MB
+[2026-09-21T12:52:54.898Z] [CYCLE #295] (2952s/3600s) [Method 5: Socket Lifecycle & Drops] -> FAIL | Heap: 11.44MB
+[2026-09-21T12:53:04.912Z] [CYCLE #296] (2962s/3600s) [Method 6: Atomic Concurrency Race] -> PASS (20 concurrent atomic writes without corruption) | Heap: 11.51MB
+[2026-09-21T12:53:14.914Z] [CYCLE #297] (2972s/3600s) [Method 7: 24-Cell Degree x Year Matrix] -> FAIL (Cell mismatch) | Heap: 11.57MB
+[2026-09-21T12:53:24.928Z] [CYCLE #298] (2982s/3600s) [Method 8: DLP Egress Scrubbing] -> ERROR: Cannot read properties of undefined (reading 'passwordHash') | Heap: 11.64MB
+[2026-09-21T12:53:34.940Z] [CYCLE #299] (2992s/3600s) [Method 9: Vault Disaster Recovery] -> PASS (Clean snapshot verified, 0 users) | Heap: 11.64MB
+[2026-09-21T12:53:44.943Z] [CYCLE #300] (3002s/3600s) [Method 10: Event Loop & Memory Drift] -> PASS (Event loop lag: 0.11ms, Heap: 11.65MB) | Heap: 11.65MB
+[2026-09-21T12:53:55.005Z] [CYCLE #301] (3012s/3600s) [Method 1: Spike Testing] -> PASS (200 spikes in 61ms, 200/200 OK) | Heap: 13.42MB
+[2026-09-21T12:54:04.949Z] [CYCLE #302] (3022s/3600s) [Method 2: Security Headers Audit] -> PASS (All 5 security headers compliant) | Heap: 13.65MB
+[2026-09-21T12:54:14.954Z] [CYCLE #303] (3032s/3600s) [Method 3: RBAC Access Control] -> FAIL (Student: 403, Unauth: 403) | Heap: 10.32MB
+[2026-09-21T12:54:24.967Z] [CYCLE #304] (3042s/3600s) [Method 4: Homoglyphs & Wildcard Fuzzing] -> FAIL | Heap: 10.42MB
+[2026-09-21T12:54:34.966Z] [CYCLE #305] (3052s/3600s) [Method 5: Socket Lifecycle & Drops] -> FAIL | Heap: 10.49MB
+[2026-09-21T12:54:44.977Z] [CYCLE #306] (3062s/3600s) [Method 6: Atomic Concurrency Race] -> PASS (20 concurrent atomic writes without corruption) | Heap: 10.55MB
+[2026-09-21T12:54:54.976Z] [CYCLE #307] (3072s/3600s) [Method 7: 24-Cell Degree x Year Matrix] -> FAIL (Cell mismatch) | Heap: 10.62MB
+[2026-09-21T12:55:04.980Z] [CYCLE #308] (3082s/3600s) [Method 8: DLP Egress Scrubbing] -> ERROR: Cannot read properties of undefined (reading 'passwordHash') | Heap: 10.69MB
+[2026-09-21T12:55:14.989Z] [CYCLE #309] (3092s/3600s) [Method 9: Vault Disaster Recovery] -> PASS (Clean snapshot verified, 0 users) | Heap: 10.69MB
+[2026-09-21T12:55:24.997Z] [CYCLE #310] (3102s/3600s) [Method 10: Event Loop & Memory Drift] -> PASS (Event loop lag: 0.16ms, Heap: 10.70MB) | Heap: 10.70MB
+[2026-09-21T12:55:35.092Z] [CYCLE #311] (3112s/3600s) [Method 1: Spike Testing] -> PASS (200 spikes in 90ms, 200/200 OK) | Heap: 12.61MB
+[2026-09-21T12:55:45.020Z] [CYCLE #312] (3122s/3600s) [Method 2: Security Headers Audit] -> PASS (All 5 security headers compliant) | Heap: 12.84MB
+[2026-09-21T12:55:55.038Z] [CYCLE #313] (3132s/3600s) [Method 3: RBAC Access Control] -> FAIL (Student: 403, Unauth: 403) | Heap: 12.96MB
+[2026-09-21T12:56:05.036Z] [CYCLE #314] (3142s/3600s) [Method 4: Homoglyphs & Wildcard Fuzzing] -> FAIL | Heap: 13.06MB
+[2026-09-21T12:56:15.043Z] [CYCLE #315] (3152s/3600s) [Method 5: Socket Lifecycle & Drops] -> FAIL | Heap: 13.13MB
+[2026-09-21T12:56:25.055Z] [CYCLE #316] (3162s/3600s) [Method 6: Atomic Concurrency Race] -> PASS (20 concurrent atomic writes without corruption) | Heap: 13.19MB
+[2026-09-21T12:56:35.060Z] [CYCLE #317] (3172s/3600s) [Method 7: 24-Cell Degree x Year Matrix] -> FAIL (Cell mismatch) | Heap: 13.25MB
+[2026-09-21T12:56:45.070Z] [CYCLE #318] (3182s/3600s) [Method 8: DLP Egress Scrubbing] -> ERROR: Cannot read properties of undefined (reading 'passwordHash') | Heap: 13.31MB
+[2026-09-21T12:56:55.069Z] [CYCLE #319] (3192s/3600s) [Method 9: Vault Disaster Recovery] -> PASS (Clean snapshot verified, 0 users) | Heap: 13.32MB
+[2026-09-21T12:57:05.069Z] [CYCLE #320] (3202s/3600s) [Method 10: Event Loop & Memory Drift] -> PASS (Event loop lag: 0.09ms, Heap: 13.33MB) | Heap: 13.33MB
+[2026-09-21T12:57:15.169Z] [CYCLE #321] (3212s/3600s) [Method 1: Spike Testing] -> PASS (200 spikes in 91ms, 200/200 OK) | Heap: 13.37MB
+[2026-09-21T12:57:25.092Z] [CYCLE #322] (3222s/3600s) [Method 2: Security Headers Audit] -> PASS (All 5 security headers compliant) | Heap: 13.58MB
+[2026-09-21T12:57:35.102Z] [CYCLE #323] (3232s/3600s) [Method 3: RBAC Access Control] -> FAIL (Student: 403, Unauth: 403) | Heap: 13.70MB
+[2026-09-21T12:57:45.108Z] [CYCLE #324] (3242s/3600s) [Method 4: Homoglyphs & Wildcard Fuzzing] -> FAIL | Heap: 13.80MB
+[2026-09-21T12:57:55.122Z] [CYCLE #325] (3252s/3600s) [Method 5: Socket Lifecycle & Drops] -> FAIL | Heap: 13.86MB
+[2026-09-21T12:58:05.133Z] [CYCLE #326] (3262s/3600s) [Method 6: Atomic Concurrency Race] -> PASS (20 concurrent atomic writes without corruption) | Heap: 13.93MB
+[2026-09-21T12:58:15.131Z] [CYCLE #327] (3272s/3600s) [Method 7: 24-Cell Degree x Year Matrix] -> FAIL (Cell mismatch) | Heap: 13.99MB
+[2026-09-21T12:58:25.133Z] [CYCLE #328] (3282s/3600s) [Method 8: DLP Egress Scrubbing] -> ERROR: Cannot read properties of undefined (reading 'passwordHash') | Heap: 14.05MB
+[2026-09-21T12:58:35.134Z] [CYCLE #329] (3292s/3600s) [Method 9: Vault Disaster Recovery] -> PASS (Clean snapshot verified, 0 users) | Heap: 14.06MB
+[2026-09-21T12:58:45.134Z] [CYCLE #330] (3302s/3600s) [Method 10: Event Loop & Memory Drift] -> PASS (Event loop lag: 0.17ms, Heap: 14.07MB) | Heap: 14.07MB
+[2026-09-21T12:58:55.227Z] [CYCLE #331] (3312s/3600s) [Method 1: Spike Testing] -> PASS (200 spikes in 90ms, 200/200 OK) | Heap: 17.30MB
+[2026-09-21T12:59:05.156Z] [CYCLE #332] (3322s/3600s) [Method 2: Security Headers Audit] -> PASS (All 5 security headers compliant) | Heap: 17.52MB
+[2026-09-21T12:59:15.183Z] [CYCLE #333] (3332s/3600s) [Method 3: RBAC Access Control] -> FAIL (Student: 403, Unauth: 403) | Heap: 17.62MB
+[2026-09-21T12:59:25.176Z] [CYCLE #334] (3342s/3600s) [Method 4: Homoglyphs & Wildcard Fuzzing] -> FAIL | Heap: 17.71MB
+[2026-09-21T12:59:35.174Z] [CYCLE #335] (3352s/3600s) [Method 5: Socket Lifecycle & Drops] -> FAIL | Heap: 17.77MB
+[2026-09-21T12:59:45.189Z] [CYCLE #336] (3362s/3600s) [Method 6: Atomic Concurrency Race] -> PASS (20 concurrent atomic writes without corruption) | Heap: 17.83MB
+[2026-09-21T12:59:55.197Z] [CYCLE #337] (3372s/3600s) [Method 7: 24-Cell Degree x Year Matrix] -> FAIL (Cell mismatch) | Heap: 17.89MB
+[2026-09-21T13:00:05.205Z] [CYCLE #338] (3382s/3600s) [Method 8: DLP Egress Scrubbing] -> ERROR: Cannot read properties of undefined (reading 'passwordHash') | Heap: 17.94MB
+[2026-09-21T13:00:15.205Z] [CYCLE #339] (3392s/3600s) [Method 9: Vault Disaster Recovery] -> PASS (Clean snapshot verified, 0 users) | Heap: 17.95MB
+[2026-09-21T13:00:25.211Z] [CYCLE #340] (3402s/3600s) [Method 10: Event Loop & Memory Drift] -> PASS (Event loop lag: 0.07ms, Heap: 17.96MB) | Heap: 17.96MB
+[2026-09-21T13:00:35.293Z] [CYCLE #341] (3412s/3600s) [Method 1: Spike Testing] -> PASS (200 spikes in 80ms, 200/200 OK) | Heap: 17.81MB
+[2026-09-21T13:00:45.230Z] [CYCLE #342] (3422s/3600s) [Method 2: Security Headers Audit] -> PASS (All 5 security headers compliant) | Heap: 18.01MB
+[2026-09-21T13:00:55.244Z] [CYCLE #343] (3432s/3600s) [Method 3: RBAC Access Control] -> FAIL (Student: 403, Unauth: 403) | Heap: 18.12MB
+[2026-09-21T13:01:05.240Z] [CYCLE #344] (3442s/3600s) [Method 4: Homoglyphs & Wildcard Fuzzing] -> FAIL | Heap: 18.21MB
+[2026-09-21T13:01:15.250Z] [CYCLE #345] (3452s/3600s) [Method 5: Socket Lifecycle & Drops] -> FAIL | Heap: 18.27MB
+[2026-09-21T13:01:25.269Z] [CYCLE #346] (3462s/3600s) [Method 6: Atomic Concurrency Race] -> PASS (20 concurrent atomic writes without corruption) | Heap: 18.33MB
+[2026-09-21T13:01:35.275Z] [CYCLE #347] (3472s/3600s) [Method 7: 24-Cell Degree x Year Matrix] -> FAIL (Cell mismatch) | Heap: 18.39MB
+[2026-09-21T13:01:45.277Z] [CYCLE #348] (3482s/3600s) [Method 8: DLP Egress Scrubbing] -> ERROR: Cannot read properties of undefined (reading 'passwordHash') | Heap: 18.45MB
+[2026-09-21T13:01:55.278Z] [CYCLE #349] (3492s/3600s) [Method 9: Vault Disaster Recovery] -> PASS (Clean snapshot verified, 0 users) | Heap: 18.46MB
+[2026-09-21T13:02:05.287Z] [CYCLE #350] (3502s/3600s) [Method 10: Event Loop & Memory Drift] -> PASS (Event loop lag: 0.05ms, Heap: 18.46MB) | Heap: 18.46MB
+[2026-09-21T13:02:15.347Z] [CYCLE #351] (3512s/3600s) [Method 1: Spike Testing] -> PASS (200 spikes in 55ms, 200/200 OK) | Heap: 16.99MB
+[2026-09-21T13:02:25.308Z] [CYCLE #352] (3522s/3600s) [Method 2: Security Headers Audit] -> PASS (All 5 security headers compliant) | Heap: 14.32MB
+[2026-09-21T13:02:35.313Z] [CYCLE #353] (3532s/3600s) [Method 3: RBAC Access Control] -> FAIL (Student: 403, Unauth: 403) | Heap: 14.42MB
+[2026-09-21T13:02:45.327Z] [CYCLE #354] (3542s/3600s) [Method 4: Homoglyphs & Wildcard Fuzzing] -> FAIL | Heap: 14.53MB
+[2026-09-21T13:02:55.339Z] [CYCLE #355] (3552s/3600s) [Method 5: Socket Lifecycle & Drops] -> FAIL | Heap: 14.59MB
+[2026-09-21T13:03:05.349Z] [CYCLE #356] (3562s/3600s) [Method 6: Atomic Concurrency Race] -> PASS (20 concurrent atomic writes without corruption) | Heap: 14.65MB
+[2026-09-21T13:03:15.361Z] [CYCLE #357] (3572s/3600s) [Method 7: 24-Cell Degree x Year Matrix] -> FAIL (Cell mismatch) | Heap: 14.71MB
+[2026-09-21T13:03:25.372Z] [CYCLE #358] (3582s/3600s) [Method 8: DLP Egress Scrubbing] -> ERROR: Cannot read properties of undefined (reading 'passwordHash') | Heap: 14.33MB
+[2026-09-21T13:03:35.380Z] [CYCLE #359] (3592s/3600s) [Method 9: Vault Disaster Recovery] -> PASS (Clean snapshot verified, 0 users) | Heap: 14.33MB
+[2026-09-21T13:03:45.382Z] 
+================================================================
+[2026-09-21T13:03:45.382Z] 🏁 1-HOUR MULTI-METHOD COMPREHENSIVE TEST COMPLETED
+[2026-09-21T13:03:45.383Z] ================================================================
+[2026-09-21T13:03:45.383Z] [Method 1: Spike Testing] Runs: 36, Passed: 36, Failed: 0
+[2026-09-21T13:03:45.383Z] [Method 2: Security Headers Audit] Runs: 36, Passed: 36, Failed: 0
+[2026-09-21T13:03:45.384Z] [Method 3: RBAC Access Control] Runs: 36, Passed: 1, Failed: 35
+[2026-09-21T13:03:45.384Z] [Method 4: Homoglyphs & Wildcard Fuzzing] Runs: 36, Passed: 1, Failed: 35
+[2026-09-21T13:03:45.384Z] [Method 5: Socket Lifecycle & Drops] Runs: 36, Passed: 1, Failed: 35
+[2026-09-21T13:03:45.384Z] [Method 6: Atomic Concurrency Race] Runs: 36, Passed: 36, Failed: 0
+[2026-09-21T13:03:45.385Z] [Method 7: 24-Cell Degree x Year Matrix] Runs: 36, Passed: 0, Failed: 36
+[2026-09-21T13:03:45.385Z] [Method 8: DLP Egress Scrubbing] Runs: 36, Passed: 0, Failed: 36
+[2026-09-21T13:03:45.385Z] [Method 9: Vault Disaster Recovery] Runs: 36, Passed: 36, Failed: 0
+[2026-09-21T13:03:45.385Z] [Method 10: Event Loop & Memory Drift] Runs: 35, Passed: 35, Failed: 0
+[2026-09-21T13:03:45.386Z] 🎉 100% COMPLETE: All 10 methodologies evaluated over 1 full hour.
+[2026-09-21T13:03:45.386Z] ================================================================
+
+[2026-09-21T13:04:48.405Z] ================================================================
+[2026-09-21T13:04:48.406Z] ⏳ STARTING 1-HOUR MULTI-METHOD COMPREHENSIVE TEST SUITE
+[2026-09-21T13:04:48.406Z] 🎯 Target Duration: 3600 seconds (1 Hour)
+[2026-09-21T13:04:48.417Z] 🏁 Scheduled End Time: 7:34:48 pm
+[2026-09-21T13:04:48.418Z] 📚 Methodologies: 10 Distinct Testing Dimensions Rotating Sequentially
+[2026-09-21T13:04:48.418Z] ================================================================
+
+[2026-09-21T13:04:48.431Z] 🚀 Multi-Method Test Server active on port 3995
+[2026-09-21T13:04:58.528Z] [CYCLE #1] (10s/3600s) [Method 1: Spike Testing] -> PASS (200 spikes in 94ms, 200/200 OK) | Heap: 15.38MB
+[2026-09-21T13:05:08.436Z] [CYCLE #2] (20s/3600s) [Method 2: Security Headers Audit] -> PASS (All 5 security headers compliant) | Heap: 13.17MB
+[2026-09-21T13:05:18.441Z] [CYCLE #3] (30s/3600s) [Method 3: RBAC Access Control] -> PASS (Student 403 Forbidden, Unauth 401 Unauthorized) | Heap: 13.40MB
+[2026-09-21T13:05:28.456Z] [CYCLE #4] (40s/3600s) [Method 4: Homoglyphs & Wildcard Fuzzing] -> PASS (Homoglyphs & wildcards safely handled) | Heap: 13.85MB
+[2026-09-21T13:05:38.467Z] [CYCLE #5] (50s/3600s) [Method 5: Socket Lifecycle & Drops] -> PASS (Socket pool healthy, 30s timeout active) | Heap: 13.98MB
+[2026-09-21T13:05:48.479Z] [CYCLE #6] (60s/3600s) [Method 6: Atomic Concurrency Race] -> PASS (20 concurrent atomic writes without corruption) | Heap: 14.08MB
+[2026-09-21T13:05:58.492Z] [CYCLE #7] (70s/3600s) [Method 7: 24-Cell Degree x Year Matrix] -> FAIL (Cell mismatch) | Heap: 13.78MB
+[2026-09-21T13:06:08.491Z] [CYCLE #8] (80s/3600s) [Method 8: DLP Egress Scrubbing] -> PASS (passwordHash, salt, jwt_secret 100% redacted) | Heap: 13.87MB
+[2026-09-21T13:06:18.499Z] [CYCLE #9] (90s/3600s) [Method 9: Vault Disaster Recovery] -> PASS (Clean snapshot verified, 0 users) | Heap: 13.88MB
+[2026-09-21T13:06:28.502Z] [CYCLE #10] (100s/3600s) [Method 10: Event Loop & Memory Drift] -> PASS (Event loop lag: 0.17ms, Heap: 13.90MB) | Heap: 13.90MB
+[2026-09-21T13:06:38.579Z] [CYCLE #11] (110s/3600s) [Method 1: Spike Testing] -> PASS (200 spikes in 72ms, 200/200 OK) | Heap: 16.90MB
+[2026-09-21T13:06:48.513Z] [CYCLE #12] (120s/3600s) [Method 2: Security Headers Audit] -> PASS (All 5 security headers compliant) | Heap: 17.25MB
+[2026-09-21T13:06:58.522Z] [CYCLE #13] (130s/3600s) [Method 3: RBAC Access Control] -> PASS (Student 403 Forbidden, Unauth 401 Unauthorized) | Heap: 17.42MB
+[2026-09-21T13:07:08.534Z] [CYCLE #14] (140s/3600s) [Method 4: Homoglyphs & Wildcard Fuzzing] -> PASS (Homoglyphs & wildcards safely handled) | Heap: 13.94MB
+[2026-09-21T13:07:18.534Z] [CYCLE #15] (150s/3600s) [Method 5: Socket Lifecycle & Drops] -> PASS (Socket pool healthy, 30s timeout active) | Heap: 14.05MB
+[2026-09-21T13:07:28.542Z] [CYCLE #16] (160s/3600s) [Method 6: Atomic Concurrency Race] -> PASS (20 concurrent atomic writes without corruption) | Heap: 14.12MB
+[2026-09-21T13:07:38.560Z] [CYCLE #17] (170s/3600s) [Method 7: 24-Cell Degree x Year Matrix] -> FAIL (Cell mismatch) | Heap: 14.14MB
+[2026-09-21T13:07:48.556Z] [CYCLE #18] (180s/3600s) [Method 8: DLP Egress Scrubbing] -> PASS (passwordHash, salt, jwt_secret 100% redacted) | Heap: 14.22MB
+[2026-09-21T13:07:58.557Z] [CYCLE #19] (190s/3600s) [Method 9: Vault Disaster Recovery] -> PASS (Clean snapshot verified, 0 users) | Heap: 14.24MB
+[2026-09-21T13:08:08.571Z] [CYCLE #20] (200s/3600s) [Method 10: Event Loop & Memory Drift] -> PASS (Event loop lag: 0.13ms, Heap: 14.25MB) | Heap: 14.25MB
+[2026-09-21T13:08:18.632Z] [CYCLE #21] (210s/3600s) [Method 1: Spike Testing] -> PASS (200 spikes in 56ms, 200/200 OK) | Heap: 16.95MB
+[2026-09-21T13:08:28.593Z] [CYCLE #22] (220s/3600s) [Method 2: Security Headers Audit] -> PASS (All 5 security headers compliant) | Heap: 17.22MB
+[2026-09-21T13:08:38.598Z] [CYCLE #23] (230s/3600s) [Method 3: RBAC Access Control] -> PASS (Student 403 Forbidden, Unauth 401 Unauthorized) | Heap: 17.35MB
+[2026-09-21T13:08:48.608Z] [CYCLE #24] (240s/3600s) [Method 4: Homoglyphs & Wildcard Fuzzing] -> PASS (Homoglyphs & wildcards safely handled) | Heap: 17.60MB
+[2026-09-21T13:08:58.615Z] [CYCLE #25] (250s/3600s) [Method 5: Socket Lifecycle & Drops] -> PASS (Socket pool healthy, 30s timeout active) | Heap: 17.70MB
+[2026-09-21T13:09:08.623Z] [CYCLE #26] (260s/3600s) [Method 6: Atomic Concurrency Race] -> PASS (20 concurrent atomic writes without corruption) | Heap: 17.77MB
+[2026-09-21T13:09:18.642Z] [CYCLE #27] (270s/3600s) [Method 7: 24-Cell Degree x Year Matrix] -> FAIL (Cell mismatch) | Heap: 17.62MB
+[2026-09-21T13:09:28.638Z] [CYCLE #28] (280s/3600s) [Method 8: DLP Egress Scrubbing] -> PASS (passwordHash, salt, jwt_secret 100% redacted) | Heap: 17.70MB
+[2026-09-21T13:09:38.642Z] [CYCLE #29] (290s/3600s) [Method 9: Vault Disaster Recovery] -> PASS (Clean snapshot verified, 0 users) | Heap: 17.70MB
+[2026-09-21T13:09:48.656Z] [CYCLE #30] (300s/3600s) [Method 10: Event Loop & Memory Drift] -> PASS (Event loop lag: 0.09ms, Heap: 17.71MB) | Heap: 17.71MB
+[2026-09-21T13:09:58.724Z] [CYCLE #31] (310s/3600s) [Method 1: Spike Testing] -> PASS (200 spikes in 62ms, 200/200 OK) | Heap: 20.36MB
+[2026-09-21T13:10:08.672Z] [CYCLE #32] (320s/3600s) [Method 2: Security Headers Audit] -> PASS (All 5 security headers compliant) | Heap: 12.96MB
+[2026-09-21T13:10:18.682Z] [CYCLE #33] (330s/3600s) [Method 3: RBAC Access Control] -> PASS (Student 403 Forbidden, Unauth 401 Unauthorized) | Heap: 13.11MB
+[2026-09-21T13:10:28.688Z] [CYCLE #34] (340s/3600s) [Method 4: Homoglyphs & Wildcard Fuzzing] -> PASS (Homoglyphs & wildcards safely handled) | Heap: 13.37MB
+[2026-09-21T13:10:38.703Z] [CYCLE #35] (350s/3600s) [Method 5: Socket Lifecycle & Drops] -> PASS (Socket pool healthy, 30s timeout active) | Heap: 13.48MB
+[2026-09-21T13:10:48.721Z] [CYCLE #36] (360s/3600s) [Method 6: Atomic Concurrency Race] -> PASS (20 concurrent atomic writes without corruption) | Heap: 13.55MB
+[2026-09-21T13:10:58.725Z] [CYCLE #37] (370s/3600s) [Method 7: 24-Cell Degree x Year Matrix] -> FAIL (Cell mismatch) | Heap: 13.31MB
+[2026-09-21T13:11:08.725Z] [CYCLE #38] (380s/3600s) [Method 8: DLP Egress Scrubbing] -> PASS (passwordHash, salt, jwt_secret 100% redacted) | Heap: 13.38MB
+[2026-09-21T13:11:18.738Z] [CYCLE #39] (390s/3600s) [Method 9: Vault Disaster Recovery] -> PASS (Clean snapshot verified, 0 users) | Heap: 13.39MB
+[2026-09-21T13:11:28.740Z] [CYCLE #40] (400s/3600s) [Method 10: Event Loop & Memory Drift] -> PASS (Event loop lag: 0.09ms, Heap: 13.39MB) | Heap: 13.39MB
+[2026-09-21T13:11:38.809Z] [CYCLE #41] (410s/3600s) [Method 1: Spike Testing] -> PASS (200 spikes in 59ms, 200/200 OK) | Heap: 17.55MB
+[2026-09-21T13:11:48.767Z] [CYCLE #42] (420s/3600s) [Method 2: Security Headers Audit] -> PASS (All 5 security headers compliant) | Heap: 15.36MB
+[2026-09-21T13:11:58.773Z] [CYCLE #43] (430s/3600s) [Method 3: RBAC Access Control] -> PASS (Student 403 Forbidden, Unauth 401 Unauthorized) | Heap: 15.50MB
+[2026-09-21T13:12:08.779Z] [CYCLE #44] (440s/3600s) [Method 4: Homoglyphs & Wildcard Fuzzing] -> PASS (Homoglyphs & wildcards safely handled) | Heap: 15.20MB
+[2026-09-21T13:12:18.781Z] [CYCLE #45] (450s/3600s) [Method 5: Socket Lifecycle & Drops] -> PASS (Socket pool healthy, 30s timeout active) | Heap: 15.30MB
+[2026-09-21T13:12:28.790Z] [CYCLE #46] (460s/3600s) [Method 6: Atomic Concurrency Race] -> PASS (20 concurrent atomic writes without corruption) | Heap: 15.37MB
+[2026-09-21T13:12:38.801Z] [CYCLE #47] (470s/3600s) [Method 7: 24-Cell Degree x Year Matrix] -> FAIL (Cell mismatch) | Heap: 15.86MB
+[2026-09-21T13:12:48.800Z] [CYCLE #48] (480s/3600s) [Method 8: DLP Egress Scrubbing] -> PASS (passwordHash, salt, jwt_secret 100% redacted) | Heap: 15.94MB
+[2026-09-21T13:12:58.809Z] [CYCLE #49] (490s/3600s) [Method 9: Vault Disaster Recovery] -> PASS (Clean snapshot verified, 0 users) | Heap: 15.95MB
+[2026-09-21T13:13:08.822Z] [CYCLE #50] (500s/3600s) [Method 10: Event Loop & Memory Drift] -> PASS (Event loop lag: 0.16ms, Heap: 15.97MB) | Heap: 15.97MB
+[2026-09-21T13:13:18.879Z] [CYCLE #51] (510s/3600s) [Method 1: Spike Testing] -> PASS (200 spikes in 45ms, 200/200 OK) | Heap: 20.30MB
+[2026-09-21T13:13:28.839Z] [CYCLE #52] (520s/3600s) [Method 2: Security Headers Audit] -> PASS (All 5 security headers compliant) | Heap: 12.27MB
+[2026-09-21T13:13:38.854Z] [CYCLE #53] (530s/3600s) [Method 3: RBAC Access Control] -> PASS (Student 403 Forbidden, Unauth 401 Unauthorized) | Heap: 12.40MB
+[2026-09-21T13:13:48.869Z] [CYCLE #54] (540s/3600s) [Method 4: Homoglyphs & Wildcard Fuzzing] -> PASS (Homoglyphs & wildcards safely handled) | Heap: 12.65MB
+[2026-09-21T13:13:58.873Z] [CYCLE #55] (550s/3600s) [Method 5: Socket Lifecycle & Drops] -> PASS (Socket pool healthy, 30s timeout active) | Heap: 12.76MB
+[2026-09-21T13:14:08.889Z] [CYCLE #56] (560s/3600s) [Method 6: Atomic Concurrency Race] -> PASS (20 concurrent atomic writes without corruption) | Heap: 12.83MB
+[2026-09-21T13:14:18.893Z] [CYCLE #57] (570s/3600s) [Method 7: 24-Cell Degree x Year Matrix] -> FAIL (Cell mismatch) | Heap: 12.58MB
+[2026-09-21T13:14:28.898Z] [CYCLE #58] (580s/3600s) [Method 8: DLP Egress Scrubbing] -> PASS (passwordHash, salt, jwt_secret 100% redacted) | Heap: 12.65MB
+[2026-09-21T13:14:38.908Z] [CYCLE #59] (590s/3600s) [Method 9: Vault Disaster Recovery] -> PASS (Clean snapshot verified, 0 users) | Heap: 12.66MB
+[2026-09-21T13:14:48.914Z] [CYCLE #60] (600s/3600s) [Method 10: Event Loop & Memory Drift] -> PASS (Event loop lag: 0.12ms, Heap: 12.66MB) | Heap: 12.67MB
+[2026-09-21T13:14:58.978Z] [CYCLE #61] (610s/3600s) [Method 1: Spike Testing] -> PASS (200 spikes in 50ms, 200/200 OK) | Heap: 17.17MB
+[2026-09-21T13:15:08.943Z] [CYCLE #62] (620s/3600s) [Method 2: Security Headers Audit] -> PASS (All 5 security headers compliant) | Heap: 14.63MB
+[2026-09-21T13:15:18.957Z] [CYCLE #63] (630s/3600s) [Method 3: RBAC Access Control] -> PASS (Student 403 Forbidden, Unauth 401 Unauthorized) | Heap: 14.75MB
+[2026-09-21T13:15:28.968Z] [CYCLE #64] (640s/3600s) [Method 4: Homoglyphs & Wildcard Fuzzing] -> PASS (Homoglyphs & wildcards safely handled) | Heap: 15.00MB
+[2026-09-21T13:15:38.969Z] [CYCLE #65] (650s/3600s) [Method 5: Socket Lifecycle & Drops] -> PASS (Socket pool healthy, 30s timeout active) | Heap: 15.10MB
+[2026-09-21T13:15:48.984Z] [CYCLE #66] (660s/3600s) [Method 6: Atomic Concurrency Race] -> PASS (20 concurrent atomic writes without corruption) | Heap: 15.17MB
+[2026-09-21T13:15:58.990Z] [CYCLE #67] (670s/3600s) [Method 7: 24-Cell Degree x Year Matrix] -> FAIL (Cell mismatch) | Heap: 14.63MB
+[2026-09-21T13:16:08.995Z] [CYCLE #68] (680s/3600s) [Method 8: DLP Egress Scrubbing] -> PASS (passwordHash, salt, jwt_secret 100% redacted) | Heap: 14.69MB
+[2026-09-21T13:16:19.004Z] [CYCLE #69] (690s/3600s) [Method 9: Vault Disaster Recovery] -> PASS (Clean snapshot verified, 0 users) | Heap: 14.70MB
+[2026-09-21T13:16:29.018Z] [CYCLE #70] (700s/3600s) [Method 10: Event Loop & Memory Drift] -> PASS (Event loop lag: 0.07ms, Heap: 14.71MB) | Heap: 14.71MB
+[2026-09-21T13:16:39.074Z] [CYCLE #71] (710s/3600s) [Method 1: Spike Testing] -> PASS (200 spikes in 44ms, 200/200 OK) | Heap: 17.72MB
+[2026-09-21T13:16:49.034Z] [CYCLE #72] (720s/3600s) [Method 2: Security Headers Audit] -> PASS (All 5 security headers compliant) | Heap: 17.98MB
+[2026-09-21T13:16:59.045Z] [CYCLE #73] (730s/3600s) [Method 3: RBAC Access Control] -> PASS (Student 403 Forbidden, Unauth 401 Unauthorized) | Heap: 18.10MB
+[2026-09-21T13:17:09.056Z] [CYCLE #74] (740s/3600s) [Method 4: Homoglyphs & Wildcard Fuzzing] -> PASS (Homoglyphs & wildcards safely handled) | Heap: 18.35MB
+[2026-09-21T13:17:19.069Z] [CYCLE #75] (750s/3600s) [Method 5: Socket Lifecycle & Drops] -> PASS (Socket pool healthy, 30s timeout active) | Heap: 16.84MB
+[2026-09-21T13:17:29.086Z] [CYCLE #76] (760s/3600s) [Method 6: Atomic Concurrency Race] -> PASS (20 concurrent atomic writes without corruption) | Heap: 16.90MB
+[2026-09-21T13:17:39.094Z] [CYCLE #77] (770s/3600s) [Method 7: 24-Cell Degree x Year Matrix] -> FAIL (Cell mismatch) | Heap: 17.52MB
+[2026-09-21T13:17:49.094Z] [CYCLE #78] (780s/3600s) [Method 8: DLP Egress Scrubbing] -> PASS (passwordHash, salt, jwt_secret 100% redacted) | Heap: 16.79MB
+[2026-09-21T13:17:59.099Z] [CYCLE #79] (790s/3600s) [Method 9: Vault Disaster Recovery] -> PASS (Clean snapshot verified, 0 users) | Heap: 16.80MB
+[2026-09-21T13:18:09.105Z] [CYCLE #80] (800s/3600s) [Method 10: Event Loop & Memory Drift] -> PASS (Event loop lag: 0.09ms, Heap: 16.80MB) | Heap: 16.80MB
+[2026-09-21T13:18:19.151Z] [CYCLE #81] (810s/3600s) [Method 1: Spike Testing] -> PASS (200 spikes in 44ms, 200/200 OK) | Heap: 13.96MB
+[2026-09-21T13:18:29.111Z] [CYCLE #82] (820s/3600s) [Method 2: Security Headers Audit] -> PASS (All 5 security headers compliant) | Heap: 14.22MB
+[2026-09-21T13:18:39.126Z] [CYCLE #83] (830s/3600s) [Method 3: RBAC Access Control] -> PASS (Student 403 Forbidden, Unauth 401 Unauthorized) | Heap: 14.41MB
+[2026-09-21T13:18:49.134Z] [CYCLE #84] (840s/3600s) [Method 4: Homoglyphs & Wildcard Fuzzing] -> PASS (Homoglyphs & wildcards safely handled) | Heap: 14.65MB
+[2026-09-21T13:18:59.133Z] [CYCLE #85] (850s/3600s) [Method 5: Socket Lifecycle & Drops] -> PASS (Socket pool healthy, 30s timeout active) | Heap: 14.76MB
+[2026-09-21T13:19:09.136Z] [CYCLE #86] (860s/3600s) [Method 6: Atomic Concurrency Race] -> PASS (20 concurrent atomic writes without corruption) | Heap: 14.82MB
+[2026-09-21T13:19:19.147Z] [CYCLE #87] (870s/3600s) [Method 7: 24-Cell Degree x Year Matrix] -> FAIL (Cell mismatch) | Heap: 14.11MB
+[2026-09-21T13:19:29.157Z] [CYCLE #88] (880s/3600s) [Method 8: DLP Egress Scrubbing] -> PASS (passwordHash, salt, jwt_secret 100% redacted) | Heap: 14.18MB
+[2026-09-21T13:19:39.161Z] [CYCLE #89] (890s/3600s) [Method 9: Vault Disaster Recovery] -> PASS (Clean snapshot verified, 0 users) | Heap: 14.19MB
+[2026-09-21T13:19:49.168Z] [CYCLE #90] (900s/3600s) [Method 10: Event Loop & Memory Drift] -> PASS (Event loop lag: 0.16ms, Heap: 14.20MB) | Heap: 14.20MB
+[2026-09-21T13:19:59.230Z] [CYCLE #91] (910s/3600s) [Method 1: Spike Testing] -> PASS (200 spikes in 55ms, 200/200 OK) | Heap: 16.26MB
+[2026-09-21T13:20:09.187Z] [CYCLE #92] (920s/3600s) [Method 2: Security Headers Audit] -> PASS (All 5 security headers compliant) | Heap: 11.29MB
+[2026-09-21T13:20:19.198Z] [CYCLE #93] (930s/3600s) [Method 3: RBAC Access Control] -> PASS (Student 403 Forbidden, Unauth 401 Unauthorized) | Heap: 11.45MB
+[2026-09-21T13:20:29.210Z] [CYCLE #94] (940s/3600s) [Method 4: Homoglyphs & Wildcard Fuzzing] -> PASS (Homoglyphs & wildcards safely handled) | Heap: 11.71MB
+[2026-09-21T13:20:39.212Z] [CYCLE #95] (950s/3600s) [Method 5: Socket Lifecycle & Drops] -> PASS (Socket pool healthy, 30s timeout active) | Heap: 11.10MB
+[2026-09-21T13:20:49.215Z] [CYCLE #96] (960s/3600s) [Method 6: Atomic Concurrency Race] -> PASS (20 concurrent atomic writes without corruption) | Heap: 11.17MB
+[2026-09-21T13:20:59.232Z] [CYCLE #97] (970s/3600s) [Method 7: 24-Cell Degree x Year Matrix] -> FAIL (Cell mismatch) | Heap: 11.14MB
+[2026-09-21T13:21:09.226Z] [CYCLE #98] (980s/3600s) [Method 8: DLP Egress Scrubbing] -> PASS (passwordHash, salt, jwt_secret 100% redacted) | Heap: 11.21MB
+[2026-09-21T13:21:19.238Z] [CYCLE #99] (990s/3600s) [Method 9: Vault Disaster Recovery] -> PASS (Clean snapshot verified, 0 users) | Heap: 11.22MB
+[2026-09-21T13:21:29.237Z] [CYCLE #100] (1000s/3600s) [Method 10: Event Loop & Memory Drift] -> PASS (Event loop lag: 0.15ms, Heap: 11.23MB) | Heap: 11.23MB
+[2026-09-21T13:21:39.301Z] [CYCLE #101] (1010s/3600s) [Method 1: Spike Testing] -> PASS (200 spikes in 58ms, 200/200 OK) | Heap: 16.36MB
+[2026-09-21T13:21:49.256Z] [CYCLE #102] (1020s/3600s) [Method 2: Security Headers Audit] -> PASS (All 5 security headers compliant) | Heap: 13.84MB
+[2026-09-21T13:21:59.264Z] [CYCLE #103] (1030s/3600s) [Method 3: RBAC Access Control] -> PASS (Student 403 Forbidden, Unauth 401 Unauthorized) | Heap: 10.22MB
+[2026-09-21T13:22:09.278Z] [CYCLE #104] (1040s/3600s) [Method 4: Homoglyphs & Wildcard Fuzzing] -> PASS (Homoglyphs & wildcards safely handled) | Heap: 10.49MB
+[2026-09-21T13:22:19.283Z] [CYCLE #105] (1050s/3600s) [Method 5: Socket Lifecycle & Drops] -> PASS (Socket pool healthy, 30s timeout active) | Heap: 10.61MB
+[2026-09-21T13:22:29.287Z] [CYCLE #106] (1060s/3600s) [Method 6: Atomic Concurrency Race] -> PASS (20 concurrent atomic writes without corruption) | Heap: 10.67MB
+[2026-09-21T13:22:39.305Z] [CYCLE #107] (1070s/3600s) [Method 7: 24-Cell Degree x Year Matrix] -> FAIL (Cell mismatch) | Heap: 10.49MB
+[2026-09-21T13:22:49.307Z] [CYCLE #108] (1080s/3600s) [Method 8: DLP Egress Scrubbing] -> PASS (passwordHash, salt, jwt_secret 100% redacted) | Heap: 10.56MB
+[2026-09-21T13:22:59.313Z] [CYCLE #109] (1090s/3600s) [Method 9: Vault Disaster Recovery] -> PASS (Clean snapshot verified, 0 users) | Heap: 10.57MB
+[2026-09-21T13:23:09.323Z] [CYCLE #110] (1100s/3600s) [Method 10: Event Loop & Memory Drift] -> PASS (Event loop lag: 0.08ms, Heap: 10.58MB) | Heap: 10.58MB
+[2026-09-21T13:23:19.416Z] [CYCLE #111] (1110s/3600s) [Method 1: Spike Testing] -> PASS (200 spikes in 80ms, 200/200 OK) | Heap: 12.83MB
+[2026-09-21T13:23:29.339Z] [CYCLE #112] (1120s/3600s) [Method 2: Security Headers Audit] -> PASS (All 5 security headers compliant) | Heap: 13.11MB
+[2026-09-21T13:23:39.349Z] [CYCLE #113] (1130s/3600s) [Method 3: RBAC Access Control] -> PASS (Student 403 Forbidden, Unauth 401 Unauthorized) | Heap: 13.23MB
+[2026-09-21T13:23:49.364Z] [CYCLE #114] (1140s/3600s) [Method 4: Homoglyphs & Wildcard Fuzzing] -> PASS (Homoglyphs & wildcards safely handled) | Heap: 13.48MB
+[2026-09-21T13:23:59.378Z] [CYCLE #115] (1150s/3600s) [Method 5: Socket Lifecycle & Drops] -> PASS (Socket pool healthy, 30s timeout active) | Heap: 13.59MB
+[2026-09-21T13:24:09.386Z] [CYCLE #116] (1160s/3600s) [Method 6: Atomic Concurrency Race] -> PASS (20 concurrent atomic writes without corruption) | Heap: 13.66MB
+[2026-09-21T13:24:19.405Z] [CYCLE #117] (1170s/3600s) [Method 7: 24-Cell Degree x Year Matrix] -> FAIL (Cell mismatch) | Heap: 13.12MB
+[2026-09-21T13:24:29.398Z] [CYCLE #118] (1180s/3600s) [Method 8: DLP Egress Scrubbing] -> PASS (passwordHash, salt, jwt_secret 100% redacted) | Heap: 13.19MB
+[2026-09-21T13:24:39.405Z] [CYCLE #119] (1191s/3600s) [Method 9: Vault Disaster Recovery] -> PASS (Clean snapshot verified, 0 users) | Heap: 13.20MB
+[2026-09-21T13:24:49.419Z] [CYCLE #120] (1201s/3600s) [Method 10: Event Loop & Memory Drift] -> PASS (Event loop lag: 0.07ms, Heap: 13.20MB) | Heap: 13.20MB
+[2026-09-21T13:24:59.501Z] [CYCLE #121] (1211s/3600s) [Method 1: Spike Testing] -> PASS (200 spikes in 69ms, 200/200 OK) | Heap: 16.49MB
+[2026-09-21T13:25:09.438Z] [CYCLE #122] (1221s/3600s) [Method 2: Security Headers Audit] -> PASS (All 5 security headers compliant) | Heap: 10.87MB
+[2026-09-21T13:25:19.444Z] [CYCLE #123] (1231s/3600s) [Method 3: RBAC Access Control] -> PASS (Student 403 Forbidden, Unauth 401 Unauthorized) | Heap: 11.00MB
+[2026-09-21T13:25:29.453Z] [CYCLE #124] (1241s/3600s) [Method 4: Homoglyphs & Wildcard Fuzzing] -> PASS (Homoglyphs & wildcards safely handled) | Heap: 11.24MB
+[2026-09-21T13:25:39.458Z] [CYCLE #125] (1251s/3600s) [Method 5: Socket Lifecycle & Drops] -> PASS (Socket pool healthy, 30s timeout active) | Heap: 11.35MB
+[2026-09-21T13:25:49.464Z] [CYCLE #126] (1261s/3600s) [Method 6: Atomic Concurrency Race] -> PASS (20 concurrent atomic writes without corruption) | Heap: 11.40MB
+[2026-09-21T13:25:59.481Z] [CYCLE #127] (1271s/3600s) [Method 7: 24-Cell Degree x Year Matrix] -> FAIL (Cell mismatch) | Heap: 14.29MB
+[2026-09-21T13:26:09.488Z] [CYCLE #128] (1281s/3600s) [Method 8: DLP Egress Scrubbing] -> PASS (passwordHash, salt, jwt_secret 100% redacted) | Heap: 14.36MB
+[2026-09-21T13:26:19.492Z] [CYCLE #129] (1291s/3600s) [Method 9: Vault Disaster Recovery] -> PASS (Clean snapshot verified, 0 users) | Heap: 14.37MB
+[2026-09-21T13:26:29.505Z] [CYCLE #130] (1301s/3600s) [Method 10: Event Loop & Memory Drift] -> PASS (Event loop lag: 0.13ms, Heap: 14.38MB) | Heap: 14.38MB
+[2026-09-21T13:26:39.577Z] [CYCLE #131] (1311s/3600s) [Method 1: Spike Testing] -> PASS (200 spikes in 59ms, 200/200 OK) | Heap: 13.15MB
+[2026-09-21T13:26:49.533Z] [CYCLE #132] (1321s/3600s) [Method 2: Security Headers Audit] -> PASS (All 5 security headers compliant) | Heap: 13.39MB
+[2026-09-21T13:26:59.546Z] [CYCLE #133] (1331s/3600s) [Method 3: RBAC Access Control] -> PASS (Student 403 Forbidden, Unauth 401 Unauthorized) | Heap: 13.51MB
+[2026-09-21T13:27:09.554Z] [CYCLE #134] (1341s/3600s) [Method 4: Homoglyphs & Wildcard Fuzzing] -> PASS (Homoglyphs & wildcards safely handled) | Heap: 13.76MB
+[2026-09-21T13:27:19.558Z] [CYCLE #135] (1351s/3600s) [Method 5: Socket Lifecycle & Drops] -> PASS (Socket pool healthy, 30s timeout active) | Heap: 13.87MB
+[2026-09-21T13:27:29.572Z] [CYCLE #136] (1361s/3600s) [Method 6: Atomic Concurrency Race] -> PASS (20 concurrent atomic writes without corruption) | Heap: 13.93MB
+[2026-09-21T13:27:39.589Z] [CYCLE #137] (1371s/3600s) [Method 7: 24-Cell Degree x Year Matrix] -> FAIL (Cell mismatch) | Heap: 13.13MB
+[2026-09-21T13:27:49.588Z] [CYCLE #138] (1381s/3600s) [Method 8: DLP Egress Scrubbing] -> PASS (passwordHash, salt, jwt_secret 100% redacted) | Heap: 13.20MB
+[2026-09-21T13:27:59.591Z] [CYCLE #139] (1391s/3600s) [Method 9: Vault Disaster Recovery] -> PASS (Clean snapshot verified, 0 users) | Heap: 13.21MB
+[2026-09-21T13:28:09.597Z] [CYCLE #140] (1401s/3600s) [Method 10: Event Loop & Memory Drift] -> PASS (Event loop lag: 0.06ms, Heap: 13.21MB) | Heap: 13.21MB
+[2026-09-21T13:28:19.680Z] [CYCLE #141] (1411s/3600s) [Method 1: Spike Testing] -> PASS (200 spikes in 68ms, 200/200 OK) | Heap: 15.37MB
+[2026-09-21T13:28:29.625Z] [CYCLE #142] (1421s/3600s) [Method 2: Security Headers Audit] -> PASS (All 5 security headers compliant) | Heap: 15.61MB
+[2026-09-21T13:28:39.627Z] [CYCLE #143] (1431s/3600s) [Method 3: RBAC Access Control] -> PASS (Student 403 Forbidden, Unauth 401 Unauthorized) | Heap: 15.72MB
+[2026-09-21T13:28:49.643Z] [CYCLE #144] (1441s/3600s) [Method 4: Homoglyphs & Wildcard Fuzzing] -> PASS (Homoglyphs & wildcards safely handled) | Heap: 15.96MB
+[2026-09-21T13:28:59.642Z] [CYCLE #145] (1451s/3600s) [Method 5: Socket Lifecycle & Drops] -> PASS (Socket pool healthy, 30s timeout active) | Heap: 16.06MB
+[2026-09-21T13:29:09.660Z] [CYCLE #146] (1461s/3600s) [Method 6: Atomic Concurrency Race] -> PASS (20 concurrent atomic writes without corruption) | Heap: 16.11MB
+[2026-09-21T13:29:19.675Z] [CYCLE #147] (1471s/3600s) [Method 7: 24-Cell Degree x Year Matrix] -> FAIL (Cell mismatch) | Heap: 15.67MB
+[2026-09-21T13:29:29.675Z] [CYCLE #148] (1481s/3600s) [Method 8: DLP Egress Scrubbing] -> PASS (passwordHash, salt, jwt_secret 100% redacted) | Heap: 15.73MB
+[2026-09-21T13:29:39.678Z] [CYCLE #149] (1491s/3600s) [Method 9: Vault Disaster Recovery] -> PASS (Clean snapshot verified, 0 users) | Heap: 15.74MB
+[2026-09-21T13:29:49.681Z] [CYCLE #150] (1501s/3600s) [Method 10: Event Loop & Memory Drift] -> PASS (Event loop lag: 0.05ms, Heap: 15.74MB) | Heap: 15.74MB
+[2026-09-21T13:29:59.744Z] [CYCLE #151] (1511s/3600s) [Method 1: Spike Testing] -> PASS (200 spikes in 57ms, 200/200 OK) | Heap: 14.85MB
+[2026-09-21T13:30:09.699Z] [CYCLE #152] (1521s/3600s) [Method 2: Security Headers Audit] -> PASS (All 5 security headers compliant) | Heap: 15.10MB
+[2026-09-21T13:30:19.708Z] [CYCLE #153] (1531s/3600s) [Method 3: RBAC Access Control] -> PASS (Student 403 Forbidden, Unauth 401 Unauthorized) | Heap: 15.23MB
+[2026-09-21T13:30:29.715Z] [CYCLE #154] (1541s/3600s) [Method 4: Homoglyphs & Wildcard Fuzzing] -> PASS (Homoglyphs & wildcards safely handled) | Heap: 15.47MB
+[2026-09-21T13:30:39.723Z] [CYCLE #155] (1551s/3600s) [Method 5: Socket Lifecycle & Drops] -> PASS (Socket pool healthy, 30s timeout active) | Heap: 15.57MB
+[2026-09-21T13:30:49.728Z] [CYCLE #156] (1561s/3600s) [Method 6: Atomic Concurrency Race] -> PASS (20 concurrent atomic writes without corruption) | Heap: 15.63MB
+[2026-09-21T13:30:59.741Z] [CYCLE #157] (1571s/3600s) [Method 7: 24-Cell Degree x Year Matrix] -> FAIL (Cell mismatch) | Heap: 18.50MB
+[2026-09-21T13:31:09.742Z] [CYCLE #158] (1581s/3600s) [Method 8: DLP Egress Scrubbing] -> PASS (passwordHash, salt, jwt_secret 100% redacted) | Heap: 18.57MB
+[2026-09-21T13:31:19.742Z] [CYCLE #159] (1591s/3600s) [Method 9: Vault Disaster Recovery] -> PASS (Clean snapshot verified, 0 users) | Heap: 18.58MB
+[2026-09-21T13:31:29.741Z] [CYCLE #160] (1601s/3600s) [Method 10: Event Loop & Memory Drift] -> PASS (Event loop lag: 0.12ms, Heap: 18.58MB) | Heap: 18.58MB
+[2026-09-21T13:31:39.799Z] [CYCLE #161] (1611s/3600s) [Method 1: Spike Testing] -> PASS (200 spikes in 53ms, 200/200 OK) | Heap: 18.05MB
+[2026-09-21T13:31:49.756Z] [CYCLE #162] (1621s/3600s) [Method 2: Security Headers Audit] -> PASS (All 5 security headers compliant) | Heap: 18.30MB
+[2026-09-21T13:31:59.771Z] [CYCLE #163] (1631s/3600s) [Method 3: RBAC Access Control] -> PASS (Student 403 Forbidden, Unauth 401 Unauthorized) | Heap: 18.41MB
+[2026-09-21T13:32:09.781Z] [CYCLE #164] (1641s/3600s) [Method 4: Homoglyphs & Wildcard Fuzzing] -> PASS (Homoglyphs & wildcards safely handled) | Heap: 18.66MB
+[2026-09-21T13:32:19.788Z] [CYCLE #165] (1651s/3600s) [Method 5: Socket Lifecycle & Drops] -> PASS (Socket pool healthy, 30s timeout active) | Heap: 18.76MB
+[2026-09-21T13:32:29.794Z] [CYCLE #166] (1661s/3600s) [Method 6: Atomic Concurrency Race] -> PASS (20 concurrent atomic writes without corruption) | Heap: 18.81MB
+[2026-09-21T13:32:39.803Z] [CYCLE #167] (1671s/3600s) [Method 7: 24-Cell Degree x Year Matrix] -> FAIL (Cell mismatch) | Heap: 17.79MB
+[2026-09-21T13:32:49.803Z] [CYCLE #168] (1681s/3600s) [Method 8: DLP Egress Scrubbing] -> PASS (passwordHash, salt, jwt_secret 100% redacted) | Heap: 17.85MB
+[2026-09-21T13:32:59.807Z] [CYCLE #169] (1691s/3600s) [Method 9: Vault Disaster Recovery] -> PASS (Clean snapshot verified, 0 users) | Heap: 17.86MB
+[2026-09-21T13:33:09.820Z] [CYCLE #170] (1701s/3600s) [Method 10: Event Loop & Memory Drift] -> PASS (Event loop lag: 0.08ms, Heap: 17.87MB) | Heap: 17.87MB
+[2026-09-21T13:33:19.874Z] [CYCLE #171] (1711s/3600s) [Method 1: Spike Testing] -> PASS (200 spikes in 50ms, 200/200 OK) | Heap: 20.79MB
+[2026-09-21T13:33:29.832Z] [CYCLE #172] (1721s/3600s) [Method 2: Security Headers Audit] -> PASS (All 5 security headers compliant) | Heap: 10.96MB
+[2026-09-21T13:33:39.836Z] [CYCLE #173] (1731s/3600s) [Method 3: RBAC Access Control] -> PASS (Student 403 Forbidden, Unauth 401 Unauthorized) | Heap: 11.08MB
+[2026-09-21T13:33:49.841Z] [CYCLE #174] (1741s/3600s) [Method 4: Homoglyphs & Wildcard Fuzzing] -> PASS (Homoglyphs & wildcards safely handled) | Heap: 11.32MB
+[2026-09-21T13:33:59.848Z] [CYCLE #175] (1751s/3600s) [Method 5: Socket Lifecycle & Drops] -> PASS (Socket pool healthy, 30s timeout active) | Heap: 11.42MB
+[2026-09-21T13:34:09.853Z] [CYCLE #176] (1761s/3600s) [Method 6: Atomic Concurrency Race] -> PASS (20 concurrent atomic writes without corruption) | Heap: 11.47MB
+[2026-09-21T13:34:19.858Z] [CYCLE #177] (1771s/3600s) [Method 7: 24-Cell Degree x Year Matrix] -> FAIL (Cell mismatch) | Heap: 14.27MB
+[2026-09-21T13:34:29.859Z] [CYCLE #178] (1781s/3600s) [Method 8: DLP Egress Scrubbing] -> PASS (passwordHash, salt, jwt_secret 100% redacted) | Heap: 14.34MB
+[2026-09-21T13:34:39.859Z] [CYCLE #179] (1791s/3600s) [Method 9: Vault Disaster Recovery] -> PASS (Clean snapshot verified, 0 users) | Heap: 14.34MB
+[2026-09-21T13:34:49.871Z] [CYCLE #180] (1801s/3600s) [Method 10: Event Loop & Memory Drift] -> PASS (Event loop lag: 0.12ms, Heap: 14.35MB) | Heap: 14.35MB
+[2026-09-21T13:34:59.939Z] [CYCLE #181] (1811s/3600s) [Method 1: Spike Testing] -> PASS (200 spikes in 54ms, 200/200 OK) | Heap: 14.11MB
+[2026-09-21T13:35:09.901Z] [CYCLE #182] (1821s/3600s) [Method 2: Security Headers Audit] -> PASS (All 5 security headers compliant) | Heap: 14.36MB
+[2026-09-21T13:35:19.912Z] [CYCLE #183] (1831s/3600s) [Method 3: RBAC Access Control] -> PASS (Student 403 Forbidden, Unauth 401 Unauthorized) | Heap: 14.48MB
+[2026-09-21T13:35:29.929Z] [CYCLE #184] (1841s/3600s) [Method 4: Homoglyphs & Wildcard Fuzzing] -> PASS (Homoglyphs & wildcards safely handled) | Heap: 13.30MB
+[2026-09-21T13:35:39.930Z] [CYCLE #185] (1851s/3600s) [Method 5: Socket Lifecycle & Drops] -> PASS (Socket pool healthy, 30s timeout active) | Heap: 13.40MB
+[2026-09-21T13:35:49.934Z] [CYCLE #186] (1861s/3600s) [Method 6: Atomic Concurrency Race] -> PASS (20 concurrent atomic writes without corruption) | Heap: 13.45MB
+[2026-09-21T13:35:59.952Z] [CYCLE #187] (1871s/3600s) [Method 7: 24-Cell Degree x Year Matrix] -> FAIL (Cell mismatch) | Heap: 13.63MB
+[2026-09-21T13:36:09.954Z] [CYCLE #188] (1881s/3600s) [Method 8: DLP Egress Scrubbing] -> PASS (passwordHash, salt, jwt_secret 100% redacted) | Heap: 13.69MB
+[2026-09-21T13:36:19.962Z] [CYCLE #189] (1891s/3600s) [Method 9: Vault Disaster Recovery] -> PASS (Clean snapshot verified, 0 users) | Heap: 13.69MB
+[2026-09-21T13:36:29.973Z] [CYCLE #190] (1901s/3600s) [Method 10: Event Loop & Memory Drift] -> PASS (Event loop lag: 0.07ms, Heap: 13.70MB) | Heap: 13.70MB
+[2026-09-21T13:36:40.043Z] [CYCLE #191] (1911s/3600s) [Method 1: Spike Testing] -> PASS (200 spikes in 68ms, 200/200 OK) | Heap: 17.49MB
+[2026-09-21T13:36:49.980Z] [CYCLE #192] (1921s/3600s) [Method 2: Security Headers Audit] -> PASS (All 5 security headers compliant) | Heap: 17.73MB
+[2026-09-21T13:36:59.985Z] [CYCLE #193] (1931s/3600s) [Method 3: RBAC Access Control] -> PASS (Student 403 Forbidden, Unauth 401 Unauthorized) | Heap: 17.85MB
+[2026-09-21T13:37:09.988Z] [CYCLE #194] (1941s/3600s) [Method 4: Homoglyphs & Wildcard Fuzzing] -> PASS (Homoglyphs & wildcards safely handled) | Heap: 15.66MB
+[2026-09-21T13:37:19.991Z] [CYCLE #195] (1951s/3600s) [Method 5: Socket Lifecycle & Drops] -> PASS (Socket pool healthy, 30s timeout active) | Heap: 15.76MB
+[2026-09-21T13:37:30.005Z] [CYCLE #196] (1961s/3600s) [Method 6: Atomic Concurrency Race] -> PASS (20 concurrent atomic writes without corruption) | Heap: 15.81MB
+[2026-09-21T13:37:40.024Z] [CYCLE #197] (1971s/3600s) [Method 7: 24-Cell Degree x Year Matrix] -> FAIL (Cell mismatch) | Heap: 15.58MB
+[2026-09-21T13:37:50.024Z] [CYCLE #198] (1981s/3600s) [Method 8: DLP Egress Scrubbing] -> PASS (passwordHash, salt, jwt_secret 100% redacted) | Heap: 15.64MB
+[2026-09-21T13:38:00.030Z] [CYCLE #199] (1991s/3600s) [Method 9: Vault Disaster Recovery] -> PASS (Clean snapshot verified, 0 users) | Heap: 15.65MB
+[2026-09-21T13:38:10.042Z] [CYCLE #200] (2001s/3600s) [Method 10: Event Loop & Memory Drift] -> PASS (Event loop lag: 0.06ms, Heap: 15.65MB) | Heap: 15.65MB
+[2026-09-21T13:38:20.112Z] [CYCLE #201] (2011s/3600s) [Method 1: Spike Testing] -> PASS (200 spikes in 56ms, 200/200 OK) | Heap: 14.77MB
+[2026-09-21T13:38:30.070Z] [CYCLE #202] (2021s/3600s) [Method 2: Security Headers Audit] -> PASS (All 5 security headers compliant) | Heap: 15.03MB
+[2026-09-21T13:38:40.074Z] [CYCLE #203] (2031s/3600s) [Method 3: RBAC Access Control] -> PASS (Student 403 Forbidden, Unauth 401 Unauthorized) | Heap: 15.15MB
+[2026-09-21T13:38:50.089Z] [CYCLE #204] (2041s/3600s) [Method 4: Homoglyphs & Wildcard Fuzzing] -> PASS (Homoglyphs & wildcards safely handled) | Heap: 15.39MB
+[2026-09-21T13:39:00.103Z] [CYCLE #205] (2051s/3600s) [Method 5: Socket Lifecycle & Drops] -> PASS (Socket pool healthy, 30s timeout active) | Heap: 15.49MB
+[2026-09-21T13:39:10.107Z] [CYCLE #206] (2061s/3600s) [Method 6: Atomic Concurrency Race] -> PASS (20 concurrent atomic writes without corruption) | Heap: 15.55MB
+[2026-09-21T13:39:20.118Z] [CYCLE #207] (2071s/3600s) [Method 7: 24-Cell Degree x Year Matrix] -> FAIL (Cell mismatch) | Heap: 18.40MB
+[2026-09-21T13:39:30.125Z] [CYCLE #208] (2081s/3600s) [Method 8: DLP Egress Scrubbing] -> PASS (passwordHash, salt, jwt_secret 100% redacted) | Heap: 18.47MB
+[2026-09-21T13:39:40.129Z] [CYCLE #209] (2091s/3600s) [Method 9: Vault Disaster Recovery] -> PASS (Clean snapshot verified, 0 users) | Heap: 18.48MB
+[2026-09-21T13:39:50.131Z] [CYCLE #210] (2101s/3600s) [Method 10: Event Loop & Memory Drift] -> PASS (Event loop lag: 0.16ms, Heap: 18.49MB) | Heap: 18.49MB
+[2026-09-21T13:40:00.186Z] [CYCLE #211] (2111s/3600s) [Method 1: Spike Testing] -> PASS (200 spikes in 50ms, 200/200 OK) | Heap: 18.33MB
+[2026-09-21T13:40:10.143Z] [CYCLE #212] (2121s/3600s) [Method 2: Security Headers Audit] -> PASS (All 5 security headers compliant) | Heap: 18.57MB
+[2026-09-21T13:40:20.153Z] [CYCLE #213] (2131s/3600s) [Method 3: RBAC Access Control] -> PASS (Student 403 Forbidden, Unauth 401 Unauthorized) | Heap: 18.68MB
+[2026-09-21T13:40:30.164Z] [CYCLE #214] (2141s/3600s) [Method 4: Homoglyphs & Wildcard Fuzzing] -> PASS (Homoglyphs & wildcards safely handled) | Heap: 18.92MB
+[2026-09-21T13:40:40.166Z] [CYCLE #215] (2151s/3600s) [Method 5: Socket Lifecycle & Drops] -> PASS (Socket pool healthy, 30s timeout active) | Heap: 19.01MB
+[2026-09-21T13:40:50.174Z] [CYCLE #216] (2161s/3600s) [Method 6: Atomic Concurrency Race] -> PASS (20 concurrent atomic writes without corruption) | Heap: 19.07MB
+[2026-09-21T13:41:00.180Z] [CYCLE #217] (2171s/3600s) [Method 7: 24-Cell Degree x Year Matrix] -> FAIL (Cell mismatch) | Heap: 18.44MB
+[2026-09-21T13:41:10.183Z] [CYCLE #218] (2181s/3600s) [Method 8: DLP Egress Scrubbing] -> PASS (passwordHash, salt, jwt_secret 100% redacted) | Heap: 18.50MB
+[2026-09-21T13:41:20.185Z] [CYCLE #219] (2191s/3600s) [Method 9: Vault Disaster Recovery] -> PASS (Clean snapshot verified, 0 users) | Heap: 18.50MB
+[2026-09-21T13:41:30.198Z] [CYCLE #220] (2201s/3600s) [Method 10: Event Loop & Memory Drift] -> PASS (Event loop lag: 0.06ms, Heap: 18.51MB) | Heap: 18.51MB
+[2026-09-21T13:41:40.248Z] [CYCLE #221] (2211s/3600s) [Method 1: Spike Testing] -> PASS (200 spikes in 48ms, 200/200 OK) | Heap: 21.18MB
+[2026-09-21T13:41:50.206Z] [CYCLE #222] (2221s/3600s) [Method 2: Security Headers Audit] -> PASS (All 5 security headers compliant) | Heap: 11.95MB
+[2026-09-21T13:42:00.216Z] [CYCLE #223] (2231s/3600s) [Method 3: RBAC Access Control] -> PASS (Student 403 Forbidden, Unauth 401 Unauthorized) | Heap: 12.06MB
+[2026-09-21T13:42:10.220Z] [CYCLE #224] (2241s/3600s) [Method 4: Homoglyphs & Wildcard Fuzzing] -> PASS (Homoglyphs & wildcards safely handled) | Heap: 12.31MB
+[2026-09-21T13:42:20.229Z] [CYCLE #225] (2251s/3600s) [Method 5: Socket Lifecycle & Drops] -> PASS (Socket pool healthy, 30s timeout active) | Heap: 12.41MB
+[2026-09-21T13:42:30.237Z] [CYCLE #226] (2261s/3600s) [Method 6: Atomic Concurrency Race] -> PASS (20 concurrent atomic writes without corruption) | Heap: 12.46MB
+[2026-09-21T13:42:40.254Z] [CYCLE #227] (2271s/3600s) [Method 7: 24-Cell Degree x Year Matrix] -> FAIL (Cell mismatch) | Heap: 11.98MB
+[2026-09-21T13:42:50.255Z] [CYCLE #228] (2281s/3600s) [Method 8: DLP Egress Scrubbing] -> PASS (passwordHash, salt, jwt_secret 100% redacted) | Heap: 12.03MB
+[2026-09-21T13:43:00.256Z] [CYCLE #229] (2291s/3600s) [Method 9: Vault Disaster Recovery] -> PASS (Clean snapshot verified, 0 users) | Heap: 12.04MB
+[2026-09-21T13:43:10.268Z] [CYCLE #230] (2301s/3600s) [Method 10: Event Loop & Memory Drift] -> PASS (Event loop lag: 0.19ms, Heap: 12.05MB) | Heap: 12.05MB
+[2026-09-21T13:43:20.341Z] [CYCLE #231] (2311s/3600s) [Method 1: Spike Testing] -> PASS (200 spikes in 73ms, 200/200 OK) | Heap: 15.68MB
+[2026-09-21T13:43:30.279Z] [CYCLE #232] (2321s/3600s) [Method 2: Security Headers Audit] -> PASS (All 5 security headers compliant) | Heap: 15.93MB
+[2026-09-21T13:43:40.292Z] [CYCLE #233] (2331s/3600s) [Method 3: RBAC Access Control] -> PASS (Student 403 Forbidden, Unauth 401 Unauthorized) | Heap: 16.03MB
+[2026-09-21T13:43:50.292Z] [CYCLE #234] (2341s/3600s) [Method 4: Homoglyphs & Wildcard Fuzzing] -> PASS (Homoglyphs & wildcards safely handled) | Heap: 16.27MB
+[2026-09-21T13:44:00.300Z] [CYCLE #235] (2351s/3600s) [Method 5: Socket Lifecycle & Drops] -> PASS (Socket pool healthy, 30s timeout active) | Heap: 16.36MB
+[2026-09-21T13:44:10.309Z] [CYCLE #236] (2361s/3600s) [Method 6: Atomic Concurrency Race] -> PASS (20 concurrent atomic writes without corruption) | Heap: 16.42MB
+[2026-09-21T13:44:20.326Z] [CYCLE #237] (2371s/3600s) [Method 7: 24-Cell Degree x Year Matrix] -> FAIL (Cell mismatch) | Heap: 15.35MB
+[2026-09-21T13:44:30.330Z] [CYCLE #238] (2381s/3600s) [Method 8: DLP Egress Scrubbing] -> PASS (passwordHash, salt, jwt_secret 100% redacted) | Heap: 15.41MB
+[2026-09-21T13:44:40.333Z] [CYCLE #239] (2391s/3600s) [Method 9: Vault Disaster Recovery] -> PASS (Clean snapshot verified, 0 users) | Heap: 15.42MB
+[2026-09-21T13:44:50.342Z] [CYCLE #240] (2401s/3600s) [Method 10: Event Loop & Memory Drift] -> PASS (Event loop lag: 0.05ms, Heap: 15.42MB) | Heap: 15.43MB
+[2026-09-21T13:45:00.404Z] [CYCLE #241] (2411s/3600s) [Method 1: Spike Testing] -> PASS (200 spikes in 49ms, 200/200 OK) | Heap: 18.10MB
+[2026-09-21T13:45:10.371Z] [CYCLE #242] (2421s/3600s) [Method 2: Security Headers Audit] -> PASS (All 5 security headers compliant) | Heap: 18.35MB
+[2026-09-21T13:45:20.383Z] [CYCLE #243] (2431s/3600s) [Method 3: RBAC Access Control] -> PASS (Student 403 Forbidden, Unauth 401 Unauthorized) | Heap: 18.45MB
+[2026-09-21T13:45:30.398Z] [CYCLE #244] (2441s/3600s) [Method 4: Homoglyphs & Wildcard Fuzzing] -> PASS (Homoglyphs & wildcards safely handled) | Heap: 18.68MB
+[2026-09-21T13:45:40.410Z] [CYCLE #245] (2452s/3600s) [Method 5: Socket Lifecycle & Drops] -> PASS (Socket pool healthy, 30s timeout active) | Heap: 18.78MB
+[2026-09-21T13:45:50.424Z] [CYCLE #246] (2462s/3600s) [Method 6: Atomic Concurrency Race] -> PASS (20 concurrent atomic writes without corruption) | Heap: 18.84MB
+[2026-09-21T13:46:00.443Z] [CYCLE #247] (2472s/3600s) [Method 7: 24-Cell Degree x Year Matrix] -> FAIL (Cell mismatch) | Heap: 17.72MB
+[2026-09-21T13:46:10.441Z] [CYCLE #248] (2482s/3600s) [Method 8: DLP Egress Scrubbing] -> PASS (passwordHash, salt, jwt_secret 100% redacted) | Heap: 17.78MB
+[2026-09-21T13:46:20.449Z] [CYCLE #249] (2492s/3600s) [Method 9: Vault Disaster Recovery] -> PASS (Clean snapshot verified, 0 users) | Heap: 17.78MB
+[2026-09-21T13:46:30.460Z] [CYCLE #250] (2502s/3600s) [Method 10: Event Loop & Memory Drift] -> PASS (Event loop lag: 0.06ms, Heap: 17.79MB) | Heap: 17.79MB
+[2026-09-21T13:46:40.520Z] [CYCLE #251] (2512s/3600s) [Method 1: Spike Testing] -> PASS (200 spikes in 57ms, 200/200 OK) | Heap: 20.41MB
+[2026-09-21T13:46:50.479Z] [CYCLE #252] (2522s/3600s) [Method 2: Security Headers Audit] -> PASS (All 5 security headers compliant) | Heap: 12.48MB
+[2026-09-21T13:47:00.481Z] [CYCLE #253] (2532s/3600s) [Method 3: RBAC Access Control] -> PASS (Student 403 Forbidden, Unauth 401 Unauthorized) | Heap: 12.60MB
+[2026-09-21T13:47:10.489Z] [CYCLE #254] (2542s/3600s) [Method 4: Homoglyphs & Wildcard Fuzzing] -> PASS (Homoglyphs & wildcards safely handled) | Heap: 12.83MB
+[2026-09-21T13:47:20.501Z] [CYCLE #255] (2552s/3600s) [Method 5: Socket Lifecycle & Drops] -> PASS (Socket pool healthy, 30s timeout active) | Heap: 12.92MB
+[2026-09-21T13:47:30.516Z] [CYCLE #256] (2562s/3600s) [Method 6: Atomic Concurrency Race] -> PASS (20 concurrent atomic writes without corruption) | Heap: 13.00MB
+[2026-09-21T13:47:40.521Z] [CYCLE #257] (2572s/3600s) [Method 7: 24-Cell Degree x Year Matrix] -> FAIL (Cell mismatch) | Heap: 12.67MB
+[2026-09-21T13:47:50.521Z] [CYCLE #258] (2582s/3600s) [Method 8: DLP Egress Scrubbing] -> PASS (passwordHash, salt, jwt_secret 100% redacted) | Heap: 12.73MB
+[2026-09-21T13:48:00.519Z] [CYCLE #259] (2592s/3600s) [Method 9: Vault Disaster Recovery] -> PASS (Clean snapshot verified, 0 users) | Heap: 12.74MB
+[2026-09-21T13:48:10.522Z] [CYCLE #260] (2602s/3600s) [Method 10: Event Loop & Memory Drift] -> PASS (Event loop lag: 0.08ms, Heap: 12.75MB) | Heap: 12.75MB
+[2026-09-21T13:48:20.571Z] [CYCLE #261] (2612s/3600s) [Method 1: Spike Testing] -> PASS (200 spikes in 45ms, 200/200 OK) | Heap: 16.19MB
+[2026-09-21T13:48:30.541Z] [CYCLE #262] (2622s/3600s) [Method 2: Security Headers Audit] -> PASS (All 5 security headers compliant) | Heap: 16.43MB
+[2026-09-21T13:48:40.551Z] [CYCLE #263] (2632s/3600s) [Method 3: RBAC Access Control] -> PASS (Student 403 Forbidden, Unauth 401 Unauthorized) | Heap: 16.54MB
+[2026-09-21T13:48:50.562Z] [CYCLE #264] (2642s/3600s) [Method 4: Homoglyphs & Wildcard Fuzzing] -> PASS (Homoglyphs & wildcards safely handled) | Heap: 16.77MB
+[2026-09-21T13:49:00.569Z] [CYCLE #265] (2652s/3600s) [Method 5: Socket Lifecycle & Drops] -> PASS (Socket pool healthy, 30s timeout active) | Heap: 16.87MB
+[2026-09-21T13:49:10.578Z] [CYCLE #266] (2662s/3600s) [Method 6: Atomic Concurrency Race] -> PASS (20 concurrent atomic writes without corruption) | Heap: 16.93MB
+[2026-09-21T13:49:20.592Z] [CYCLE #267] (2672s/3600s) [Method 7: 24-Cell Degree x Year Matrix] -> FAIL (Cell mismatch) | Heap: 15.10MB
+[2026-09-21T13:49:30.588Z] [CYCLE #268] (2682s/3600s) [Method 8: DLP Egress Scrubbing] -> PASS (passwordHash, salt, jwt_secret 100% redacted) | Heap: 15.16MB
+[2026-09-21T13:49:40.592Z] [CYCLE #269] (2692s/3600s) [Method 9: Vault Disaster Recovery] -> PASS (Clean snapshot verified, 0 users) | Heap: 15.17MB
+[2026-09-21T13:49:50.602Z] [CYCLE #270] (2702s/3600s) [Method 10: Event Loop & Memory Drift] -> PASS (Event loop lag: 0.06ms, Heap: 15.17MB) | Heap: 15.17MB
+[2026-09-21T13:50:00.662Z] [CYCLE #271] (2712s/3600s) [Method 1: Spike Testing] -> PASS (200 spikes in 58ms, 200/200 OK) | Heap: 17.07MB
+[2026-09-21T13:50:10.620Z] [CYCLE #272] (2722s/3600s) [Method 2: Security Headers Audit] -> PASS (All 5 security headers compliant) | Heap: 17.31MB
+[2026-09-21T13:50:20.622Z] [CYCLE #273] (2732s/3600s) [Method 3: RBAC Access Control] -> PASS (Student 403 Forbidden, Unauth 401 Unauthorized) | Heap: 17.41MB
+[2026-09-21T13:50:30.633Z] [CYCLE #274] (2742s/3600s) [Method 4: Homoglyphs & Wildcard Fuzzing] -> PASS (Homoglyphs & wildcards safely handled) | Heap: 17.63MB
+[2026-09-21T13:50:40.636Z] [CYCLE #275] (2752s/3600s) [Method 5: Socket Lifecycle & Drops] -> PASS (Socket pool healthy, 30s timeout active) | Heap: 17.73MB
+[2026-09-21T13:50:50.652Z] [CYCLE #276] (2762s/3600s) [Method 6: Atomic Concurrency Race] -> PASS (20 concurrent atomic writes without corruption) | Heap: 17.79MB
+[2026-09-21T13:51:00.654Z] [CYCLE #277] (2772s/3600s) [Method 7: 24-Cell Degree x Year Matrix] -> FAIL (Cell mismatch) | Heap: 17.93MB
+[2026-09-21T13:51:10.658Z] [CYCLE #278] (2782s/3600s) [Method 8: DLP Egress Scrubbing] -> PASS (passwordHash, salt, jwt_secret 100% redacted) | Heap: 17.99MB
+[2026-09-21T13:51:20.667Z] [CYCLE #279] (2792s/3600s) [Method 9: Vault Disaster Recovery] -> PASS (Clean snapshot verified, 0 users) | Heap: 18.00MB
+[2026-09-21T13:51:30.670Z] [CYCLE #280] (2802s/3600s) [Method 10: Event Loop & Memory Drift] -> PASS (Event loop lag: 0.04ms, Heap: 18.00MB) | Heap: 18.00MB
+[2026-09-21T13:51:40.731Z] [CYCLE #281] (2812s/3600s) [Method 1: Spike Testing] -> PASS (200 spikes in 56ms, 200/200 OK) | Heap: 20.12MB
+[2026-09-21T13:51:50.678Z] [CYCLE #282] (2822s/3600s) [Method 2: Security Headers Audit] -> PASS (All 5 security headers compliant) | Heap: 12.27MB
+[2026-09-21T13:52:00.679Z] [CYCLE #283] (2832s/3600s) [Method 3: RBAC Access Control] -> PASS (Student 403 Forbidden, Unauth 401 Unauthorized) | Heap: 12.38MB
+[2026-09-21T13:52:10.687Z] [CYCLE #284] (2842s/3600s) [Method 4: Homoglyphs & Wildcard Fuzzing] -> PASS (Homoglyphs & wildcards safely handled) | Heap: 12.61MB
+[2026-09-21T13:52:20.701Z] [CYCLE #285] (2852s/3600s) [Method 5: Socket Lifecycle & Drops] -> PASS (Socket pool healthy, 30s timeout active) | Heap: 12.70MB
+[2026-09-21T13:52:30.712Z] [CYCLE #286] (2862s/3600s) [Method 6: Atomic Concurrency Race] -> PASS (20 concurrent atomic writes without corruption) | Heap: 12.77MB
+[2026-09-21T13:52:40.730Z] [CYCLE #287] (2872s/3600s) [Method 7: 24-Cell Degree x Year Matrix] -> FAIL (Cell mismatch) | Heap: 12.33MB
+[2026-09-21T13:52:50.739Z] [CYCLE #288] (2882s/3600s) [Method 8: DLP Egress Scrubbing] -> PASS (passwordHash, salt, jwt_secret 100% redacted) | Heap: 12.39MB
+[2026-09-21T13:53:00.753Z] [CYCLE #289] (2892s/3600s) [Method 9: Vault Disaster Recovery] -> PASS (Clean snapshot verified, 0 users) | Heap: 12.39MB
+[2026-09-21T13:53:10.766Z] [CYCLE #290] (2902s/3600s) [Method 10: Event Loop & Memory Drift] -> PASS (Event loop lag: 0.08ms, Heap: 12.40MB) | Heap: 12.40MB
+[2026-09-21T13:53:20.832Z] [CYCLE #291] (2912s/3600s) [Method 1: Spike Testing] -> PASS (200 spikes in 52ms, 200/200 OK) | Heap: 16.27MB
+[2026-09-21T13:53:30.785Z] [CYCLE #292] (2922s/3600s) [Method 2: Security Headers Audit] -> PASS (All 5 security headers compliant) | Heap: 16.51MB
+[2026-09-21T13:53:40.794Z] [CYCLE #293] (2932s/3600s) [Method 3: RBAC Access Control] -> PASS (Student 403 Forbidden, Unauth 401 Unauthorized) | Heap: 16.61MB
+[2026-09-21T13:53:50.807Z] [CYCLE #294] (2942s/3600s) [Method 4: Homoglyphs & Wildcard Fuzzing] -> PASS (Homoglyphs & wildcards safely handled) | Heap: 14.38MB
+[2026-09-21T13:54:00.810Z] [CYCLE #295] (2952s/3600s) [Method 5: Socket Lifecycle & Drops] -> PASS (Socket pool healthy, 30s timeout active) | Heap: 14.47MB
+[2026-09-21T13:54:10.814Z] [CYCLE #296] (2962s/3600s) [Method 6: Atomic Concurrency Race] -> PASS (20 concurrent atomic writes without corruption) | Heap: 14.54MB
+[2026-09-21T13:54:20.821Z] [CYCLE #297] (2972s/3600s) [Method 7: 24-Cell Degree x Year Matrix] -> FAIL (Cell mismatch) | Heap: 15.07MB
+[2026-09-21T13:54:30.824Z] [CYCLE #298] (2982s/3600s) [Method 8: DLP Egress Scrubbing] -> PASS (passwordHash, salt, jwt_secret 100% redacted) | Heap: 15.12MB
+[2026-09-21T13:54:40.825Z] [CYCLE #299] (2992s/3600s) [Method 9: Vault Disaster Recovery] -> PASS (Clean snapshot verified, 0 users) | Heap: 14.36MB
+[2026-09-21T13:54:50.833Z] [CYCLE #300] (3002s/3600s) [Method 10: Event Loop & Memory Drift] -> PASS (Event loop lag: 0.08ms, Heap: 14.37MB) | Heap: 14.37MB
+[2026-09-21T13:55:00.886Z] [CYCLE #301] (3012s/3600s) [Method 1: Spike Testing] -> PASS (200 spikes in 47ms, 200/200 OK) | Heap: 16.66MB
+[2026-09-21T13:55:10.842Z] [CYCLE #302] (3022s/3600s) [Method 2: Security Headers Audit] -> PASS (All 5 security headers compliant) | Heap: 16.89MB
+[2026-09-21T13:55:20.850Z] [CYCLE #303] (3032s/3600s) [Method 3: RBAC Access Control] -> PASS (Student 403 Forbidden, Unauth 401 Unauthorized) | Heap: 17.00MB
+[2026-09-21T13:55:30.859Z] [CYCLE #304] (3042s/3600s) [Method 4: Homoglyphs & Wildcard Fuzzing] -> PASS (Homoglyphs & wildcards safely handled) | Heap: 17.22MB
+[2026-09-21T13:55:40.860Z] [CYCLE #305] (3052s/3600s) [Method 5: Socket Lifecycle & Drops] -> PASS (Socket pool healthy, 30s timeout active) | Heap: 17.32MB
+[2026-09-21T13:55:50.876Z] [CYCLE #306] (3062s/3600s) [Method 6: Atomic Concurrency Race] -> PASS (20 concurrent atomic writes without corruption) | Heap: 17.38MB
+[2026-09-21T13:56:00.893Z] [CYCLE #307] (3072s/3600s) [Method 7: 24-Cell Degree x Year Matrix] -> FAIL (Cell mismatch) | Heap: 16.95MB
+[2026-09-21T13:56:10.898Z] [CYCLE #308] (3082s/3600s) [Method 8: DLP Egress Scrubbing] -> PASS (passwordHash, salt, jwt_secret 100% redacted) | Heap: 17.01MB
+[2026-09-21T13:56:20.902Z] [CYCLE #309] (3092s/3600s) [Method 9: Vault Disaster Recovery] -> PASS (Clean snapshot verified, 0 users) | Heap: 17.02MB
+[2026-09-21T13:56:30.915Z] [CYCLE #310] (3102s/3600s) [Method 10: Event Loop & Memory Drift] -> PASS (Event loop lag: 0.05ms, Heap: 17.02MB) | Heap: 17.02MB
+[2026-09-21T13:56:40.979Z] [CYCLE #311] (3112s/3600s) [Method 1: Spike Testing] -> PASS (200 spikes in 54ms, 200/200 OK) | Heap: 15.16MB
+[2026-09-21T13:56:50.942Z] [CYCLE #312] (3122s/3600s) [Method 2: Security Headers Audit] -> PASS (All 5 security headers compliant) | Heap: 15.41MB
+[2026-09-21T13:57:00.944Z] [CYCLE #313] (3132s/3600s) [Method 3: RBAC Access Control] -> PASS (Student 403 Forbidden, Unauth 401 Unauthorized) | Heap: 15.53MB
+[2026-09-21T13:57:10.951Z] [CYCLE #314] (3142s/3600s) [Method 4: Homoglyphs & Wildcard Fuzzing] -> PASS (Homoglyphs & wildcards safely handled) | Heap: 15.76MB
+[2026-09-21T13:57:20.961Z] [CYCLE #315] (3152s/3600s) [Method 5: Socket Lifecycle & Drops] -> PASS (Socket pool healthy, 30s timeout active) | Heap: 15.85MB
+[2026-09-21T13:57:30.975Z] [CYCLE #316] (3162s/3600s) [Method 6: Atomic Concurrency Race] -> PASS (20 concurrent atomic writes without corruption) | Heap: 15.91MB
+[2026-09-21T13:57:40.983Z] [CYCLE #317] (3172s/3600s) [Method 7: 24-Cell Degree x Year Matrix] -> FAIL (Cell mismatch) | Heap: 18.61MB
+[2026-09-21T13:57:50.995Z] [CYCLE #318] (3182s/3600s) [Method 8: DLP Egress Scrubbing] -> PASS (passwordHash, salt, jwt_secret 100% redacted) | Heap: 18.67MB
+[2026-09-21T13:58:01.011Z] [CYCLE #319] (3192s/3600s) [Method 9: Vault Disaster Recovery] -> PASS (Clean snapshot verified, 0 users) | Heap: 18.68MB
+[2026-09-21T13:58:11.012Z] [CYCLE #320] (3202s/3600s) [Method 10: Event Loop & Memory Drift] -> PASS (Event loop lag: 0.19ms, Heap: 18.69MB) | Heap: 18.69MB
+[2026-09-21T13:58:21.098Z] [CYCLE #321] (3212s/3600s) [Method 1: Spike Testing] -> PASS (200 spikes in 80ms, 200/200 OK) | Heap: 17.84MB
+[2026-09-21T13:58:31.029Z] [CYCLE #322] (3222s/3600s) [Method 2: Security Headers Audit] -> PASS (All 5 security headers compliant) | Heap: 18.07MB
+[2026-09-21T13:58:41.039Z] [CYCLE #323] (3232s/3600s) [Method 3: RBAC Access Control] -> PASS (Student 403 Forbidden, Unauth 401 Unauthorized) | Heap: 18.18MB
+[2026-09-21T13:58:51.054Z] [CYCLE #324] (3242s/3600s) [Method 4: Homoglyphs & Wildcard Fuzzing] -> PASS (Homoglyphs & wildcards safely handled) | Heap: 18.40MB
+[2026-09-21T13:59:01.066Z] [CYCLE #325] (3252s/3600s) [Method 5: Socket Lifecycle & Drops] -> PASS (Socket pool healthy, 30s timeout active) | Heap: 18.50MB
+[2026-09-21T13:59:11.080Z] [CYCLE #326] (3262s/3600s) [Method 6: Atomic Concurrency Race] -> PASS (20 concurrent atomic writes without corruption) | Heap: 18.56MB
+[2026-09-21T13:59:21.088Z] [CYCLE #327] (3272s/3600s) [Method 7: 24-Cell Degree x Year Matrix] -> FAIL (Cell mismatch) | Heap: 18.58MB
+[2026-09-21T13:59:31.084Z] [CYCLE #328] (3282s/3600s) [Method 8: DLP Egress Scrubbing] -> PASS (passwordHash, salt, jwt_secret 100% redacted) | Heap: 18.64MB
+[2026-09-21T13:59:41.097Z] [CYCLE #329] (3292s/3600s) [Method 9: Vault Disaster Recovery] -> PASS (Clean snapshot verified, 0 users) | Heap: 18.65MB
+[2026-09-21T13:59:51.097Z] [CYCLE #330] (3302s/3600s) [Method 10: Event Loop & Memory Drift] -> PASS (Event loop lag: 0.09ms, Heap: 18.66MB) | Heap: 18.66MB
+[2026-09-21T14:00:01.187Z] [CYCLE #331] (3312s/3600s) [Method 1: Spike Testing] -> PASS (200 spikes in 85ms, 200/200 OK) | Heap: 20.75MB
+[2026-09-21T14:00:11.120Z] [CYCLE #332] (3322s/3600s) [Method 2: Security Headers Audit] -> PASS (All 5 security headers compliant) | Heap: 12.33MB
+[2026-09-21T14:00:21.128Z] [CYCLE #333] (3332s/3600s) [Method 3: RBAC Access Control] -> PASS (Student 403 Forbidden, Unauth 401 Unauthorized) | Heap: 12.44MB
+[2026-09-21T14:00:31.134Z] [CYCLE #334] (3342s/3600s) [Method 4: Homoglyphs & Wildcard Fuzzing] -> PASS (Homoglyphs & wildcards safely handled) | Heap: 12.67MB
+[2026-09-21T14:00:41.148Z] [CYCLE #335] (3352s/3600s) [Method 5: Socket Lifecycle & Drops] -> PASS (Socket pool healthy, 30s timeout active) | Heap: 12.76MB
+[2026-09-21T14:00:51.155Z] [CYCLE #336] (3362s/3600s) [Method 6: Atomic Concurrency Race] -> PASS (20 concurrent atomic writes without corruption) | Heap: 12.83MB
+[2026-09-21T14:01:01.157Z] [CYCLE #337] (3372s/3600s) [Method 7: 24-Cell Degree x Year Matrix] -> FAIL (Cell mismatch) | Heap: 12.39MB
+[2026-09-21T14:01:11.159Z] [CYCLE #338] (3382s/3600s) [Method 8: DLP Egress Scrubbing] -> PASS (passwordHash, salt, jwt_secret 100% redacted) | Heap: 12.44MB
+[2026-09-21T14:01:21.164Z] [CYCLE #339] (3392s/3600s) [Method 9: Vault Disaster Recovery] -> PASS (Clean snapshot verified, 0 users) | Heap: 12.45MB
+[2026-09-21T14:01:31.178Z] [CYCLE #340] (3402s/3600s) [Method 10: Event Loop & Memory Drift] -> PASS (Event loop lag: 0.09ms, Heap: 12.46MB) | Heap: 12.46MB
+[2026-09-21T14:01:41.238Z] [CYCLE #341] (3412s/3600s) [Method 1: Spike Testing] -> PASS (200 spikes in 46ms, 200/200 OK) | Heap: 16.42MB
+[2026-09-21T14:01:51.204Z] [CYCLE #342] (3422s/3600s) [Method 2: Security Headers Audit] -> PASS (All 5 security headers compliant) | Heap: 16.66MB
+[2026-09-21T14:02:01.218Z] [CYCLE #343] (3432s/3600s) [Method 3: RBAC Access Control] -> PASS (Student 403 Forbidden, Unauth 401 Unauthorized) | Heap: 16.76MB
+[2026-09-21T14:02:11.226Z] [CYCLE #344] (3442s/3600s) [Method 4: Homoglyphs & Wildcard Fuzzing] -> PASS (Homoglyphs & wildcards safely handled) | Heap: 14.54MB
+[2026-09-21T14:02:21.234Z] [CYCLE #345] (3452s/3600s) [Method 5: Socket Lifecycle & Drops] -> PASS (Socket pool healthy, 30s timeout active) | Heap: 14.63MB
+[2026-09-21T14:02:31.242Z] [CYCLE #346] (3462s/3600s) [Method 6: Atomic Concurrency Race] -> PASS (20 concurrent atomic writes without corruption) | Heap: 14.69MB
+[2026-09-21T14:02:41.255Z] [CYCLE #347] (3472s/3600s) [Method 7: 24-Cell Degree x Year Matrix] -> FAIL (Cell mismatch) | Heap: 14.42MB
+[2026-09-21T14:02:51.258Z] [CYCLE #348] (3482s/3600s) [Method 8: DLP Egress Scrubbing] -> PASS (passwordHash, salt, jwt_secret 100% redacted) | Heap: 14.48MB
+[2026-09-21T14:03:01.257Z] [CYCLE #349] (3492s/3600s) [Method 9: Vault Disaster Recovery] -> PASS (Clean snapshot verified, 0 users) | Heap: 14.49MB
+[2026-09-21T14:03:11.269Z] [CYCLE #350] (3502s/3600s) [Method 10: Event Loop & Memory Drift] -> PASS (Event loop lag: 0.06ms, Heap: 14.49MB) | Heap: 14.49MB
+[2026-09-21T14:03:21.317Z] [CYCLE #351] (3512s/3600s) [Method 1: Spike Testing] -> PASS (200 spikes in 44ms, 200/200 OK) | Heap: 18.22MB
+[2026-09-21T14:03:31.281Z] [CYCLE #352] (3522s/3600s) [Method 2: Security Headers Audit] -> PASS (All 5 security headers compliant) | Heap: 18.48MB
+[2026-09-21T14:03:41.294Z] [CYCLE #353] (3532s/3600s) [Method 3: RBAC Access Control] -> PASS (Student 403 Forbidden, Unauth 401 Unauthorized) | Heap: 18.58MB
+[2026-09-21T14:03:51.300Z] [CYCLE #354] (3542s/3600s) [Method 4: Homoglyphs & Wildcard Fuzzing] -> PASS (Homoglyphs & wildcards safely handled) | Heap: 18.81MB
+[2026-09-21T14:04:01.299Z] [CYCLE #355] (3552s/3600s) [Method 5: Socket Lifecycle & Drops] -> PASS (Socket pool healthy, 30s timeout active) | Heap: 18.90MB
+[2026-09-21T14:04:11.310Z] [CYCLE #356] (3562s/3600s) [Method 6: Atomic Concurrency Race] -> PASS (20 concurrent atomic writes without corruption) | Heap: 18.96MB
+[2026-09-21T14:04:21.322Z] [CYCLE #357] (3572s/3600s) [Method 7: 24-Cell Degree x Year Matrix] -> FAIL (Cell mismatch) | Heap: 17.00MB
+[2026-09-21T14:04:31.323Z] [CYCLE #358] (3582s/3600s) [Method 8: DLP Egress Scrubbing] -> PASS (passwordHash, salt, jwt_secret 100% redacted) | Heap: 17.06MB
+[2026-09-21T14:04:41.331Z] [CYCLE #359] (3592s/3600s) [Method 9: Vault Disaster Recovery] -> PASS (Clean snapshot verified, 0 users) | Heap: 17.07MB
+[2026-09-21T14:04:51.343Z] 
+================================================================
+[2026-09-21T14:04:51.343Z] 🏁 1-HOUR MULTI-METHOD COMPREHENSIVE TEST COMPLETED
+[2026-09-21T14:04:51.344Z] ================================================================
+[2026-09-21T14:04:51.344Z] [Method 1: Spike Testing] Runs: 36, Passed: 36, Failed: 0
+[2026-09-21T14:04:51.344Z] [Method 2: Security Headers Audit] Runs: 36, Passed: 36, Failed: 0
+[2026-09-21T14:04:51.344Z] [Method 3: RBAC Access Control] Runs: 36, Passed: 36, Failed: 0
+[2026-09-21T14:04:51.344Z] [Method 4: Homoglyphs & Wildcard Fuzzing] Runs: 36, Passed: 36, Failed: 0
+[2026-09-21T14:04:51.344Z] [Method 5: Socket Lifecycle & Drops] Runs: 36, Passed: 36, Failed: 0
+[2026-09-21T14:04:51.344Z] [Method 6: Atomic Concurrency Race] Runs: 36, Passed: 36, Failed: 0
+[2026-09-21T14:04:51.345Z] [Method 7: 24-Cell Degree x Year Matrix] Runs: 36, Passed: 0, Failed: 36
+[2026-09-21T14:04:51.345Z] [Method 8: DLP Egress Scrubbing] Runs: 36, Passed: 36, Failed: 0
+[2026-09-21T14:04:51.345Z] [Method 9: Vault Disaster Recovery] Runs: 36, Passed: 36, Failed: 0
+[2026-09-21T14:04:51.346Z] [Method 10: Event Loop & Memory Drift] Runs: 35, Passed: 35, Failed: 0
+[2026-09-21T14:04:51.346Z] 🎉 100% COMPLETE: All 10 methodologies evaluated over 1 full hour.
+[2026-09-21T14:04:51.346Z] ================================================================
+

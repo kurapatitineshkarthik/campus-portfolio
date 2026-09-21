@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Account & Verification | All UG Courses Portfolio</title>
+  
+  <script>
+    (function() {
+      try {
+        var savedTheme = localStorage.getItem('portfolio-theme');
+        var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        var theme = savedTheme ? savedTheme : (prefersDark ? 'dark' : 'light');
+        document.documentElement.setAttribute('data-theme', theme);
+      } catch (e) {}
+    })();
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="style.css?v=2.2">
+
+  <style>
+    .auth-wrapper {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 20px;
+    }
+    .auth-card {
+      width: 100%;
+      max-width: 500px;
+      padding: 36px;
+      position: relative;
+    }
+    .auth-tabs {
+      display: flex;
+      gap: 4px;
+      background: rgba(255, 255, 255, 0.05);
+      padding: 4px;
+      border-radius: var(--radius-full);
+      margin-bottom: 28px;
+      border: 1px solid var(--border-color);
+    }
+    [data-theme="light"] .auth-tabs {
+      background: rgba(0, 0, 0, 0.04);
+    }
+    .auth-tab {
+      flex: 1;
+      padding: 8px 16px;
+      text-align: center;
+      font-weight: 500;
+      font-size: 0.88rem;
+      border-radius: var(--radius-full);
+      cursor: pointer;
+      color: var(--text-secondary);
+      transition: all var(--transition-fast);
+      border: 1px solid transparent;
+      background: transparent;
+      font-family: var(--font-heading);
+    }
+    .auth-tab:hover {
+      color: var(--text-primary);
+    }
+    .auth-tab.active {
+      background: #2c2c2e;
+      color: #ffffff;
+      border-color: rgba(255, 255, 255, 0.12);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+      font-weight: 600;
+    }
+    [data-theme="light"] .auth-tab.active {
+      background: #ffffff;
+      color: #1d1d1f;
+      border-color: rgba(0, 0, 0, 0.04);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+      padding: 20px;
+    }
+    .modal-overlay.active {
+      display: flex;
+    }
+    .modal-box {
+      width: 100%;
+      max-width: 440px;
+      padding: 36px;
+      text-align: center;
+      border-radius: var(--radius-lg);
+      background: var(--card-bg);
+      backdrop-filter: blur(24px) saturate(180%);
+      -webkit-backdrop-filter: blur(24px) saturate(180%);
+      border: 1px solid var(--border-color);
+      box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.08), 0 24px 64px rgba(0, 0, 0, 0.6);
+    }
+    .otp-inputs {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin: 24px 0;
+    }
+    .otp-digit {
+      width: 48px;
+      height: 56px;
+      text-align: center;
+      font-size: 1.5rem;
+      font-weight: 600;
+      font-family: var(--font-heading);
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      color: var(--text-primary);
+      outline: none;
+      transition: all var(--transition-fast);
+    }
+    [data-theme="light"] .otp-digit {
+      background: rgba(0, 0, 0, 0.03);
+    }
+    .otp-digit:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-glow);
+      background: rgba(255, 255, 255, 0.1);
+    }
+    [data-theme="light"] .otp-digit:focus {
+      background: #ffffff;
+    }
+    .back-home-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--text-secondary);
+      font-size: 0.88rem;
+      font-weight: 500;
+      transition: color var(--transition-fast);
+    }
+    .back-home-link:hover {
+      color: var(--text-primary);
+    }
+    .forgot-link {
+      color: var(--accent);
+      font-size: 0.85rem;
+      font-weight: 500;
+      cursor: pointer;
+      text-align: right;
+      display: block;
+      margin-top: 6px;
+      transition: color var(--transition-fast);
+    }
+    .forgot-link:hover {
+      color: var(--accent-hover);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="auth-wrapper">
+    <div class="auth-card card glass-card">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <a href="index.html" class="back-home-link">
+          <i class="fas fa-arrow-left"></i> Back to Campus Showcase
+        </a>
+        <button id="themeToggle" class="icon-btn" aria-label="Toggle theme" title="Toggle theme">
+          <i class="fas fa-moon" id="themeIcon"></i>
+        </button>
+      </div>
+
+      <div style="text-align: center; margin-bottom: 24px;">
+        <h1 class="gradient-text" style="font-size: 1.8rem; margin-bottom: 6px;">Campus Portfolio</h1>
+        <p style="color: var(--text-secondary); font-size: 0.95rem;">All Undergraduate Programs (B.Tech, BCA, B.Sc, B.Com, BBA, BA & more)</p>
+      </div>
+
+      <!-- Sign In / Sign Up Tabs -->
+      <div class="auth-tabs">
+        <button class="auth-tab active" id="tabSignUp" onclick="switchAuthTab('signup')">Create Account</button>
+        <button class="auth-tab" id="tabSignIn" onclick="switchAuthTab('signin')">Sign In</button>
+      </div>
+
+      <!-- SIGN UP FORM -->
+      <form id="signUpForm" class="contact-form" onsubmit="handleSignUp(event)">
+        <div class="form-group">
+          <label for="regName">Full Name *</label>
+          <input type="text" id="regName" placeholder="e.g. Rahul Sharma" required>
+        </div>
+
+        <div class="form-group">
+          <label for="regEmail">Email Address *</label>
+          <input type="email" id="regEmail" placeholder="your.email@gmail.com" required>
+          <small style="color: var(--text-muted); font-size: 0.75rem;">A 6-digit OTP will be sent from kurapatitineshkarthik@gmail.com</small>
+        </div>
+
+        <div class="form-group">
+          <label for="regPassword">Password *</label>
+          <input type="password" id="regPassword" placeholder="Minimum 6 characters" minlength="6" required>
+        </div>
+
+        <!-- Course, Year & Branch / Specialization -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+          <div class="form-group">
+            <label for="regCourse">UG Course / Degree *</label>
+            <select id="regCourse" required style="width: 100%; padding: 12px; border-radius: var(--radius-sm); background: var(--bg-primary); border: 1px solid var(--border-color); color: var(--text-primary);">
+              <option value="B.Tech" selected>B.Tech / B.E.</option>
+              <option value="BCA">BCA</option>
+              <option value="B.Sc">B.Sc</option>
+              <option value="B.Com">B.Com</option>
+              <option value="BBA">BBA / BMS</option>
+              <option value="BA">BA</option>
+              <option value="B.Pharm">B.Pharm</option>
+              <option value="B.Des">B.Des</option>
+              <option value="Other UG">Other UG</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="regYear">Year of Study *</label>
+            <select id="regYear" required style="width: 100%; padding: 12px; border-radius: var(--radius-sm); background: var(--bg-primary); border: 1px solid var(--border-color); color: var(--text-primary);">
+              <option value="1st Year">1st Year</option>
+              <option value="2nd Year">2nd Year</option>
+              <option value="3rd Year" selected>3rd Year</option>
+              <option value="4th Year">4th Year</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="regBranch">Branch / Major / Specialization *</label>
+          <input type="text" id="regBranch" placeholder="e.g. Computer Science, Finance, IT, Marketing, Physics" required>
+        </div>
+
+        <div class="form-group">
+          <label for="regCollege">College Name (Optional)</label>
+          <input type="text" id="regCollege" placeholder="e.g. City College of Arts & Science">
+        </div>
+
+        <!-- Anti-Bot Honeypot Trap (Invisible to humans, filled by bots) -->
+        <input type="text" id="regHpTrap" name="hp_company_trap" style="position: absolute; left: -9999px; opacity: 0; pointer-events: none;" tabindex="-1" autocomplete="off">
+
+        <button type="submit" class="btn btn-primary submit-btn" id="signUpBtn" style="width: 100%; margin-top: 10px;">
+          <span>Send Verification OTP</span>
+          <i class="fas fa-paper-plane"></i>
+        </button>
+
+        <div id="signUpError" style="color: #ef4444; font-size: 0.85rem; text-align: center; margin-top: 10px; display: none;"></div>
+      </form>
+
+      <!-- SIGN IN FORM -->
+      <form id="signInForm" class="contact-form" style="display: none;" onsubmit="handleSignIn(event)">
+        <div class="form-group">
+          <label for="loginEmail">Email Address</label>
+          <input type="email" id="loginEmail" placeholder="your.email@gmail.com" required>
+        </div>
+
+        <div class="form-group">
+          <label for="loginPassword">Password</label>
+          <input type="password" id="loginPassword" placeholder="••••••••" required>
+          <span class="forgot-link" onclick="openForgotModal()">Forgot Password?</span>
+        </div>
+
+        <!-- Anti-Bot Honeypot Trap (Invisible to humans, filled by bots) -->
+        <input type="text" id="loginHpTrap" name="hp_company_trap" style="position: absolute; left: -9999px; opacity: 0; pointer-events: none;" tabindex="-1" autocomplete="off">
+
+        <button type="submit" class="btn btn-primary submit-btn" id="signInBtn" style="width: 100%; margin-top: 10px;">
+          <span>Sign In to Dashboard</span>
+          <i class="fas fa-right-to-bracket"></i>
+        </button>
+
+        <div id="signInError" style="color: #ef4444; font-size: 0.85rem; text-align: center; margin-top: 10px; display: none;"></div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 6-DIGIT OTP VERIFICATION MODAL -->
+  <div class="modal-overlay" id="otpModal">
+    <div class="modal-box card glass-card">
+      <div style="width: 52px; height: 52px; border-radius: 50%; background: var(--badge-bg); color: var(--accent); display: flex; align-items: center; justify-content: center; margin: 0 auto 16px auto; font-size: 1.4rem;">
+        <i class="fas fa-envelope-open-text"></i>
+      </div>
+
+      <h2 style="font-size: 1.4rem; margin-bottom: 8px;">Verify Your Email Address</h2>
+      <p style="color: var(--text-secondary); font-size: 0.9rem; line-height: 1.5;">
+        We sent a 6-digit verification code to<br>
+        <strong id="otpEmailTarget" style="color: var(--text-primary);"></strong>
+      </p>
+
+      <div class="otp-inputs">
+        <input type="text" maxlength="1" class="otp-digit" data-index="0" autofocus>
+        <input type="text" maxlength="1" class="otp-digit" data-index="1">
+        <input type="text" maxlength="1" class="otp-digit" data-index="2">
+        <input type="text" maxlength="1" class="otp-digit" data-index="3">
+        <input type="text" maxlength="1" class="otp-digit" data-index="4">
+        <input type="text" maxlength="1" class="otp-digit" data-index="5">
+      </div>
+
+      <div style="margin-bottom: 20px; font-size: 0.85rem; color: var(--text-muted);">
+        Didn't receive the code? 
+        <button id="resendBtn" onclick="handleResendOtp()" style="background: none; border: none; color: var(--accent); cursor: pointer; font-weight: 600;">
+          Resend code (<span id="timerText">45</span>s)
+        </button>
+      </div>
+
+      <button type="button" onclick="submitOtp()" id="verifyOtpBtn" class="btn btn-primary" style="width: 100%;">
+        <span>Verify & Create Account</span>
+        <i class="fas fa-check"></i>
+      </button>
+
+      <div id="otpError" style="color: #ef4444; font-size: 0.85rem; margin-top: 12px; display: none;"></div>
+    </div>
+  </div>
+
+  <!-- FORGOT PASSWORD MODAL -->
+  <div class="modal-overlay" id="forgotModal">
+    <div class="modal-box card glass-card">
+      <div style="width: 52px; height: 52px; border-radius: 50%; background: var(--badge-bg); color: var(--accent); display: flex; align-items: center; justify-content: center; margin: 0 auto 16px auto; font-size: 1.4rem;">
+        <i class="fas fa-key"></i>
+      </div>
+
+      <h2 style="font-size: 1.4rem; margin-bottom: 8px;">Reset Password</h2>
+      <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 20px;" id="forgotSubtext">
+        Enter your registered email to receive a 6-digit verification code.
+      </p>
+
+      <div id="forgotStep1">
+        <div class="form-group" style="text-align: left; margin-bottom: 16px;">
+          <label for="forgotEmail">Registered Email</label>
+          <input type="email" id="forgotEmail" placeholder="your.email@gmail.com" required>
+        </div>
+        <button type="button" onclick="sendForgotOtp()" class="btn btn-primary" id="forgotSendBtn" style="width: 100%;">
+          <span>Send Reset Code</span>
+          <i class="fas fa-paper-plane"></i>
+        </button>
+      </div>
+
+      <div id="forgotStep2" style="display: none;">
+        <div class="form-group" style="text-align: left; margin-bottom: 12px;">
+          <label for="forgotOtpCode">6-Digit Code</label>
+          <input type="text" id="forgotOtpCode" placeholder="Enter 6-digit OTP" maxlength="6" style="letter-spacing: 4px; font-size: 1.1rem; text-align: center;" required>
+        </div>
+        <div class="form-group" style="text-align: left; margin-bottom: 16px;">
+          <label for="forgotNewPassword">New Password (Min 6 chars)</label>
+          <input type="password" id="forgotNewPassword" placeholder="••••••••" minlength="6" required>
+        </div>
+        <button type="button" onclick="submitPasswordReset()" class="btn btn-primary" id="resetPassBtn" style="width: 100%;">
+          <span>Save New Password</span>
+          <i class="fas fa-check"></i>
+        </button>
+      </div>
+
+      <div id="forgotError" style="color: #ef4444; font-size: 0.85rem; margin-top: 14px; display: none;"></div>
+      <div id="forgotSuccess" style="color: #10b981; font-size: 0.85rem; margin-top: 14px; display: none;"></div>
+
+      <button type="button" onclick="closeForgotModal()" class="btn btn-ghost" style="margin-top: 16px; width: 100%; font-size: 0.85rem;">
+        Cancel
+      </button>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      initTheme();
+    });
+
+    function initTheme() {
+      const themeToggle = document.getElementById('themeToggle');
+      const themeIcon = document.getElementById('themeIcon');
+      const html = document.documentElement;
+
+      const savedTheme = localStorage.getItem('portfolio-theme');
+      const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      let currentTheme = savedTheme || (systemPrefersDark ? 'dark' : 'light');
+
+      applyTheme(currentTheme);
+
+      if (themeToggle) {
+        themeToggle.addEventListener('click', () => {
+          currentTheme = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+          applyTheme(currentTheme);
+          localStorage.setItem('portfolio-theme', currentTheme);
+        });
+      }
+
+      window.addEventListener('storage', (e) => {
+        if (e.key === 'portfolio-theme' && e.newValue) {
+          applyTheme(e.newValue);
+        }
+      });
+
+      function applyTheme(theme) {
+        html.setAttribute('data-theme', theme);
+        if (themeIcon) {
+          themeIcon.className = theme === 'dark' ? 'fas fa-moon' : 'fas fa-sun';
+        }
+      }
+    }
+
+    let pendingEmail = '';
+    let resendCountdown = 45;
+    let timerInterval = null;
+
+    function switchAuthTab(tab) {
+      const isSignUp = tab === 'signup';
+      document.getElementById('tabSignUp').classList.toggle('active', isSignUp);
+      document.getElementById('tabSignIn').classList.toggle('active', !isSignUp);
+      document.getElementById('signUpForm').style.display = isSignUp ? 'flex' : 'none';
+      document.getElementById('signInForm').style.display = isSignUp ? 'none' : 'flex';
+      document.getElementById('signUpError').style.display = 'none';
+      document.getElementById('signInError').style.display = 'none';
+    }
+
+    // SIGN UP
+    async function handleSignUp(e) {
+      e.preventDefault();
+      const btn = document.getElementById('signUpBtn');
+      const errorEl = document.getElementById('signUpError');
+      errorEl.style.display = 'none';
+
+      const name = document.getElementById('regName').value.trim();
+      const email = document.getElementById('regEmail').value.trim();
+      const password = document.getElementById('regPassword').value;
+      const course = document.getElementById('regCourse').value;
+      const year = document.getElementById('regYear').value;
+      const branch = document.getElementById('regBranch').value.trim();
+      const college = document.getElementById('regCollege').value.trim();
+      const hp_company_trap = document.getElementById('regHpTrap') ? document.getElementById('regHpTrap').value : '';
+
+      btn.disabled = true;
+      btn.innerHTML = `<span>Sending OTP...</span> <i class="fas fa-spinner fa-spin"></i>`;
+
+      try {
+        const res = await fetch('/api/auth/signup', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, email, password, course, year, branch, college, hp_company_trap })
+        });
+
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Failed to send OTP');
+
+        pendingEmail = email;
+        document.getElementById('otpEmailTarget').textContent = email;
+        document.getElementById('otpModal').classList.add('active');
+        startResendTimer();
+        setupOtpInputs();
+      } catch (err) {
+        errorEl.textContent = err.message;
+        errorEl.style.display = 'block';
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = `<span>Send Verification OTP</span> <i class="fas fa-paper-plane"></i>`;
+      }
+    }
+
+    function setupOtpInputs() {
+      const inputs = document.querySelectorAll('.otp-digit');
+      inputs.forEach((input, idx) => {
+        input.value = '';
+        input.addEventListener('input', (e) => {
+          if (e.target.value.length === 1 && idx < inputs.length - 1) {
+            inputs[idx + 1].focus();
+          }
+        });
+        input.addEventListener('keydown', (e) => {
+          if (e.key === 'Backspace' && !e.target.value && idx > 0) {
+            inputs[idx - 1].focus();
+          }
+        });
+      });
+      inputs[0].focus();
+    }
+
+    function startResendTimer() {
+      resendCountdown = 45;
+      const timerText = document.getElementById('timerText');
+      const resendBtn = document.getElementById('resendBtn');
+      resendBtn.disabled = true;
+      resendBtn.style.opacity = '0.5';
+
+      if (timerInterval) clearInterval(timerInterval);
+      timerInterval = setInterval(() => {
+        resendCountdown--;
+        timerText.textContent = resendCountdown;
+        if (resendCountdown <= 0) {
+          clearInterval(timerInterval);
+          resendBtn.disabled = false;
+          resendBtn.style.opacity = '1';
+          resendBtn.textContent = 'Resend code';
+        }
+      }, 1000);
+    }
+
+    async function handleResendOtp() {
+      if (resendCountdown > 0) return;
+      try {
+        const res = await fetch('/api/auth/resend-otp', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: pendingEmail })
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Failed to resend code');
+        startResendTimer();
+      } catch (err) {
+        alert(err.message);
+      }
+    }
+
+    async function submitOtp() {
+      const inputs = document.querySelectorAll('.otp-digit');
+      let otp = '';
+      inputs.forEach(i => otp += i.value.trim());
+
+      const errorEl = document.getElementById('otpError');
+      errorEl.style.display = 'none';
+
+      if (otp.length !== 6) {
+        errorEl.textContent = 'Please enter all 6 digits of the code.';
+        errorEl.style.display = 'block';
+        return;
+      }
+
+      const btn = document.getElementById('verifyOtpBtn');
+      btn.disabled = true;
+      btn.innerHTML = `<span>Verifying...</span> <i class="fas fa-spinner fa-spin"></i>`;
+
+      try {
+        const res = await fetch('/api/auth/verify-otp', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: pendingEmail, otp })
+        });
+
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'OTP verification failed');
+
+        localStorage.setItem('campus_token', data.token);
+        localStorage.setItem('campus_user', JSON.stringify(data.user));
+        window.location.href = 'dashboard.html';
+      } catch (err) {
+        errorEl.textContent = err.message;
+        errorEl.style.display = 'block';
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = `<span>Verify & Create Account</span> <i class="fas fa-check"></i>`;
+      }
+    }
+
+    // SIGN IN
+    async function handleSignIn(e) {
+      e.preventDefault();
+      const btn = document.getElementById('signInBtn');
+      const errorEl = document.getElementById('signInError');
+      errorEl.style.display = 'none';
+
+      const email = document.getElementById('loginEmail').value.trim();
+      const password = document.getElementById('loginPassword').value;
+      const hp_company_trap = document.getElementById('loginHpTrap') ? document.getElementById('loginHpTrap').value : '';
+
+      btn.disabled = true;
+      btn.innerHTML = `<span>Signing In...</span> <i class="fas fa-spinner fa-spin"></i>`;
+
+      try {
+        const res = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password, hp_company_trap })
+        });
+
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Login failed');
+
+        localStorage.setItem('campus_token', data.token);
+        localStorage.setItem('campus_user', JSON.stringify(data.user));
+        window.location.href = 'dashboard.html';
+      } catch (err) {
+        errorEl.textContent = err.message;
+        errorEl.style.display = 'block';
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = `<span>Sign In to Dashboard</span> <i class="fas fa-right-to-bracket"></i>`;
+      }
+    }
+
+    // FORGOT PASSWORD
+    let resetEmail = '';
+
+    function openForgotModal() {
+      document.getElementById('forgotModal').classList.add('active');
+      document.getElementById('forgotStep1').style.display = 'block';
+      document.getElementById('forgotStep2').style.display = 'none';
+      document.getElementById('forgotError').style.display = 'none';
+      document.getElementById('forgotSuccess').style.display = 'none';
+      document.getElementById('forgotEmail').value = document.getElementById('loginEmail').value;
+    }
+
+    function closeForgotModal() {
+      document.getElementById('forgotModal').classList.remove('active');
+    }
+
+    async function sendForgotOtp() {
+      const email = document.getElementById('forgotEmail').value.trim();
+      const errorEl = document.getElementById('forgotError');
+      const btn = document.getElementById('forgotSendBtn');
+      errorEl.style.display = 'none';
+
+      if (!email) {
+        errorEl.textContent = 'Please enter your registered email address.';
+        errorEl.style.display = 'block';
+        return;
+      }
+
+      btn.disabled = true;
+      btn.innerHTML = `<span>Sending Code...</span> <i class="fas fa-spinner fa-spin"></i>`;
+
+      try {
+        const res = await fetch('/api/auth/forgot-password', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email })
+        });
+
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Failed to send reset code');
+
+        resetEmail = email;
+        document.getElementById('forgotStep1').style.display = 'none';
+        document.getElementById('forgotStep2').style.display = 'block';
+        document.getElementById('forgotSubtext').innerHTML = `Enter the 6-digit code sent to <strong>${email}</strong> and choose a new password.`;
+      } catch (err) {
+        errorEl.textContent = err.message;
+        errorEl.style.display = 'block';
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = `<span>Send Reset Code</span> <i class="fas fa-paper-plane"></i>`;
+      }
+    }
+
+    async function submitPasswordReset() {
+      const otp = document.getElementById('forgotOtpCode').value.trim();
+      const newPassword = document.getElementById('forgotNewPassword').value;
+      const errorEl = document.getElementById('forgotError');
+      const successEl = document.getElementById('forgotSuccess');
+      const btn = document.getElementById('resetPassBtn');
+
+      errorEl.style.display = 'none';
+      successEl.style.display = 'none';
+
+      if (otp.length !== 6) {
+        errorEl.textContent = 'Please enter the 6-digit code.';
+        errorEl.style.display = 'block';
+        return;
+      }
+      if (newPassword.length < 6) {
+        errorEl.textContent = 'Password must be at least 6 characters.';
+        errorEl.style.display = 'block';
+        return;
+      }
+
+      btn.disabled = true;
+      btn.innerHTML = `<span>Saving...</span> <i class="fas fa-spinner fa-spin"></i>`;
+
+      try {
+        const res = await fetch('/api/auth/reset-password', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: resetEmail, otp, newPassword })
+        });
+
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Failed to reset password');
+
+        successEl.textContent = data.message;
+        successEl.style.display = 'block';
+
+        setTimeout(() => {
+          closeForgotModal();
+          switchAuthTab('signin');
+          document.getElementById('loginEmail').value = resetEmail;
+        }, 2000);
+      } catch (err) {
+        errorEl.textContent = err.message;
+        errorEl.style.display = 'block';
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = `<span>Save New Password</span> <i class="fas fa-check"></i>`;
+      }
+    }
+  </script>
+</body>
+</html>

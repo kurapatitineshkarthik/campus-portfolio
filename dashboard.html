@@ -1,0 +1,1418 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Dashboard | Manage Your UG Portfolio</title>
+  
+  <script>
+    (function() {
+      try {
+        var savedTheme = localStorage.getItem('portfolio-theme');
+        var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        var theme = savedTheme ? savedTheme : (prefersDark ? 'dark' : 'light');
+        document.documentElement.setAttribute('data-theme', theme);
+      } catch (e) {}
+    })();
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="style.css?v=2.2">
+
+  <style>
+    .dashboard-container {
+      max-width: 1000px;
+      margin: 100px auto 60px auto;
+      padding: 0 20px;
+    }
+    .dash-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-bottom: 32px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--border-color);
+    }
+    .dash-nav {
+      display: flex;
+      gap: 12px;
+    }
+    .dash-section-card {
+      padding: 32px;
+      margin-bottom: 30px;
+      border-radius: var(--radius-lg);
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+      box-shadow: var(--shadow-card);
+    }
+    .bullet-item {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .bullet-input {
+      flex: 1;
+    }
+    .remove-btn {
+      background: rgba(255, 69, 58, 0.12);
+      border: 1px solid rgba(255, 69, 58, 0.25);
+      color: #ff453a;
+      width: 40px;
+      height: 42px;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all var(--transition-fast);
+    }
+    .remove-btn:hover {
+      background: #ff453a;
+      color: #ffffff;
+    }
+    .project-entry-card {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 20px;
+      margin-bottom: 16px;
+      position: relative;
+    }
+    [data-theme="light"] .project-entry-card {
+      background: rgba(0, 0, 0, 0.02);
+      border-color: rgba(0, 0, 0, 0.08);
+    }
+    .docs-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: var(--accent);
+      background: var(--badge-bg);
+      padding: 4px 12px;
+      border-radius: var(--radius-full);
+      margin-bottom: 8px;
+    }
+    .locked-field {
+      background: rgba(255, 255, 255, 0.02) !important;
+      border-color: rgba(255, 255, 255, 0.05) !important;
+      color: var(--text-muted) !important;
+      cursor: not-allowed;
+    }
+    .admin-card {
+      border: 1px solid rgba(255, 159, 10, 0.3);
+      background: rgba(255, 159, 10, 0.04);
+    }
+    .admin-student-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 14px 18px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      margin-bottom: 10px;
+    }
+    [data-theme="light"] .admin-student-row {
+      background: rgba(0, 0, 0, 0.02);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Header Bar -->
+  <header class="header">
+    <div class="container nav-container">
+      <a href="index.html" class="brand-logo">
+        <span class="logo-accent">&lt;</span>Campus<span class="logo-accent">/&gt;</span>
+      </a>
+      <div class="nav-actions">
+        <a href="index.html" class="btn btn-ghost" style="padding: 8px 16px; font-size: 0.85rem;">
+          <i class="fas fa-arrow-left"></i> View Public Showcase
+        </a>
+        <button id="themeToggle" class="icon-btn" aria-label="Toggle theme" title="Toggle theme">
+          <i class="fas fa-moon" id="themeIcon"></i>
+        </button>
+        <button onclick="handleLogout()" class="btn btn-secondary" style="padding: 8px 16px; font-size: 0.85rem;">
+          <i class="fas fa-sign-out-alt"></i> Log Out
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="dashboard-container">
+    <div class="dash-header">
+      <div>
+        <h1 style="font-size: 2rem; margin-bottom: 6px;">Student Dashboard</h1>
+        <p style="color: var(--text-secondary); font-size: 1rem;">
+          Welcome, <strong id="studentWelcomeName" class="gradient-text">Student</strong> &bull; 
+          <span id="studentBadge" style="color: var(--badge-text); background: var(--badge-bg); padding: 3px 10px; border-radius: 9999px; font-size: 0.8rem; font-weight: 600;">B.Tech &bull; 3rd Year CSE</span>
+        </p>
+      </div>
+      <div class="dash-nav">
+        <button type="button" onclick="saveProfile()" class="btn btn-primary" id="saveProfileBtn">
+          <i class="fas fa-save"></i> Save Changes
+        </button>
+      </div>
+    </div>
+
+    <!-- Alert / Status Banner -->
+    <div id="statusBanner" style="display: none; padding: 14px 20px; border-radius: var(--radius-sm); margin-bottom: 24px; font-weight: 500;"></div>
+
+    <!-- SHAREABLE PORTFOLIO URL CARD -->
+    <div class="card glass-card dash-section-card" style="border: 1px solid var(--accent); background: rgba(255, 255, 255, 0.04); margin-bottom: 24px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; margin-bottom: 12px;">
+        <div>
+          <h3 style="font-size: 1.2rem; margin-bottom: 4px; display: flex; align-items: center; gap: 8px;">
+            <i class="fas fa-link logo-accent"></i> Your Personal Shareable Portfolio URL
+          </h3>
+          <p style="color: var(--text-secondary); font-size: 0.88rem; margin: 0;">
+            Share this dedicated link on your resume, LinkedIn, or WhatsApp. Anyone with this link directly navigates to your portfolio!
+          </p>
+        </div>
+        <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+          <a id="viewMyPortfolioBtn" href="#" target="_blank" class="btn btn-secondary" style="font-size: 0.85rem; padding: 8px 16px;">
+            <i class="fas fa-external-link-alt"></i> View My Portfolio
+          </a>
+          <button type="button" onclick="copyPortfolioUrl()" class="btn btn-primary" id="copyUrlBtn" style="font-size: 0.85rem; padding: 8px 16px;">
+            <i class="fas fa-copy"></i> Copy Link
+          </button>
+        </div>
+      </div>
+      <div style="background: var(--bg-primary); padding: 12px 16px; border-radius: var(--radius-sm); border: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; overflow-x: auto;">
+        <code id="portfolioUrlText" style="color: var(--accent); font-weight: 600; font-size: 0.95rem;">Loading your URL...</code>
+      </div>
+    </div>
+
+    <!-- ADMIN PANEL: VISIBLE ONLY TO TINESH (kurapatitineshkarthik@gmail.com) -->
+    <div id="adminPanelSection" class="card glass-card dash-section-card admin-card" style="display: none;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+        <h2 style="font-size: 1.35rem; color: #f59e0b; display: flex; align-items: center; gap: 10px;">
+          <i class="fas fa-shield-halved"></i> Platform Admin: Manage & Delete Fake Accounts
+        </h2>
+        <span style="font-size: 0.8rem; background: rgba(245, 158, 11, 0.2); color: #f59e0b; padding: 4px 10px; border-radius: 9999px; font-weight: 700;">Admin Exclusive</span>
+      </div>
+      <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 20px;">
+        As the platform owner, you can view all registered accounts and delete fake, spam, or unauthorized profiles with one click.
+      </p>
+
+      <div id="adminStudentsList">
+        <!-- Loaded dynamically -->
+      </div>
+    </div>
+
+    <form id="profileForm" onsubmit="event.preventDefault(); saveProfile();">
+
+      <!-- SECTION 1: ACADEMIC DETAILS & PROFILE PICTURE -->
+      <div class="card glass-card dash-section-card">
+        <h2 style="font-size: 1.35rem; margin-bottom: 6px; display: flex; align-items: center; gap: 10px;">
+          <i class="fas fa-user-circle logo-accent"></i> Profile Picture & Academic Details
+        </h2>
+        <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 24px;">Upload your profile photo and enter your degree information.</p>
+
+        <!-- PROFILE PICTURE UPLOAD BOX -->
+        <div style="background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 22px; margin-bottom: 26px; display: flex; align-items: center; gap: 24px; flex-wrap: wrap;">
+          <div style="position: relative; width: 110px; height: 110px; border-radius: 50%; overflow: hidden; border: 3px solid var(--accent); box-shadow: 0 0 20px var(--accent-glow); flex-shrink: 0; background: var(--bg-secondary);">
+            <img id="avatarPreviewImg" src="https://api.dicebear.com/7.x/bottts/svg?seed=Student" alt="Profile Picture Preview" style="width: 100%; height: 100%; object-fit: cover; pointer-events: none;">
+          </div>
+          
+          <div style="flex: 1; min-width: 260px;">
+            <h4 style="margin: 0 0 6px 0; font-size: 1.1rem; font-weight: 700;">Profile Picture</h4>
+            <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 14px; line-height: 1.4;">
+              Upload your photo directly from your device (JPG, PNG, WEBP). Photos are automatically compressed and will appear on your public portfolio!
+            </p>
+            
+            <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+              <input type="file" id="avatarFileInput" accept="image/*" style="display: none;">
+              <button type="button" onclick="document.getElementById('avatarFileInput').click()" class="btn btn-primary" style="font-size: 0.85rem; padding: 8px 16px;">
+                <i class="fas fa-upload"></i> Upload Photo
+              </button>
+              <button type="button" onclick="generateDicebearAvatar()" class="btn btn-ghost" style="font-size: 0.85rem; padding: 8px 14px;" title="Generate animated avatar">
+                <i class="fas fa-dice"></i> Random
+              </button>
+              <button type="button" onclick="removeAvatarPhoto()" class="btn btn-ghost" style="font-size: 0.85rem; padding: 8px 14px; color: #ef4444;" title="Reset to default">
+                <i class="fas fa-trash"></i>
+              </button>
+            </div>
+
+            <div style="margin-top: 12px;">
+              <details style="font-size: 0.82rem; color: var(--text-muted); cursor: pointer;">
+                <summary>Or paste an image URL directly</summary>
+                <div style="margin-top: 8px;">
+                  <input type="url" id="profAvatar" placeholder="https://... image link" style="width: 100%; padding: 8px 12px; font-size: 0.85rem; border-radius: var(--radius-sm); background: var(--bg-secondary); border: 1px solid var(--border-color); color: var(--text-primary);">
+                </div>
+              </details>
+            </div>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 18px;">
+          <div class="form-group">
+            <label for="profName">Full Name</label>
+            <input type="text" id="profName" required>
+          </div>
+
+          <div class="form-group">
+            <label for="profEmail">Login Email <span style="color: var(--text-muted); font-size: 0.8rem;">(Locked)</span></label>
+            <input type="email" id="profEmail" class="locked-field" readonly title="Login email cannot be changed for security and verification.">
+          </div>
+
+          <div class="form-group">
+            <label for="profCourse">UG Course / Degree</label>
+            <select id="profCourse" style="width: 100%; padding: 12px; border-radius: var(--radius-sm); background: var(--bg-primary); border: 1px solid var(--border-color); color: var(--text-primary);">
+              <option value="B.Tech">B.Tech / B.E.</option>
+              <option value="BCA">BCA</option>
+              <option value="B.Sc">B.Sc</option>
+              <option value="B.Com">B.Com</option>
+              <option value="BBA">BBA / BMS</option>
+              <option value="BA">BA</option>
+              <option value="B.Pharm">B.Pharm</option>
+              <option value="B.Des">B.Des</option>
+              <option value="Other UG">Other UG</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="profYear">Year of Study</label>
+            <select id="profYear" style="width: 100%; padding: 12px; border-radius: var(--radius-sm); background: var(--bg-primary); border: 1px solid var(--border-color); color: var(--text-primary);">
+              <option value="1st Year">1st Year</option>
+              <option value="2nd Year">2nd Year</option>
+              <option value="3rd Year">3rd Year</option>
+              <option value="4th Year">4th Year</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="profBranch">Branch / Major / Specialization</label>
+            <input type="text" id="profBranch" placeholder="e.g. Computer Science, Finance, Marketing">
+          </div>
+
+          <div class="form-group">
+            <label for="profCollege">College Name</label>
+            <input type="text" id="profCollege" placeholder="e.g. City College of Arts & Science">
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-top: 18px;">
+          <label for="profTagline">Tagline / Headline</label>
+          <input type="text" id="profTagline" placeholder="e.g. 2nd Year BCA Student passionate about React & UI/UX">
+        </div>
+
+        <div class="form-group" style="margin-top: 18px;">
+          <label for="profBio">About Me / Bio</label>
+          <textarea id="profBio" rows="3" placeholder="Tell visitors about your background, interests, and career goals..."></textarea>
+        </div>
+      </div>
+
+      <!-- SECTION 2: WHAT I LEARNED -->
+      <div class="card glass-card dash-section-card">
+        <h2 style="font-size: 1.35rem; margin-bottom: 6px; display: flex; align-items: center; gap: 10px;">
+          <i class="fas fa-book-open logo-accent"></i> "What I Learned" (Your Learning Journey)
+        </h2>
+        <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 20px;">
+          List key concepts, subjects, and tools you have mastered across your semesters (e.g., <em>Financial Modeling in Excel</em>, <em>Web Development</em>, <em>Data Structures</em>).
+        </p>
+
+        <div id="learnedListContainer"></div>
+
+        <button type="button" onclick="addLearnedItem('')" class="btn btn-secondary" style="margin-top: 12px; font-size: 0.85rem;">
+          <i class="fas fa-plus"></i> Add Learning Point
+        </button>
+      </div>
+
+      <!-- SECTION 3: PROJECTS WITH GOOGLE DOCS LINKS -->
+      <div class="card glass-card dash-section-card">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 12px;">
+          <div>
+            <h2 style="font-size: 1.35rem; margin-bottom: 4px; display: flex; align-items: center; gap: 10px;">
+              <i class="fas fa-folder-open logo-accent"></i> Projects, Reports & Google Docs
+            </h2>
+            <p style="color: var(--text-secondary); font-size: 0.9rem;">
+              Showcase your mini-projects, research assignments, or capstone projects with links to your <strong>Google Docs reports</strong>.
+            </p>
+          </div>
+          <button type="button" onclick="addProjectCard()" class="btn btn-secondary" style="font-size: 0.85rem;">
+            <i class="fas fa-plus"></i> Add New Project
+          </button>
+        </div>
+
+        <div id="projectsListContainer"></div>
+      </div>
+
+      <!-- SECTION 4: SKILLS & SOCIALS -->
+      <div class="card glass-card dash-section-card">
+        <h2 style="font-size: 1.35rem; margin-bottom: 6px; display: flex; align-items: center; gap: 10px;">
+          <i class="fas fa-code logo-accent"></i> Skills & Links
+        </h2>
+        <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 24px;">Enter your core skills (comma-separated) and profile links.</p>
+
+        <div class="form-group" style="margin-bottom: 18px;">
+          <label for="profSkills">Skills (Comma Separated)</label>
+          <input type="text" id="profSkills" placeholder="e.g. Python, Financial Modeling, Excel, React, SQL, Java">
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 18px;">
+          <div class="form-group">
+            <label for="profGithub"><i class="fab fa-github"></i> GitHub URL (Optional)</label>
+            <input type="url" id="profGithub" placeholder="https://github.com/username">
+          </div>
+          <div class="form-group">
+            <label for="profLinkedin"><i class="fab fa-linkedin"></i> LinkedIn URL</label>
+            <input type="url" id="profLinkedin" placeholder="https://linkedin.com/in/username">
+          </div>
+        </div>
+      </div>
+
+      <div style="text-align: right; margin-bottom: 30px;">
+        <button type="submit" class="btn btn-primary" style="padding: 14px 32px; font-size: 1rem;">
+          <i class="fas fa-save"></i> Save & Publish All Changes
+        </button>
+      </div>
+
+    </form>
+
+    <!-- SECTION 5: CHANGE PASSWORD -->
+    <div class="card glass-card dash-section-card">
+      <h2 style="font-size: 1.35rem; margin-bottom: 6px; display: flex; align-items: center; gap: 10px;">
+        <i class="fas fa-lock logo-accent"></i> Change Password
+      </h2>
+      <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 20px;">Update your account password securely.</p>
+
+      <form id="changePasswordForm" onsubmit="handleChangePassword(event)" style="max-width: 440px;">
+        <div class="form-group" style="margin-bottom: 14px;">
+          <label for="currPassword">Current Password</label>
+          <input type="password" id="currPassword" placeholder="••••••••" required>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 14px;">
+          <label for="newPassword">New Password (Min 6 chars)</label>
+          <input type="password" id="newPassword" placeholder="••••••••" minlength="6" required>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 18px;">
+          <label for="confirmPassword">Confirm New Password</label>
+          <input type="password" id="confirmPassword" placeholder="••••••••" minlength="6" required>
+        </div>
+
+        <button type="submit" class="btn btn-secondary" id="changePassBtn">
+          <span>Update Password</span>
+          <i class="fas fa-key"></i>
+        </button>
+
+        <div id="passChangeStatus" style="margin-top: 14px; font-size: 0.85rem; display: none;"></div>
+      </form>
+    </div>
+
+    <!-- SECTION 6: ADMIN FIREWALL & HACKER DEFENSE CENTER (Visible only to Admin) -->
+    <div class="card glass-card dash-section-card" id="adminPanelSection" style="display: none; border: 1px solid var(--border-color); box-shadow: var(--shadow-card);">
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 16px;">
+        <div>
+          <h2 style="font-size: 1.4rem; margin-bottom: 4px; display: flex; align-items: center; gap: 10px;">
+            <i class="fas fa-shield-halved" style="color: #ffffff;"></i> Banking-Grade WAF &amp; Hacker Defense Center
+          </h2>
+          <p style="color: var(--text-secondary); font-size: 0.9rem;">
+            Financial-grade Layer-7 active defense shield (PCI-DSS 4.0 &amp; FAPI compliant) protecting your server, student photos, and personal information in real time.
+          </p>
+        </div>
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <span style="display: inline-flex; align-items: center; gap: 8px; background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.4); padding: 6px 14px; border-radius: 20px; font-size: 0.82rem; font-weight: 700; letter-spacing: 0.5px;">
+            <span style="width: 8px; height: 8px; border-radius: 50%; background: #10b981; box-shadow: 0 0 8px #10b981; animation: pulseLiveDot 1.5s infinite;"></span>
+            BANKING SHIELD ARMED
+          </span>
+          <button type="button" onclick="loadFirewallTelemetry()" class="btn btn-secondary" style="font-size: 0.82rem; padding: 6px 14px;">
+            <i class="fas fa-sync-alt"></i> Refresh WAF
+          </button>
+        </div>
+      </div>
+
+      <!-- Live Firewall Metrics Grid -->
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 14px; margin-bottom: 24px;">
+        <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-color); border-radius: 14px; padding: 16px; text-align: center;">
+          <div style="font-size: 0.8rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase;">Total Inspected</div>
+          <div id="wafTotalInspected" style="font-size: 1.8rem; font-weight: 800; color: #ffffff; margin-top: 6px;">0</div>
+          <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px;">Incoming HTTP Requests</div>
+        </div>
+
+        <div style="background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 14px; padding: 16px; text-align: center;">
+          <div style="font-size: 0.8rem; color: #f87171; font-weight: 600; text-transform: uppercase;">Threats Blocked</div>
+          <div id="wafTotalBlocked" style="font-size: 1.8rem; font-weight: 800; color: #ef4444; margin-top: 6px;">0</div>
+          <div style="font-size: 0.75rem; color: #fca5a5; margin-top: 4px;">Attacks Neutralized</div>
+        </div>
+
+        <div style="background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 14px; padding: 16px; text-align: center;">
+          <div style="font-size: 0.8rem; color: #fbbf24; font-weight: 600; text-transform: uppercase;">Active Jailed IPs</div>
+          <div id="wafActiveBans" style="font-size: 1.8rem; font-weight: 800; color: #f59e0b; margin-top: 6px;">0</div>
+          <div style="font-size: 0.75rem; color: #fde68a; margin-top: 4px;">Temporarily Banned</div>
+        </div>
+
+        <div style="background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 14px; padding: 16px; text-align: center;">
+          <div style="font-size: 0.8rem; color: #34d399; font-weight: 600; text-transform: uppercase;">DLP Leaks Blocked</div>
+          <div id="wafDlpLeaks" style="font-size: 1.8rem; font-weight: 800; color: #10b981; margin-top: 6px;">0</div>
+          <div style="font-size: 0.75rem; color: #a7f3d0; margin-top: 4px;">Data Loss Prevention</div>
+        </div>
+
+        <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-color); border-radius: 14px; padding: 16px; text-align: center;">
+          <div style="font-size: 0.8rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase;">Defense Standard</div>
+          <div style="font-size: 1.15rem; font-weight: 800; color: #ffffff; margin-top: 8px;">PCI-DSS 4.0</div>
+          <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 4px;">FAPI &amp; OWASP Top 10</div>
+        </div>
+      </div>
+
+      <!-- Threat Categories Breakdown -->
+      <div style="background: rgba(0, 0, 0, 0.25); border: 1px solid var(--border-color); border-radius: 14px; padding: 18px; margin-bottom: 24px;">
+        <h4 style="margin: 0 0 14px 0; font-size: 0.95rem; font-weight: 700; display: flex; align-items: center; gap: 8px;">
+          <i class="fas fa-chart-pie" style="color: #ffffff;"></i> Attack Categories Neutralized by Shield
+        </h4>
+        <div id="wafThreatTypesGrid" style="display: flex; flex-wrap: wrap; gap: 10px;"></div>
+      </div>
+
+      <!-- Active Jailed IPs Table & Manual Ban Control -->
+      <div style="margin-bottom: 24px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 10px;">
+          <h4 style="margin: 0; font-size: 0.95rem; font-weight: 700; display: flex; align-items: center; gap: 8px;">
+            <i class="fas fa-ban" style="color: #ef4444;"></i> Currently Banned IP Addresses (Jail)
+          </h4>
+          <form id="manualBanForm" onsubmit="handleManualBan(event)" style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center;">
+            <input type="text" id="manualBanIp" placeholder="IP to ban (e.g. 192.168.1.50)" style="font-size: 0.8rem; padding: 5px 10px; border-radius: 8px; background: rgba(0,0,0,0.3); border: 1px solid var(--border-color); color: #fff; width: 170px;" required>
+            <input type="number" id="manualBanHours" placeholder="Hours" value="24" min="1" max="720" style="font-size: 0.8rem; padding: 5px 8px; border-radius: 8px; background: rgba(0,0,0,0.3); border: 1px solid var(--border-color); color: #fff; width: 60px;">
+            <button type="submit" class="btn btn-secondary" style="font-size: 0.78rem; padding: 5px 12px; background: rgba(239, 68, 68, 0.2); border-color: rgba(239,68,68,0.4); color: #fca5a5;">
+              <i class="fas fa-gavel"></i> Jail IP
+            </button>
+          </form>
+        </div>
+        <div id="wafBansTableContainer" style="overflow-x: auto; background: rgba(0,0,0,0.2); border-radius: 10px; border: 1px solid var(--border-color);">
+          <div style="padding: 16px; text-align: center; color: var(--text-muted); font-size: 0.85rem;">No IPs currently in ban jail. All systems clear.</div>
+        </div>
+      </div>
+
+      <!-- Emergency Lockdown & Disaster Recovery Center -->
+      <div style="background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(239, 68, 68, 0.35); border-radius: 14px; padding: 20px; margin-bottom: 24px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 14px;">
+          <div>
+            <h4 style="margin: 0 0 4px 0; font-size: 1rem; font-weight: 800; display: flex; align-items: center; gap: 8px; color: #f87171;">
+              <i class="fas fa-shield-virus"></i> Emergency Incident Response &amp; Data Protection
+            </h4>
+            <p style="margin: 0; font-size: 0.82rem; color: var(--text-secondary);">
+              Bank-grade circuit-breaker quarantine and AES-256-GCM encrypted snapshot management.
+            </p>
+          </div>
+          <div id="lockdownStatusBadge">
+            <span style="background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); padding: 5px 12px; border-radius: 20px; font-size: 0.78rem; font-weight: 700;">
+              <i class="fas fa-check-circle"></i> SYSTEM OPERATIONAL
+            </span>
+          </div>
+        </div>
+
+        <!-- Dynamic Quarantine Alert Banner (Visible when active) -->
+        <div id="quarantineActiveBanner" style="display: none; background: rgba(239, 68, 68, 0.15); border: 1px solid #ef4444; border-radius: 10px; padding: 14px; margin-bottom: 16px; color: #fca5a5;">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+            <div>
+              <strong style="color: #ffffff; font-size: 0.95rem; display: flex; align-items: center; gap: 8px;">
+                <i class="fas fa-triangle-exclamation" style="color: #ef4444; animation: pulseLiveDot 1s infinite;"></i>
+                EMERGENCY SECURITY QUARANTINE ACTIVE
+              </strong>
+              <div id="quarantineReasonText" style="font-size: 0.82rem; margin-top: 4px;">Quarantine initiated to protect student database.</div>
+            </div>
+            <button type="button" onclick="unlockPlatform()" class="btn btn-secondary" style="background: #10b981; border-color: #059669; color: #fff; font-weight: 700; font-size: 0.82rem; padding: 6px 14px;">
+              <i class="fas fa-unlock"></i> Lift Quarantine &amp; Resume
+            </button>
+          </div>
+        </div>
+
+        <!-- Emergency Actions Bar -->
+        <div style="display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin-bottom: 14px;">
+          <button type="button" onclick="triggerPanicLockdown()" class="btn btn-secondary" style="background: rgba(239, 68, 68, 0.25); border-color: #ef4444; color: #fca5a5; font-size: 0.82rem; font-weight: 700; padding: 8px 16px;">
+            <i class="fas fa-radiation"></i> Engage Emergency Lockdown
+          </button>
+          <button type="button" onclick="exportDataToLaptop()" class="btn btn-secondary" style="background: rgba(255, 255, 255, 0.08); border-color: var(--border-color); color: #ffffff; font-size: 0.82rem; font-weight: 700; padding: 8px 16px;">
+            <i class="fas fa-laptop-file"></i> Export &amp; Download Data to Laptop
+          </button>
+          <button type="button" onclick="createSnapshotNow()" class="btn btn-secondary" style="background: rgba(16, 185, 129, 0.2); border-color: #10b981; color: #a7f3d0; font-size: 0.82rem; padding: 8px 16px;">
+            <i class="fas fa-save"></i> Take Encrypted Snapshot Now
+          </button>
+          <button type="button" onclick="restoreFromVaultAction()" class="btn btn-secondary" style="background: rgba(16, 185, 129, 0.25); border-color: #10b981; color: #a7f3d0; font-size: 0.82rem; font-weight: 700; padding: 8px 16px;">
+            <i class="fas fa-rotate-left"></i> Restore from Laptop Vault
+          </button>
+        </div>
+
+        <!-- Zero-Manual-Intervention Autonomous Protection Indicator -->
+        <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-color); border-radius: 8px; padding: 12px 16px; margin-bottom: 16px; font-size: 0.82rem; color: #ffffff; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
+          <div>
+            <i class="fas fa-robot" style="color: #ffffff;"></i> <strong>Zero-Manual-Intervention Shield Active:</strong> If any attacker breaches security or probes sensitive system files, the WAF <strong>AUTOMATICALLY</strong> evacuates all student records to your laptop vault (<code>Documents/Campus_Emergency_Vault</code>) and wipes server database files so attackers find 0 records.
+          </div>
+        </div>
+
+        <!-- Encrypted Snapshots List -->
+        <div>
+          <div style="font-size: 0.82rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 8px; display: flex; align-items: center; gap: 6px;">
+            <i class="fas fa-clock-rotate-left"></i> Recent Encrypted Snapshots (AES-256-GCM Rolling Storage)
+          </div>
+          <div id="backupSnapshotsContainer" style="overflow-x: auto; max-height: 160px; overflow-y: auto; background: rgba(0,0,0,0.25); border-radius: 8px; border: 1px solid var(--border-color);">
+            <div style="padding: 12px; text-align: center; color: var(--text-muted); font-size: 0.8rem;">Loading backup snapshots...</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Live Blocked Attacks Incident Log -->
+      <div>
+        <h4 style="margin: 0 0 10px 0; font-size: 0.95rem; font-weight: 700; display: flex; align-items: center; gap: 8px;">
+          <i class="fas fa-list-check" style="color: #10b981;"></i> Recent Blocked Attack Incident Log (Last 100)
+        </h4>
+        <div id="wafLogsTableContainer" style="overflow-x: auto; max-height: 320px; overflow-y: auto; background: rgba(0,0,0,0.2); border-radius: 10px; border: 1px solid var(--border-color);">
+          <div style="padding: 16px; text-align: center; color: var(--text-muted); font-size: 0.85rem;">Waiting for incoming security events...</div>
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+
+  <script>
+    let currentUser = null;
+    let learnedItems = [];
+    let projectItems = [];
+
+    document.addEventListener("DOMContentLoaded", async () => {
+      initTheme();
+      const token = localStorage.getItem("campus_token");
+      if (!token) {
+        window.location.href = "auth.html";
+        return;
+      }
+
+      initAvatarUpload();
+      await loadProfile(token);
+    });
+
+    function initTheme() {
+      const themeToggle = document.getElementById('themeToggle');
+      const themeIcon = document.getElementById('themeIcon');
+      const html = document.documentElement;
+
+      const savedTheme = localStorage.getItem('portfolio-theme');
+      const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      let currentTheme = savedTheme || (systemPrefersDark ? 'dark' : 'light');
+
+      applyTheme(currentTheme);
+
+      if (themeToggle) {
+        themeToggle.addEventListener('click', () => {
+          currentTheme = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+          applyTheme(currentTheme);
+          localStorage.setItem('portfolio-theme', currentTheme);
+        });
+      }
+
+      window.addEventListener('storage', (e) => {
+        if (e.key === 'portfolio-theme' && e.newValue) {
+          applyTheme(e.newValue);
+        }
+      });
+
+      function applyTheme(theme) {
+        html.setAttribute('data-theme', theme);
+        if (themeIcon) {
+          themeIcon.className = theme === 'dark' ? 'fas fa-moon' : 'fas fa-sun';
+        }
+      }
+    }
+
+    async function loadProfile(token) {
+      try {
+        const res = await fetch("/api/student/me", {
+          headers: { "Authorization": `Bearer ${token}` }
+        });
+
+        if (!res.ok) {
+          localStorage.removeItem("campus_token");
+          window.location.href = "auth.html";
+          return;
+        }
+
+        currentUser = await res.json();
+        populateFields(currentUser);
+
+        if (currentUser.isAdmin) {
+          const adminSec = document.getElementById("adminPanelSection");
+          if (adminSec) adminSec.style.display = "block";
+          loadFirewallTelemetry();
+          setInterval(loadFirewallTelemetry, 25000);
+        }
+      } catch (err) {
+        console.error("Failed to load profile:", err);
+      }
+    }
+
+    async function loadFirewallTelemetry() {
+      const token = localStorage.getItem("campus_token");
+      if (!token) return;
+
+      try {
+        const [statsRes, logsRes] = await Promise.all([
+          fetch('/api/admin/firewall-stats', { headers: { 'Authorization': `Bearer ${token}` } }),
+          fetch('/api/admin/firewall-logs', { headers: { 'Authorization': `Bearer ${token}` } })
+        ]);
+
+        if (statsRes.ok) {
+          const stats = await statsRes.json();
+          const insEl = document.getElementById('wafTotalInspected');
+          const blkEl = document.getElementById('wafTotalBlocked');
+          const banEl = document.getElementById('wafActiveBans');
+          const dlpEl = document.getElementById('wafDlpLeaks');
+          if (insEl) insEl.textContent = (stats.totalInspected || 0).toLocaleString();
+          if (blkEl) blkEl.textContent = (stats.totalBlocked || 0).toLocaleString();
+          if (banEl) banEl.textContent = (stats.activeBansCount || 0).toLocaleString();
+          if (dlpEl) dlpEl.textContent = ((stats.threatsByType && stats.threatsByType.dlpLeakPrevented) || 0).toLocaleString();
+
+          // Render Threat Types
+          const grid = document.getElementById('wafThreatTypesGrid');
+          if (grid) {
+            const types = stats.threatsByType || {};
+            const labels = {
+              sqli: 'SQL Injection',
+              xss: 'Cross-Site Scripting (XSS)',
+              pathTraversal: 'Path Traversal / LFI',
+              commandInjection: 'Command Injection (RCE)',
+              scannerProbe: 'Scanner Probes',
+              ssti: 'Template Injection (SSTI)',
+              prototypePollution: 'Prototype Pollution',
+              crlf: 'CRLF Injection',
+              hpp: 'Parameter Pollution (HPP)',
+              sessionHijack: 'Session Hijack Blocks',
+              atoLocked: 'ATO Brute-Force Locks',
+              dlpLeakPrevented: 'DLP Data Leaks Redacted',
+              maliciousAgent: 'Hacking Tools Blocked',
+              ddosFlood: 'DDoS / Micro-Bursts'
+            };
+            grid.innerHTML = Object.keys(labels).map(k => {
+              const count = types[k] || 0;
+              return `
+                <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 6px 12px; font-size: 0.8rem; display: flex; align-items: center; gap: 8px;">
+                  <span style="color: var(--text-secondary);">${labels[k]}:</span>
+                  <span style="font-weight: 700; color: ${count > 0 ? '#ef4444' : '#10b981'};">${count}</span>
+                </div>
+              `;
+            }).join('');
+          }
+
+          // Render Active Bans Table
+          const bansContainer = document.getElementById('wafBansTableContainer');
+          if (bansContainer) {
+            if (!stats.activeBans || stats.activeBans.length === 0) {
+              bansContainer.innerHTML = `<div style="padding: 16px; text-align: center; color: var(--text-muted); font-size: 0.85rem;">No IPs currently in ban jail. All systems clear.</div>`;
+            } else {
+              bansContainer.innerHTML = `
+                <table style="width: 100%; border-collapse: collapse; font-size: 0.85rem; text-align: left;">
+                  <thead>
+                    <tr style="border-bottom: 1px solid var(--border-color); color: var(--text-muted);">
+                      <th style="padding: 10px 14px;">IP Address</th>
+                      <th style="padding: 10px 14px;">Reason</th>
+                      <th style="padding: 10px 14px;">Penalty Level</th>
+                      <th style="padding: 10px 14px;">Remaining Time</th>
+                      <th style="padding: 10px 14px; text-align: right;">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    ${stats.activeBans.map(b => `
+                      <tr style="border-bottom: 1px solid rgba(255,255,255,0.04);">
+                        <td style="padding: 10px 14px; font-family: monospace; color: #f87171; font-weight: 600;">${b.ip}</td>
+                        <td style="padding: 10px 14px;">${b.reason}</td>
+                        <td style="padding: 10px 14px;"><span style="background: rgba(239,68,68,0.15); color: #f87171; padding: 2px 8px; border-radius: 10px; font-size: 0.75rem;">Level ${b.level}</span></td>
+                        <td style="padding: 10px 14px; color: var(--text-muted);">${b.remainingMinutes} min(s)</td>
+                        <td style="padding: 10px 14px; text-align: right;">
+                          <button type="button" onclick="unbanIpAddress('${b.ip}')" class="btn btn-secondary" style="font-size: 0.75rem; padding: 4px 10px;">
+                            <i class="fas fa-unlock"></i> Unban
+                          </button>
+                        </td>
+                      </tr>
+                    `).join('')}
+                  </tbody>
+                </table>
+              `;
+            }
+          }
+        }
+
+        // Render Recent Logs Table
+        if (logsRes.ok) {
+          const logs = await logsRes.json();
+          const logsContainer = document.getElementById('wafLogsTableContainer');
+          if (logsContainer) {
+            if (!logs || logs.length === 0) {
+              logsContainer.innerHTML = `<div style="padding: 16px; text-align: center; color: var(--text-muted); font-size: 0.85rem;">No attack attempts recorded yet. Firewall standing guard.</div>`;
+            } else {
+              logsContainer.innerHTML = `
+                <table style="width: 100%; border-collapse: collapse; font-size: 0.82rem; text-align: left;">
+                  <thead>
+                    <tr style="border-bottom: 1px solid var(--border-color); color: var(--text-muted); position: sticky; top: 0; background: #0b0f19;">
+                      <th style="padding: 8px 12px;">Time</th>
+                      <th style="padding: 8px 12px;">Attacker IP</th>
+                      <th style="padding: 8px 12px;">Attack Type</th>
+                      <th style="padding: 8px 12px;">Target URL</th>
+                      <th style="padding: 8px 12px;">Intercepted Payload Snippet</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    ${logs.map(l => `
+                      <tr style="border-bottom: 1px solid rgba(255,255,255,0.03);">
+                        <td style="padding: 8px 12px; color: var(--text-muted); font-size: 0.78rem;">${new Date(l.timestamp).toLocaleTimeString()}</td>
+                        <td style="padding: 8px 12px; font-family: monospace; color: #f87171;">${l.ip}</td>
+                        <td style="padding: 8px 12px;"><span style="background: rgba(239,68,68,0.12); color: #fca5a5; padding: 2px 8px; border-radius: 12px; font-size: 0.72rem; font-weight: 600;">${l.threatName}</span></td>
+                        <td style="padding: 8px 12px; font-family: monospace; color: var(--text-secondary); max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${l.method} ${l.url}</td>
+                        <td style="padding: 8px 12px; font-family: monospace; color: #fbbf24; font-size: 0.75rem; max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${l.snippet}</td>
+                      </tr>
+                    `).join('')}
+                  </tbody>
+                </table>
+              `;
+            }
+          }
+        // Update Quarantine State UI
+        const lockData = stats.lockdown || {};
+        const banner = document.getElementById('quarantineActiveBanner');
+        const badge = document.getElementById('lockdownStatusBadge');
+        const reasonText = document.getElementById('quarantineReasonText');
+
+        if (lockData.active) {
+          if (banner) banner.style.display = 'block';
+          if (reasonText) reasonText.textContent = lockData.reason || 'Quarantine active.';
+          if (badge) {
+            badge.innerHTML = `
+              <span style="background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid #ef4444; padding: 5px 12px; border-radius: 20px; font-size: 0.78rem; font-weight: 800;">
+                <i class="fas fa-radiation"></i> QUARANTINE ACTIVE
+              </span>
+            `;
+          }
+        } else {
+          if (banner) banner.style.display = 'none';
+          if (badge) {
+            badge.innerHTML = `
+              <span style="background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); padding: 5px 12px; border-radius: 20px; font-size: 0.78rem; font-weight: 700;">
+                <i class="fas fa-check-circle"></i> SYSTEM OPERATIONAL
+              </span>
+            `;
+          }
+        }
+        loadBackupSnapshots();
+      } catch (err) {
+        console.error("WAF telemetry error:", err);
+      }
+    }
+
+    async function loadBackupSnapshots() {
+      const token = localStorage.getItem("campus_token");
+      if (!token) return;
+      const container = document.getElementById('backupSnapshotsContainer');
+      if (!container) return;
+
+      try {
+        const res = await fetch('/api/admin/backup-list', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (!res.ok) return;
+        const snapshots = await res.json();
+        if (!snapshots || snapshots.length === 0) {
+          container.innerHTML = `<div style="padding: 12px; text-align: center; color: var(--text-muted); font-size: 0.8rem;">No snapshots generated yet. Initializing...</div>`;
+          return;
+        }
+
+        container.innerHTML = `
+          <table style="width: 100%; border-collapse: collapse; font-size: 0.78rem; text-align: left;">
+            <thead>
+              <tr style="border-bottom: 1px solid var(--border-color); color: var(--text-muted); position: sticky; top: 0; background: var(--bg-primary);">
+                <th style="padding: 6px 10px;">Snapshot File</th>
+                <th style="padding: 6px 10px;">Size</th>
+                <th style="padding: 6px 10px;">Created Time</th>
+                <th style="padding: 6px 10px;">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${snapshots.map(s => `
+                <tr style="border-bottom: 1px solid rgba(255,255,255,0.03);">
+                  <td style="padding: 6px 10px; font-family: monospace; color: #ffffff;">${s.filename}</td>
+                  <td style="padding: 6px 10px; color: var(--text-secondary);">${s.sizeFormatted}</td>
+                  <td style="padding: 6px 10px; color: var(--text-muted);">${new Date(s.createdAt).toLocaleString()}</td>
+                  <td style="padding: 6px 10px;"><span style="color: #34d399; font-weight: 600;"><i class="fas fa-lock"></i> Encrypted</span></td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        `;
+      } catch (err) {
+        console.warn('Failed to load backup snapshots:', err);
+      }
+    }
+
+    async function triggerPanicLockdown() {
+      const token = localStorage.getItem("campus_token");
+      if (!token) return;
+      const confirmed = confirm("🚨 ARE YOU SURE YOU WANT TO ENGAGE EMERGENCY LOCKDOWN?\n\nThis will immediately quarantine all public student routes, revoke active sessions, and freeze the platform to stop active intrusion.");
+      if (!confirmed) return;
+
+      try {
+        const res = await fetch('/api/admin/emergency-lockdown', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+          body: JSON.stringify({ reason: 'Manually engaged by administrator from defense center.' })
+        });
+        const data = await res.json();
+        alert(data.message || 'Lockdown active!');
+        loadFirewallTelemetry();
+      } catch (e) {
+        alert('Failed to engage lockdown: ' + e.message);
+      }
+    }
+
+    async function unlockPlatform() {
+      const token = localStorage.getItem("campus_token");
+      if (!token) return;
+      if (!confirm("Lift emergency quarantine and resume normal student traffic?")) return;
+
+      try {
+        const res = await fetch('/api/admin/emergency-unlock', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }
+        });
+        const data = await res.json();
+        alert(data.message || 'Quarantine lifted.');
+        loadFirewallTelemetry();
+      } catch (e) {
+        alert('Failed to lift quarantine: ' + e.message);
+      }
+    }
+
+    async function exportDataToLaptop() {
+      const token = localStorage.getItem("campus_token");
+      if (!token) return;
+
+      try {
+        const res = await fetch('/api/admin/export-data', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (!res.ok) throw new Error('Failed to export data');
+        const blob = await res.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `campus_portfolio_data_${new Date().toISOString().slice(0,10)}.json`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        window.URL.revokeObjectURL(url);
+      } catch (e) {
+        alert('Export failed: ' + e.message);
+      }
+    }
+
+    async function createSnapshotNow() {
+      const token = localStorage.getItem("campus_token");
+      if (!token) return;
+
+      try {
+        const res = await fetch('/api/admin/create-backup', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }
+        });
+        const data = await res.json();
+        alert(`Encrypted snapshot created: ${data.filename} (${data.size} bytes)`);
+        loadBackupSnapshots();
+      } catch (e) {
+        alert('Failed to create snapshot: ' + e.message);
+      }
+    }
+
+    async function restoreFromVaultAction() {
+      const token = localStorage.getItem("campus_token");
+      if (!token) return;
+      if (!confirm("Restore the student database from your laptop vault (Documents/Campus_Emergency_Vault)?")) return;
+
+      try {
+        const res = await fetch('/api/admin/restore-from-vault', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }
+        });
+        const data = await res.json();
+        if (data.success) {
+          alert(`✅ ${data.userCount} student records restored successfully from vault!`);
+          loadFirewallTelemetry();
+          loadProfile(token);
+        } else {
+          alert('Restore notice: ' + (data.error || data.message));
+        }
+      } catch (e) {
+        alert('Failed to restore from vault: ' + e.message);
+      }
+    }
+
+    async function handleManualBan(e) {
+      e.preventDefault();
+      const token = localStorage.getItem("campus_token");
+      if (!token) return;
+      const ip = document.getElementById('manualBanIp').value.trim();
+      const hours = parseInt(document.getElementById('manualBanHours').value) || 24;
+      if (!ip) return;
+
+      try {
+        const res = await fetch('/api/admin/firewall-ban', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+          body: JSON.stringify({ ip, reason: 'Manually jailed by administrator', hours })
+        });
+        const data = await res.json();
+        alert(data.message || `IP ${ip} jailed.`);
+        document.getElementById('manualBanIp').value = '';
+        loadFirewallTelemetry();
+      } catch (err) {
+        alert('Failed to ban IP: ' + err.message);
+      }
+    }
+
+    async function unbanIpAddress(ip) {
+      const token = localStorage.getItem("campus_token");
+      if (!token) return;
+      if (!confirm(`Are you sure you want to unban IP ${ip}?`)) return;
+
+      try {
+        const res = await fetch('/api/admin/firewall-unban', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+          body: JSON.stringify({ ip })
+        });
+        const data = await res.json();
+        alert(data.message || 'IP unbanned.');
+        loadFirewallTelemetry();
+      } catch (e) {
+        alert('Failed to unban IP: ' + e.message);
+      }
+    }
+
+    function populateFields(u) {
+      document.getElementById("studentWelcomeName").textContent = u.name;
+      document.getElementById("studentBadge").textContent = `${u.course || 'UG'} \u2022 ${u.year} ${u.branch}`;
+
+      // Personal Shareable Portfolio URL
+      const userSlug = u.username || u.id;
+      const fullUrl = `${window.location.origin}/p/${userSlug}`;
+      const urlTextEl = document.getElementById("portfolioUrlText");
+      if (urlTextEl) urlTextEl.textContent = fullUrl;
+      const viewBtn = document.getElementById("viewMyPortfolioBtn");
+      if (viewBtn) viewBtn.href = `/p/${userSlug}`;
+
+      // Profile Picture
+      const currentAvatar = u.avatarUrl || `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(u.name || 'Student')}`;
+      const previewImg = document.getElementById("avatarPreviewImg");
+      if (previewImg) previewImg.src = currentAvatar;
+      document.getElementById("profAvatar").value = u.avatarUrl || "";
+
+      document.getElementById("profName").value = u.name || "";
+      document.getElementById("profEmail").value = u.email || "";
+      document.getElementById("profCourse").value = u.course || "B.Tech";
+      document.getElementById("profYear").value = u.year || "3rd Year";
+      document.getElementById("profBranch").value = u.branch || "";
+      document.getElementById("profCollege").value = u.college || "";
+      document.getElementById("profTagline").value = u.tagline || "";
+      document.getElementById("profBio").value = u.bio || "";
+      document.getElementById("profSkills").value = (u.skills || []).join(", ");
+      document.getElementById("profGithub").value = (u.socials && u.socials.github) || "";
+      document.getElementById("profLinkedin").value = (u.socials && u.socials.linkedin) || "";
+
+      learnedItems = u.whatILearned && u.whatILearned.length > 0 ? [...u.whatILearned] : ["Coursework fundamentals & project work"];
+      renderLearnedList();
+
+      projectItems = u.projects && u.projects.length > 0 ? [...u.projects] : [];
+      renderProjectsList();
+    }
+
+    function copyPortfolioUrl() {
+      const url = document.getElementById("portfolioUrlText").textContent;
+      navigator.clipboard.writeText(url).then(() => {
+        const btn = document.getElementById("copyUrlBtn");
+        const orig = btn.innerHTML;
+        btn.innerHTML = `<i class="fas fa-check" style="color: #10b981;"></i> Copied!`;
+        setTimeout(() => { btn.innerHTML = orig; }, 2500);
+      });
+    }
+
+    // PROFILE PICTURE HANDLERS
+    function initAvatarUpload() {
+      const fileInput = document.getElementById('avatarFileInput');
+      const previewImg = document.getElementById('avatarPreviewImg');
+      const avatarInput = document.getElementById('profAvatar');
+
+      function handleSelectedImage(file) {
+        if (!file) return;
+
+        if (!file.type.startsWith('image/')) {
+          alert('Please select a valid image file (JPG, PNG, WEBP, etc.)');
+          return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = function(event) {
+          const img = new Image();
+          img.onload = function() {
+            // Compress and resize to max 400x400 to keep it lightweight (~50KB)
+            const canvas = document.createElement('canvas');
+            const maxDim = 400;
+            let width = img.width;
+            let height = img.height;
+
+            if (width > height) {
+              if (width > maxDim) {
+                height = Math.round((height * maxDim) / width);
+                width = maxDim;
+              }
+            } else {
+              if (height > maxDim) {
+                width = Math.round((width * maxDim) / height);
+                height = maxDim;
+              }
+            }
+
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, width, height);
+
+            const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.88);
+            if (previewImg) previewImg.src = compressedDataUrl;
+            if (avatarInput) avatarInput.value = compressedDataUrl;
+          };
+          img.src = event.target.result;
+        };
+        reader.readAsDataURL(file);
+      }
+
+      if (fileInput) {
+        fileInput.addEventListener('change', (e) => handleSelectedImage(e.target.files[0]));
+      }
+
+      const nativeCameraInput = document.getElementById('cameraNativeInput');
+      if (nativeCameraInput) {
+        nativeCameraInput.addEventListener('change', (e) => handleSelectedImage(e.target.files[0]));
+      }
+
+      if (avatarInput) {
+        avatarInput.addEventListener('input', function() {
+          if (this.value.trim() && previewImg) {
+            previewImg.src = this.value.trim();
+          }
+        });
+      }
+    }
+
+    function generateDicebearAvatar() {
+      const name = document.getElementById("profName").value.trim() || "Student";
+      const styles = ["bottts", "avataaars", "adventurer", "lorelei", "personas"];
+      const randomStyle = styles[Math.floor(Math.random() * styles.length)];
+      const randomSeed = Math.random().toString(36).substring(2, 8);
+      const avatarUrl = `https://api.dicebear.com/7.x/${randomStyle}/svg?seed=${encodeURIComponent(name + '-' + randomSeed)}`;
+      const previewImg = document.getElementById("avatarPreviewImg");
+      const avatarInput = document.getElementById("profAvatar");
+      if (previewImg) previewImg.src = avatarUrl;
+      if (avatarInput) avatarInput.value = avatarUrl;
+    }
+
+    function removeAvatarPhoto() {
+      const name = document.getElementById("profName").value.trim() || "Student";
+      const defaultUrl = `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(name)}`;
+      const previewImg = document.getElementById("avatarPreviewImg");
+      const avatarInput = document.getElementById("profAvatar");
+      if (previewImg) previewImg.src = defaultUrl;
+      if (avatarInput) avatarInput.value = defaultUrl;
+      const fileInput = document.getElementById("avatarFileInput");
+      if (fileInput) fileInput.value = "";
+    }
+
+    // What I Learned Handlers
+    function renderLearnedList() {
+      const container = document.getElementById("learnedListContainer");
+      container.innerHTML = learnedItems.map((item, idx) => `
+        <div class="bullet-item">
+          <input type="text" value="${item.replace(/"/g, '&quot;')}" onchange="updateLearnedItem(${idx}, this.value)" class="bullet-input" placeholder="e.g. Mastered Financial Modeling in Excel">
+          <button type="button" onclick="removeLearnedItem(${idx})" class="remove-btn" title="Remove"><i class="fas fa-trash"></i></button>
+        </div>
+      `).join("");
+    }
+
+    function addLearnedItem(text) {
+      learnedItems.push(text);
+      renderLearnedList();
+    }
+
+    function updateLearnedItem(idx, val) {
+      learnedItems[idx] = val;
+    }
+
+    function removeLearnedItem(idx) {
+      learnedItems.splice(idx, 1);
+      renderLearnedList();
+    }
+
+    // Projects Handlers
+    function renderProjectsList() {
+      const container = document.getElementById("projectsListContainer");
+      if (projectItems.length === 0) {
+        container.innerHTML = `<p style="color: var(--text-muted); font-size: 0.9rem; font-style: italic;">No projects added yet. Click "+ Add New Project" to add your project or report!</p>`;
+        return;
+      }
+
+      container.innerHTML = projectItems.map((p, idx) => `
+        <div class="project-entry-card">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
+            <span class="docs-badge"><i class="fas fa-file-alt"></i> Project #${idx + 1}</span>
+            <button type="button" onclick="removeProject(${idx})" class="remove-btn" style="width: 32px; height: 32px; font-size: 0.8rem;" title="Delete Project"><i class="fas fa-trash"></i></button>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
+            <div class="form-group">
+              <label>Project Title *</label>
+              <input type="text" value="${(p.title || '').replace(/"/g, '&quot;')}" onchange="updateProjectField(${idx}, 'title', this.value)" placeholder="e.g. Student Library Management Portal" required>
+            </div>
+            <div class="form-group">
+              <label>Category / Domain</label>
+              <input type="text" value="${(p.category || '').replace(/"/g, '&quot;')}" onchange="updateProjectField(${idx}, 'category', this.value)" placeholder="e.g. Web Development / Financial Analysis / Case Study">
+            </div>
+          </div>
+
+          <div class="form-group" style="margin-bottom: 12px;">
+            <label>Project Description</label>
+            <textarea rows="2" onchange="updateProjectField(${idx}, 'description', this.value)" placeholder="Short summary of what the project does...">${p.description || ''}</textarea>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 12px;">
+            <div class="form-group">
+              <label style="color: #3b82f6;"><i class="fas fa-file-lines"></i> Google Docs Link (Report)</label>
+              <input type="url" value="${(p.googleDocsUrl || '').replace(/"/g, '&quot;')}" onchange="updateProjectField(${idx}, 'googleDocsUrl', this.value)" placeholder="https://docs.google.com/document/d/...">
+            </div>
+            <div class="form-group">
+              <label><i class="fab fa-github"></i> GitHub Link (Optional)</label>
+              <input type="url" value="${(p.githubUrl || '').replace(/"/g, '&quot;')}" onchange="updateProjectField(${idx}, 'githubUrl', this.value)" placeholder="https://github.com/...">
+            </div>
+            <div class="form-group">
+              <label><i class="fas fa-globe"></i> Live Demo / Link</label>
+              <input type="url" value="${(p.liveUrl || '').replace(/"/g, '&quot;')}" onchange="updateProjectField(${idx}, 'liveUrl', this.value)" placeholder="https://...">
+            </div>
+          </div>
+        </div>
+      `).join("");
+    }
+
+    function addProjectCard() {
+      projectItems.push({
+        id: Date.now(),
+        title: "",
+        category: "Project",
+        description: "",
+        googleDocsUrl: "",
+        githubUrl: "",
+        liveUrl: "",
+        learnings: ""
+      });
+      renderProjectsList();
+    }
+
+    function updateProjectField(idx, field, value) {
+      if (projectItems[idx]) {
+        projectItems[idx][field] = value;
+      }
+    }
+
+    function removeProject(idx) {
+      projectItems.splice(idx, 1);
+      renderProjectsList();
+    }
+
+    // SAVE PROFILE
+    async function saveProfile() {
+      const token = localStorage.getItem("campus_token");
+      const btn = document.getElementById("saveProfileBtn");
+      const statusEl = document.getElementById("statusBanner");
+
+      btn.disabled = true;
+      btn.innerHTML = `<span>Saving...</span> <i class="fas fa-spinner fa-spin"></i>`;
+
+      const skillsArr = document.getElementById("profSkills").value
+        .split(",")
+        .map(s => s.trim())
+        .filter(s => s.length > 0);
+
+      const filteredLearned = learnedItems.filter(l => l && l.trim().length > 0);
+
+      const payload = {
+        name: document.getElementById("profName").value.trim(),
+        course: document.getElementById("profCourse").value,
+        year: document.getElementById("profYear").value,
+        branch: document.getElementById("profBranch").value.trim(),
+        college: document.getElementById("profCollege").value.trim(),
+        tagline: document.getElementById("profTagline").value.trim(),
+        bio: document.getElementById("profBio").value.trim(),
+        avatarUrl: document.getElementById("profAvatar").value.trim() || (document.getElementById("avatarPreviewImg") ? document.getElementById("avatarPreviewImg").src : ""),
+        whatILearned: filteredLearned,
+        skills: skillsArr,
+        projects: projectItems,
+        socials: {
+          github: document.getElementById("profGithub").value.trim(),
+          linkedin: document.getElementById("profLinkedin").value.trim(),
+          email: currentUser ? currentUser.email : ""
+        }
+      };
+
+      try {
+        const res = await fetch("/api/student/profile", {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+          },
+          body: JSON.stringify(payload)
+        });
+
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || "Failed to save profile");
+
+        statusEl.style.display = "block";
+        statusEl.style.background = "rgba(16, 185, 129, 0.15)";
+        statusEl.style.border = "1px solid #10b981";
+        statusEl.style.color = "#10b981";
+        statusEl.innerHTML = `<i class="fas fa-check-circle"></i> Portfolio updated and published live successfully!`;
+
+        setTimeout(() => { statusEl.style.display = "none"; }, 5000);
+      } catch (err) {
+        statusEl.style.display = "block";
+        statusEl.style.background = "rgba(239, 68, 68, 0.15)";
+        statusEl.style.border = "1px solid #ef4444";
+        statusEl.style.color = "#ef4444";
+        statusEl.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${err.message}`;
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = `<i class="fas fa-save"></i> Save Changes`;
+      }
+    }
+
+    // CHANGE PASSWORD
+    async function handleChangePassword(e) {
+      e.preventDefault();
+      const token = localStorage.getItem("campus_token");
+      const currentPassword = document.getElementById("currPassword").value;
+      const newPassword = document.getElementById("newPassword").value;
+      const confirmPassword = document.getElementById("confirmPassword").value;
+      const statusEl = document.getElementById("passChangeStatus");
+      const btn = document.getElementById("changePassBtn");
+
+      statusEl.style.display = "none";
+
+      if (newPassword !== confirmPassword) {
+        statusEl.style.display = "block";
+        statusEl.style.color = "#ef4444";
+        statusEl.textContent = "New passwords do not match.";
+        return;
+      }
+
+      btn.disabled = true;
+      btn.innerHTML = `<span>Updating...</span> <i class="fas fa-spinner fa-spin"></i>`;
+
+      try {
+        const res = await fetch("/api/student/change-password", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+          },
+          body: JSON.stringify({ currentPassword, newPassword })
+        });
+
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || "Failed to change password");
+
+        statusEl.style.display = "block";
+        statusEl.style.color = "#10b981";
+        statusEl.textContent = "Password updated successfully!";
+        document.getElementById("changePasswordForm").reset();
+      } catch (err) {
+        statusEl.style.display = "block";
+        statusEl.style.color = "#ef4444";
+        statusEl.textContent = err.message;
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = `<span>Update Password</span> <i class="fas fa-key"></i>`;
+      }
+    }
+
+    // ADMIN: LOAD STUDENTS & DELETE
+    async function loadAdminStudentsList(token) {
+      const listEl = document.getElementById("adminStudentsList");
+      try {
+        const res = await fetch("/api/admin/all-students", {
+          headers: { "Authorization": `Bearer ${token}` }
+        });
+
+        if (!res.ok) return;
+        const students = await res.json();
+
+        if (students.length === 0) {
+          listEl.innerHTML = `<p style="color: var(--text-muted);">No student accounts found.</p>`;
+          return;
+        }
+
+        listEl.innerHTML = students.map(s => `
+          <div class="admin-student-row">
+            <div>
+              <strong style="color: var(--text-primary); font-size: 1rem;">${s.name}</strong> 
+              <span style="color: var(--text-muted); font-size: 0.85rem;">(${s.email})</span>
+              <div style="font-size: 0.8rem; color: var(--accent); margin-top: 2px;">
+                ${s.course || 'UG'} &bull; ${s.year || 'N/A'} &bull; ${s.branch || 'N/A'} &bull; Joined: ${new Date(s.createdAt).toLocaleDateString()}
+              </div>
+            </div>
+            ${s.email.toLowerCase() !== 'kurapatitineshkarthik@gmail.com' ? `
+              <button onclick="deleteStudentAccount('${s.id}', '${s.name}')" class="remove-btn" style="width: auto; padding: 6px 14px; gap: 6px; font-size: 0.85rem;" title="Delete this account">
+                <i class="fas fa-trash"></i> <span>Delete</span>
+              </button>
+            ` : `
+              <span style="font-size: 0.8rem; color: #10b981; font-weight: 700;"><i class="fas fa-crown"></i> Admin</span>
+            `}
+          </div>
+        `).join("");
+      } catch (err) {
+        console.error("Admin load error:", err);
+      }
+    }
+
+    async function deleteStudentAccount(studentId, studentName) {
+      if (!confirm(`Are you sure you want to delete the account for "${studentName}"? This cannot be undone.`)) {
+        return;
+      }
+
+      const token = localStorage.getItem("campus_token");
+      try {
+        const res = await fetch(`/api/admin/student/${studentId}`, {
+          method: "DELETE",
+          headers: { "Authorization": `Bearer ${token}` }
+        });
+
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || "Failed to delete account");
+
+        alert(data.message);
+        loadAdminStudentsList(token);
+      } catch (err) {
+        alert("Error: " + err.message);
+      }
+    }
+
+    function handleLogout() {
+      localStorage.removeItem("campus_token");
+      localStorage.removeItem("campus_user");
+      window.location.href = "index.html";
+    }
+  </script>
+</body>
+</html>
