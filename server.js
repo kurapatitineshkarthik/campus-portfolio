@@ -65,10 +65,7 @@ if (cluster.isPrimary) {
   console.log('================================================================');
 
   const testTransporter = nodemailer.createTransport({
-    host: 'smtp.gmail.com',
-    port: 587,
-    secure: false,
-    requireTLS: true,
+    service: 'gmail',
     auth: { user: emailUser, pass: emailPass },
     tls: { rejectUnauthorized: false }
   });
@@ -78,7 +75,7 @@ if (cluster.isPrimary) {
       console.warn('⚠️ [GMAIL SMTP NOTICE]:', error.message);
       console.log('💡 Note: OTP codes will also be printed in this console for instant testing!');
     } else {
-      console.log('✅ [GMAIL SMTP CONNECTED via Port 587]: Ready to dispatch OTP emails!');
+      console.log('✅ [GMAIL SMTP CONNECTED via SSL Port 465]: Ready to dispatch OTP emails!');
     }
   });
 
@@ -262,10 +259,7 @@ if (cluster.isPrimary) {
   // 4. NODEMAILER SMTP
   // =======================================================================
   const transporter = nodemailer.createTransport({
-    host: 'smtp.gmail.com',
-    port: 587,
-    secure: false,
-    requireTLS: true,
+    service: 'gmail',
     pool: true,
     maxConnections: 5,
     maxMessages: 100,

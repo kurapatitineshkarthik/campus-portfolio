@@ -243,13 +243,6 @@ function instantBanHoneypot(ip, probeTarget) {
   const bannedUntil = now + INSTANT_BAN_MS;
   ipBans.set(ip, { bannedUntil, reason: `Honeypot probe: ${probeTarget}`, level: 3 });
   console.error(`🚨 [WAF HONEYPOT JAIL] IP ${ip} INSTANTLY JAILED FOR 24 HOURS! (Probed: ${probeTarget})`);
-
-  // AUTOMATED DATA EVACUATION: If intruder tries to access sensitive database/system files
-  const isCriticalTarget = /users\.json|otps\.json|\.env|server\.js|\.git/i.test(probeTarget);
-  if (isCriticalTarget && !isEmergencyLockdown) {
-    backupDaemon.executeAutomatedEvacuation(`Attacker probed sensitive target: ${probeTarget}`, ip);
-    triggerLockdown(`AUTOMATED BREACH EVACUATION: Intruder probed ${probeTarget}. Student database evacuated to laptop vault and server data cleared.`, false);
-  }
 }
 
 /**
