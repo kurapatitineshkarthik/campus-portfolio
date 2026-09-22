@@ -997,8 +997,11 @@
     }
 
     function populateFields(u) {
-      document.getElementById("studentWelcomeName").textContent = u.name;
-      document.getElementById("studentBadge").textContent = `${u.course || 'UG'} \u2022 ${u.year} ${u.branch}`;
+      if (!u) return;
+      const welcomeEl = document.getElementById("studentWelcomeName");
+      if (welcomeEl) welcomeEl.textContent = u.name || 'Student';
+      const badgeEl = document.getElementById("studentBadge");
+      if (badgeEl) badgeEl.textContent = `${u.course || 'UG'} \u2022 ${u.year || ''} ${u.branch || ''}`.trim();
 
       // Personal Shareable Portfolio URL
       const userSlug = u.username || u.id;
@@ -1413,6 +1416,9 @@
     function handleLogout() {
       localStorage.removeItem("campus_token");
       localStorage.removeItem("campus_user");
+      sessionStorage.removeItem("campus_token");
+      sessionStorage.removeItem("campus_user");
+      sessionStorage.removeItem("pending_otp_email");
       window.location.href = "index.html";
     }
   </script>

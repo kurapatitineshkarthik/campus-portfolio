@@ -205,6 +205,11 @@
           <input type="password" id="regPassword" placeholder="Minimum 6 characters" minlength="6" required>
         </div>
 
+        <div class="form-group">
+          <label for="regConfirmPassword">Confirm Password *</label>
+          <input type="password" id="regConfirmPassword" placeholder="Re-enter password" minlength="6" required>
+        </div>
+
         <!-- Course, Year & Branch / Specialization -->
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
           <div class="form-group">
@@ -289,20 +294,20 @@
 
       <h2 style="font-size: 1.4rem; margin-bottom: 8px;">Verify Your Email Address</h2>
       <p style="color: var(--text-secondary); font-size: 0.9rem; line-height: 1.5;">
-        We sent a 6-digit verification code to<br>
+        We sent a 6-digit verification code via direct Gmail SSL to<br>
         <strong id="otpEmailTarget" style="color: var(--text-primary);"></strong>
       </p>
 
       <div class="otp-inputs">
-        <input type="text" maxlength="1" class="otp-digit" data-index="0" autofocus>
-        <input type="text" maxlength="1" class="otp-digit" data-index="1">
-        <input type="text" maxlength="1" class="otp-digit" data-index="2">
-        <input type="text" maxlength="1" class="otp-digit" data-index="3">
-        <input type="text" maxlength="1" class="otp-digit" data-index="4">
-        <input type="text" maxlength="1" class="otp-digit" data-index="5">
+        <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]*" class="otp-digit" data-index="0" autofocus>
+        <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]*" class="otp-digit" data-index="1">
+        <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]*" class="otp-digit" data-index="2">
+        <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]*" class="otp-digit" data-index="3">
+        <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]*" class="otp-digit" data-index="4">
+        <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]*" class="otp-digit" data-index="5">
       </div>
 
-      <div style="margin-bottom: 20px; font-size: 0.85rem; color: var(--text-muted);">
+      <div style="margin-bottom: 16px; font-size: 0.85rem; color: var(--text-muted);">
         Didn't receive the code? 
         <button id="resendBtn" onclick="handleResendOtp()" style="background: none; border: none; color: var(--accent); cursor: pointer; font-weight: 600;">
           Resend code (<span id="timerText">45</span>s)
@@ -312,6 +317,10 @@
       <button type="button" onclick="submitOtp()" id="verifyOtpBtn" class="btn btn-primary" style="width: 100%;">
         <span>Verify & Create Account</span>
         <i class="fas fa-check"></i>
+      </button>
+
+      <button type="button" onclick="cancelOtpModal()" class="btn btn-ghost" style="margin-top: 10px; width: 100%; font-size: 0.85rem;">
+        Change Email / Cancel
       </button>
 
       <div id="otpError" style="color: #ef4444; font-size: 0.85rem; margin-top: 12px; display: none;"></div>
@@ -368,6 +377,17 @@
   <script>
     document.addEventListener("DOMContentLoaded", () => {
       initTheme();
+      // Session Rehydration: Check if user was in middle of OTP verification
+      const savedPendingEmail = sessionStorage.getItem('pending_otp_email');
+      if (savedPendingEmail) {
+        pendingEmail = savedPendingEmail;
+        const targetEl = document.getElementById('otpEmailTarget');
+        if (targetEl) targetEl.textContent = pendingEmail;
+        const modal = document.getElementById('otpModal');
+        if (modal) modal.classList.add('active');
+        setupOtpInputs();
+        startResendTimer();
+      }
     });
 
     function initTheme() {
@@ -427,14 +447,21 @@
       const name = document.getElementById('regName').value.trim();
       const email = document.getElementById('regEmail').value.trim();
       const password = document.getElementById('regPassword').value;
+      const confirmPassword = document.getElementById('regConfirmPassword') ? document.getElementById('regConfirmPassword').value : password;
       const course = document.getElementById('regCourse').value;
       const year = document.getElementById('regYear').value;
       const branch = document.getElementById('regBranch').value.trim();
       const college = document.getElementById('regCollege').value.trim();
       const hp_company_trap = document.getElementById('regHpTrap') ? document.getElementById('regHpTrap').value : '';
 
+      if (password !== confirmPassword) {
+        errorEl.textContent = 'Passwords do not match. Please re-enter.';
+        errorEl.style.display = 'block';
+        return;
+      }
+
       btn.disabled = true;
-      btn.innerHTML = `<span>Sending OTP...</span> <i class="fas fa-spinner fa-spin"></i>`;
+      btn.innerHTML = `<span>Sending OTP via Gmail SSL...</span> <i class="fas fa-spinner fa-spin"></i>`;
 
       try {
         const res = await fetch('/api/auth/signup', {
@@ -447,6 +474,7 @@
         if (!res.ok) throw new Error(data.error || 'Failed to send OTP');
 
         pendingEmail = email;
+        sessionStorage.setItem('pending_otp_email', email);
         document.getElementById('otpEmailTarget').textContent = email;
         document.getElementById('otpModal').classList.add('active');
         startResendTimer();
@@ -461,21 +489,57 @@
     }
 
     function setupOtpInputs() {
+      const container = document.querySelector('.otp-inputs');
       const inputs = document.querySelectorAll('.otp-digit');
+
+      // 1. Clipboard Paste Support (Paste 6 digits into any box)
+      if (container && !container.dataset.pasteBound) {
+        container.dataset.pasteBound = 'true';
+        container.addEventListener('paste', (e) => {
+          e.preventDefault();
+          const pasted = (e.clipboardData || window.clipboardData).getData('text').trim();
+          const digits = pasted.replace(/\D/g, '').slice(0, 6);
+          if (!digits) return;
+          digits.split('').forEach((d, idx) => {
+            if (inputs[idx]) inputs[idx].value = d;
+          });
+          if (digits.length === 6) {
+            document.getElementById('verifyOtpBtn').focus();
+          } else if (inputs[digits.length]) {
+            inputs[digits.length].focus();
+          }
+        });
+      }
+
+      // 2. Input and Keydown Navigation
       inputs.forEach((input, idx) => {
         input.value = '';
-        input.addEventListener('input', (e) => {
+        input.setAttribute('inputmode', 'numeric');
+        input.setAttribute('pattern', '[0-9]*');
+        input.setAttribute('autocomplete', 'one-time-code');
+
+        input.oninput = (e) => {
+          e.target.value = e.target.value.replace(/\D/g, '').slice(0, 1);
           if (e.target.value.length === 1 && idx < inputs.length - 1) {
             inputs[idx + 1].focus();
           }
-        });
-        input.addEventListener('keydown', (e) => {
+        };
+
+        input.onkeydown = (e) => {
           if (e.key === 'Backspace' && !e.target.value && idx > 0) {
             inputs[idx - 1].focus();
           }
-        });
+        };
       });
-      inputs[0].focus();
+
+      if (inputs[0]) inputs[0].focus();
+    }
+
+    function cancelOtpModal() {
+      sessionStorage.removeItem('pending_otp_email');
+      pendingEmail = '';
+      if (timerInterval) clearInterval(timerInterval);
+      document.getElementById('otpModal').classList.remove('active');
     }
 
     function startResendTimer() {
@@ -500,6 +564,10 @@
 
     async function handleResendOtp() {
       if (resendCountdown > 0) return;
+      const resendBtn = document.getElementById('resendBtn');
+      resendBtn.disabled = true;
+      resendBtn.innerHTML = `<span>Sending...</span> <i class="fas fa-spinner fa-spin"></i>`;
+
       try {
         const res = await fetch('/api/auth/resend-otp', {
           method: 'POST',
@@ -511,6 +579,8 @@
         startResendTimer();
       } catch (err) {
         alert(err.message);
+        resendBtn.disabled = false;
+        resendBtn.textContent = 'Resend code';
       }
     }
 
@@ -542,6 +612,7 @@
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || 'OTP verification failed');
 
+        sessionStorage.removeItem('pending_otp_email');
         localStorage.setItem('campus_token', data.token);
         localStorage.setItem('campus_user', JSON.stringify(data.user));
         window.location.href = 'dashboard.html';

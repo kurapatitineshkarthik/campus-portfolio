@@ -46,40 +46,19 @@ if (!fs.existsSync(OTPS_PATH)) {
 }
 
 // =========================================================================
-// 1. MULTI-CORE CLUSTERING (5000+ CONCURRENT USERS)
+// 1. PROCESS ARCHITECTURE (Optimized for Render Cloud 512MB RAM & Local)
 // =========================================================================
-if (cluster.isPrimary) {
+const isClusterMode = process.env.CLUSTER === 'true' && !process.env.RENDER;
+
+if (isClusterMode && cluster.isPrimary) {
   const cpuCount = os.cpus().length;
-  const workerCount = Math.min(cpuCount, 8);
+  const workerCount = Math.min(cpuCount, 4);
 
   console.log('================================================================');
-  console.log(`🎓 ALL UG STUDENTS PORTFOLIO PLATFORM [HIGH-CAPACITY MODE]`);
-  console.log(`📚 Programs: B.Tech, BCA, B.Sc, B.Com, BBA, BA & All UG Courses`);
-  console.log(`💻 Hardware: AMD Ryzen AI 7 (${cpuCount} Logical Cores) & 32GB RAM`);
+  console.log(`🎓 ALL UG STUDENTS PORTFOLIO PLATFORM [CLUSTER MODE]`);
   console.log(`⚡ Spawning ${workerCount} Worker Processes for Load Balancing...`);
-  console.log(`🛡️ Web Application Firewall: ACTIVE (Military-Grade Threat Shield)`);
-  console.log(`✉️ OTP Email Sender: ${emailUser}`);
-  console.log(`👑 Platform Admin: ${ADMIN_EMAIL}`);
-  console.log(`🔑 Default Admin Password: admin123`);
-  console.log(`🌐 Local URL: http://localhost:${PORT}`);
   console.log('================================================================');
 
-  const testTransporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: { user: emailUser, pass: emailPass },
-    tls: { rejectUnauthorized: false }
-  });
-
-  testTransporter.verify((error) => {
-    if (error) {
-      console.warn('⚠️ [GMAIL SMTP NOTICE]:', error.message);
-      console.log('💡 Note: OTP codes will also be printed in this console for instant testing!');
-    } else {
-      console.log('✅ [GMAIL SMTP CONNECTED via SSL Port 465]: Ready to dispatch OTP emails!');
-    }
-  });
-
-  // Start automated encrypted backup daemon (every 6 hours)
   backupDaemon.startSchedule();
 
   for (let i = 0; i < workerCount; i++) {
@@ -92,6 +71,8 @@ if (cluster.isPrimary) {
   });
 
 } else {
+  // Start automated encrypted backup daemon (every 6 hours)
+  backupDaemon.startSchedule();
   // =======================================================================
   // 2. WORKER PROCESS
   // =======================================================================
@@ -173,10 +154,10 @@ if (cluster.isPrimary) {
     return clean;
   }
 
-  // 4. MULTI-TIERED RATE LIMITERS
+  // 4. MULTI-TIERED RATE LIMITERS (Campus Wi-Fi Friendly)
   const generalLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
-    max: 300,
+    max: 600,
     standardHeaders: true,
     legacyHeaders: false,
     message: { error: 'Too many requests. Please slow down and try again later.' }
@@ -185,7 +166,7 @@ if (cluster.isPrimary) {
 
   const authLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
-    max: 5,
+    max: 50,
     standardHeaders: true,
     legacyHeaders: false,
     message: { error: 'Too many authentication attempts. Please wait 15 minutes.' }
@@ -193,7 +174,7 @@ if (cluster.isPrimary) {
 
   const otpLimiter = rateLimit({
     windowMs: 10 * 60 * 1000,
-    max: 3,
+    max: 25,
     standardHeaders: true,
     legacyHeaders: false,
     message: { error: 'Too many OTP requests. Please wait 10 minutes.' }
@@ -201,7 +182,7 @@ if (cluster.isPrimary) {
 
   const publicLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
-    max: 100,
+    max: 300,
     standardHeaders: true,
     legacyHeaders: false,
     message: { error: 'Too many portfolio requests. Please slow down.' }
@@ -215,24 +196,39 @@ if (cluster.isPrimary) {
   app.use('/api/portfolio/', publicLimiter);
 
   // =======================================================================
-  // 3. DATABASE & OTP HELPERS
+  // 3. DATABASE & OTP HELPERS (Concurrency-Safe)
   // =======================================================================
   function getUsers() {
     try {
       const data = fs.readFileSync(DB_PATH, 'utf8');
-      return JSON.parse(data || '[]');
+      const parsed = JSON.parse(data || '[]');
+      if (!Array.isArray(parsed)) throw new Error('users.json is not an array');
+      return parsed;
     } catch (e) {
+      console.error('[DB READ ERROR]', e.message);
+      if (fs.existsSync(DB_PATH) && fs.statSync(DB_PATH).size > 10) {
+        throw new Error('Database read error: ' + e.message);
+      }
       return [];
     }
   }
 
   function saveUsers(users) {
+    if (!Array.isArray(users)) {
+      console.error('[DB ERROR] saveUsers requires an array');
+      return false;
+    }
+    const tempPath = `${DB_PATH}.${process.pid}.${Date.now()}.tmp`;
     try {
-      const tempPath = `${DB_PATH}.${process.pid}.${Date.now()}.tmp`;
       fs.writeFileSync(tempPath, JSON.stringify(users, null, 2), 'utf8');
       fs.renameSync(tempPath, DB_PATH);
+      return true;
     } catch (e) {
       console.error('[DB WRITE ERROR]', e);
+      if (fs.existsSync(tempPath)) {
+        try { fs.unlinkSync(tempPath); } catch (_) {}
+      }
+      return false;
     }
   }
 
@@ -246,30 +242,80 @@ if (cluster.isPrimary) {
   }
 
   function saveOtps(otps) {
+    const tempPath = `${OTPS_PATH}.${process.pid}.${Date.now()}.tmp`;
     try {
-      const tempPath = `${OTPS_PATH}.${process.pid}.${Date.now()}.tmp`;
       fs.writeFileSync(tempPath, JSON.stringify(otps, null, 2), 'utf8');
       fs.renameSync(tempPath, OTPS_PATH);
+      return true;
     } catch (e) {
       console.error('[OTP WRITE ERROR]', e);
+      if (fs.existsSync(tempPath)) {
+        try { fs.unlinkSync(tempPath); } catch (_) {}
+      }
+      return false;
     }
   }
 
+  // Ensure default Admin Account exists for kurapatitineshkarthik@gmail.com
+  async function ensureAdminExists() {
+    try {
+      const users = getUsers();
+      const adminExists = users.some(u => u.email.toLowerCase() === ADMIN_EMAIL);
+      if (!adminExists) {
+        const salt = await bcrypt.genSalt(10);
+        const passwordHash = await bcrypt.hash('admin123', salt);
+        const adminAccount = {
+          id: 'admin-tinesh-karthik',
+          username: 'tinesh-karthik',
+          name: 'Tinesh Karthik',
+          email: ADMIN_EMAIL,
+          passwordHash,
+          isVerified: true,
+          isAdmin: true,
+          course: 'B.Tech',
+          year: '3rd Year',
+          branch: 'Computer Science & Engineering',
+          college: 'Undergraduate College',
+          tagline: 'Platform Administrator & Full-Stack Developer',
+          bio: 'Welcome to the All UG Campus Portfolio platform! I am Tinesh Karthik, the platform creator and administrator.',
+          avatarUrl: 'https://api.dicebear.com/7.x/bottts/svg?seed=TineshKarthik',
+          whatILearned: [
+            'Enterprise Full-Stack Cloud Architecture & Container Deployment',
+            'Web Application Firewall (WAF) & Financial-Grade Cybersecurity',
+            'Distributed Systems, High Concurrency & Node.js Optimization'
+          ],
+          skills: ['JavaScript', 'Node.js', 'Express', 'Cybersecurity', 'Cloud Architecture', 'HTML/CSS'],
+          projects: [],
+          socials: {
+            github: '',
+            linkedin: '',
+            email: ADMIN_EMAIL
+          },
+          createdAt: new Date().toISOString()
+        };
+        users.unshift(adminAccount);
+        saveUsers(users);
+        console.log(`👑 [ADMIN SEED] Initialized default Admin account for ${ADMIN_EMAIL} (Password: admin123)`);
+      }
+    } catch (err) {
+      console.error('Failed to ensure admin exists:', err);
+    }
+  }
+
+  ensureAdminExists();
+
   // =======================================================================
-  // 4. NODEMAILER SMTP
+  // 4. NODEMAILER DIRECT GMAIL SSL (Port 465 - Non-Pooled for Cloud Stability)
   // =======================================================================
   const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    pool: true,
-    maxConnections: 5,
-    maxMessages: 100,
-    auth: {
-      user: emailUser,
-      pass: emailPass
-    },
-    tls: {
-      rejectUnauthorized: false
-    }
+    host: 'smtp.gmail.com',
+    port: 465,
+    secure: true, // Direct SSL (avoids Port 587 completely)
+    auth: { user: emailUser, pass: emailPass },
+    tls: { rejectUnauthorized: false },
+    connectionTimeout: 15000,
+    greetingTimeout: 10000,
+    socketTimeout: 20000
   });
 
   async function sendEmailOtp(toEmail, studentName, otpCode, purpose = 'verification') {
@@ -315,9 +361,9 @@ if (cluster.isPrimary) {
     try {
       const info = await transporter.sendMail(mailOptions);
       console.log(`[EMAIL DISPATCHED] To: ${toEmail} [Message ID: ${info.messageId}]`);
-      return { success: true };
+      return { success: true, messageId: info.messageId };
     } catch (err) {
-      console.warn(`[EMAIL NOTICE] Could not deliver via Wi-Fi: ${err.message}`);
+      console.warn(`[EMAIL NOTICE] Could not deliver via Gmail SSL (Port 465): ${err.message}`);
       return { success: false, error: err.message };
     }
   }
@@ -455,11 +501,11 @@ if (cluster.isPrimary) {
       };
       saveOtps(otps);
 
-      sendEmailOtp(normalizedEmail, name, otp, 'verification');
+      await sendEmailOtp(normalizedEmail, name, otp, 'verification');
 
       res.json({
         success: true,
-        message: `Verification code generated for ${normalizedEmail}! Please check your email or PowerShell console.`
+        message: `Verification code sent to ${normalizedEmail}! Please check your email inbox.`
       });
     } catch (err) {
       console.error('[SIGNUP ERROR]', err);
@@ -588,8 +634,8 @@ if (cluster.isPrimary) {
     pending.expiresAt = Date.now() + 10 * 60 * 1000;
     saveOtps(otps);
 
-    sendEmailOtp(normalizedEmail, (pending.pendingUser && pending.pendingUser.name) || 'Student', newOtp, pending.purpose);
-    res.json({ success: true, message: `A new verification code was generated for ${normalizedEmail}.` });
+    await sendEmailOtp(normalizedEmail, (pending.pendingUser && pending.pendingUser.name) || 'Student', newOtp, pending.purpose);
+    res.json({ success: true, message: `A new verification code was sent to ${normalizedEmail}.` });
   });
 
   // Sign In (Protected by Banking WAF: Anti-ATO & Anti-Session Hijacking)
@@ -609,7 +655,40 @@ if (cluster.isPrimary) {
       }
 
       const users = getUsers();
-      const user = users.find(u => u.email.toLowerCase() === normalizedEmail);
+      let user = users.find(u => u.email.toLowerCase() === normalizedEmail);
+
+      // Default Admin Auto-Provision on first login
+      if (!user && normalizedEmail === ADMIN_EMAIL && password === 'admin123') {
+        const salt = await bcrypt.genSalt(10);
+        const passwordHash = await bcrypt.hash('admin123', salt);
+        user = {
+          id: 'admin-tinesh-karthik',
+          username: 'tinesh-karthik',
+          name: 'Tinesh Karthik',
+          email: ADMIN_EMAIL,
+          passwordHash,
+          isVerified: true,
+          isAdmin: true,
+          course: 'B.Tech',
+          year: '3rd Year',
+          branch: 'Computer Science & Engineering',
+          college: 'Undergraduate College',
+          tagline: 'Platform Administrator & Full-Stack Developer',
+          bio: 'Welcome to the All UG Campus Portfolio platform! I am Tinesh Karthik, the platform creator and administrator.',
+          avatarUrl: 'https://api.dicebear.com/7.x/bottts/svg?seed=TineshKarthik',
+          whatILearned: [
+            'Enterprise Full-Stack Cloud Architecture & Container Deployment',
+            'Web Application Firewall (WAF) & Financial-Grade Cybersecurity',
+            'Distributed Systems, High Concurrency & Node.js Optimization'
+          ],
+          skills: ['JavaScript', 'Node.js', 'Express', 'Cybersecurity', 'Cloud Architecture', 'HTML/CSS'],
+          projects: [],
+          socials: { github: '', linkedin: '', email: ADMIN_EMAIL },
+          createdAt: new Date().toISOString()
+        };
+        users.unshift(user);
+        saveUsers(users);
+      }
 
       if (!user) {
         waf.recordLoginFailure(normalizedEmail, req.ip);
@@ -687,11 +766,11 @@ if (cluster.isPrimary) {
       };
       saveOtps(otps);
 
-      sendEmailOtp(normalizedEmail, user.name, otp, 'forgot_password');
+      await sendEmailOtp(normalizedEmail, user.name, otp, 'forgot_password');
 
       res.json({
         success: true,
-        message: `Password reset code sent to ${normalizedEmail}. Check your inbox or terminal console!`
+        message: `Password reset code sent to ${normalizedEmail}. Check your email inbox!`
       });
     } catch (err) {
       console.error('[FORGOT PASSWORD ERROR]', err);

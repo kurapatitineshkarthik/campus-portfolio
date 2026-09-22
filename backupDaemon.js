@@ -324,20 +324,11 @@ function executeAutomatedEvacuation(reason = 'Critical security breach detected'
       + `--------------------------------------------------------\n\n`;
     fs.appendFileSync(vaultLogPath, logEntry, 'utf8');
 
-    // 4. Also create a snapshot in backups folder
+    // 4. Create an encrypted snapshot in backups folder
     createSnapshot(`auto_evac_${culpritIp}`);
 
-    // 5. SANITIZE / CLEAR SERVER DATA (Zero-Out server files to prevent hacker theft)
-    fs.writeFileSync(USERS_FILE, JSON.stringify([], null, 2), 'utf8');
-    fs.writeFileSync(OTPS_FILE, JSON.stringify({}, null, 2), 'utf8');
-
-    console.error(`\n🚨🚨🚨 ========================================================`);
-    console.error(`🚨 [AUTOMATED DATA EVACUATION COMPLETED!]`);
-    console.error(`📁 Student records safely moved to Laptop: ${LAPTOP_VAULT_DIR}`);
-    console.error(`🔒 Server data CLEARED & ZEROED OUT (Attacker cannot steal data)`);
-    console.error(`🚨 Culprit IP: ${culpritIp}`);
-    console.error(`🚨 Reason: ${reason}`);
-    console.error(`🚨 ========================================================\n`);
+    // Data Protection: Retain server database safely without destructive zero-out
+    console.log(`🔒 [DATA PROTECTION] Server database preserved intact. Threat IP: ${culpritIp} (Reason: ${reason})`);
 
     const cb = alertCallback || globalAlertCallback;
     if (typeof cb === 'function') {

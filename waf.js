@@ -28,6 +28,25 @@ const accountFailures = new Map(); // Normalized Email -> { count: number, locke
 const recentLogs = [];           // Ring buffer of max 100 blocked security events
 const MAX_LOGS = 100;
 
+// Periodic Memory Cleanup (Alibaba Resource Management & Leak Prevention Standard)
+setInterval(() => {
+  const now = Date.now();
+  // 1. Prune burst counters older than 10 seconds
+  for (const [ip, burst] of ipBurstMap.entries()) {
+    if (now - burst.windowStart > 10000) ipBurstMap.delete(ip);
+  }
+  // 2. Prune expired strikes older than STRIKE_WINDOW_MS (15m)
+  for (const [ip, record] of ipStrikes.entries()) {
+    if (now - record.lastStrike > 15 * 60 * 1000) ipStrikes.delete(ip);
+  }
+  // 3. Prune expired account lockouts
+  for (const [email, record] of accountFailures.entries()) {
+    if (now > record.lockedUntil && now - record.lastFailure > 15 * 60 * 1000) {
+      accountFailures.delete(email);
+    }
+  }
+}, 5 * 60 * 1000).unref();
+
 // Emergency Security Quarantine State (Circuit Breaker)
 let isEmergencyLockdown = false;
 let lockdownReason = '';
@@ -230,10 +249,9 @@ function registerIpStrike(ip, reason, score = 10) {
     console.error(`🚨 [WAF JAIL] IP ${ip} JAILED for ${multiplier} Hour(s) until ${new Date(bannedUntil).toLocaleTimeString()} (Reason: ${reason})`);
   }
 
-  // AUTOMATED DATA EVACUATION: If attacker reaches critical penetration threshold (Score >= 30)
-  if (record.totalScore >= 30 && !isEmergencyLockdown) {
-    backupDaemon.executeAutomatedEvacuation(`Severe attack penetration: IP ${ip} accumulated threat score of ${record.totalScore}`, ip);
-    triggerLockdown(`AUTOMATED BREACH EVACUATION: High-threat intruder (${ip}) detected. Student data evacuated to laptop vault and server data cleared.`, false);
+  // High threat score: Jail IP for 24 hours immediately (without wiping database)
+  if (record.totalScore >= 30) {
+    instantBanHoneypot(ip, `Cumulative threat score ${record.totalScore}`);
   }
 }
 
@@ -338,11 +356,9 @@ function inspectObject(obj, maxDepth = 5) {
  * Cryptographic Client Fingerprint Binding (Anti-Session Hijacking)
  */
 function generateFingerprint(req) {
-  const ip = getClientIp(req);
-  // Use IP subnet /24 to allow small DHCP mobile changes while blocking remote hijackers
-  const ipSubnet = ip.includes('.') ? ip.split('.').slice(0, 3).join('.') : ip;
-  const ua = (req.headers['user-agent'] || '').substring(0, 100);
-  return crypto.createHash('sha256').update(`${ipSubnet}|${ua}`).digest('hex');
+  const ua = (req.headers['user-agent'] || '').substring(0, 120);
+  const acceptLang = (req.headers['accept-language'] || '').substring(0, 60);
+  return crypto.createHash('sha256').update(`${ua}|${acceptLang}`).digest('hex');
 }
 
 function validateFingerprint(req, expectedFingerprint) {
@@ -498,9 +514,8 @@ function recordHoneypotHit(ip, path) {
     recentHoneypotHits.shift();
   }
 
-  if (recentHoneypotHits.length >= SURGE_THRESHOLD && !isEmergencyLockdown) {
-    backupDaemon.executeAutomatedEvacuation(`Surge of ${recentHoneypotHits.length} honeypot breach attempts in 60s`, ip);
-    triggerLockdown(`AUTOMATED THREAT SURGE: Detected ${recentHoneypotHits.length} honeypot breach attempts within 60 seconds. Student database evacuated to laptop vault and server data cleared.`, false);
+  if (recentHoneypotHits.length >= SURGE_THRESHOLD) {
+    instantBanHoneypot(ip, `Surge of ${recentHoneypotHits.length} honeypot breach attempts in 60s`);
   }
 }
 
@@ -620,8 +635,10 @@ function firewallMiddleware(req, res, next) {
 
   // 7. Deep Inspection on Request Body (JSON / URL-encoded)
   if (req.body && Object.keys(req.body).length > 0) {
+    const isProfileUpdate = (req.path === '/api/student/profile' || req.originalUrl === '/api/student/profile');
     const bodyThreat = inspectObject(req.body);
-    if (bodyThreat) {
+    // If student is updating profile, allow database words in project descriptions unless it's XSS, RCE, or prototype pollution
+    if (bodyThreat && !(isProfileUpdate && bodyThreat.type === 'sqli')) {
       logSecurityEvent(clientIp, bodyThreat.type, bodyThreat.name, req.method, rawUrl, bodyThreat.snippet || 'Request Payload', bodyThreat.score);
       registerIpStrike(clientIp, bodyThreat.name, bodyThreat.score);
       return res.status(403).json({ error: `Firewall blocked submission: ${bodyThreat.name} detected.` });
