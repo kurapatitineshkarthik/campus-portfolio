@@ -256,17 +256,36 @@ if (isClusterMode && cluster.isPrimary) {
     }
   }
 
+  // Generate unique username in format: fullname@12345 (Clean lowercase with 5-digit number)
+  function generateUniqueUsername(name, users = []) {
+    const cleanName = (name || 'student')
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9]/g, '');
+    const baseName = cleanName || 'student';
+
+    let username = '';
+    let attempts = 0;
+    do {
+      const random5 = Math.floor(10000 + Math.random() * 90000);
+      username = `${baseName}@${random5}`;
+      attempts++;
+    } while (users.some(u => u.username && u.username.toLowerCase() === username.toLowerCase()) && attempts < 100);
+
+    return username;
+  }
+
   // Ensure default Admin Account exists for kurapatitineshkarthik@gmail.com
   async function ensureAdminExists() {
     try {
       const users = getUsers();
-      const adminExists = users.some(u => u.email.toLowerCase() === ADMIN_EMAIL);
-      if (!adminExists) {
+      let admin = users.find(u => u.email.toLowerCase() === ADMIN_EMAIL);
+      if (!admin) {
         const salt = await bcrypt.genSalt(10);
         const passwordHash = await bcrypt.hash('admin123', salt);
-        const adminAccount = {
+        admin = {
           id: 'admin-tinesh-karthik',
-          username: 'tinesh-karthik',
+          username: 'tineshkarthik@00001',
           name: 'Tinesh Karthik',
           email: ADMIN_EMAIL,
           passwordHash,
@@ -293,9 +312,13 @@ if (isClusterMode && cluster.isPrimary) {
           },
           createdAt: new Date().toISOString()
         };
-        users.unshift(adminAccount);
+        users.unshift(admin);
         saveUsers(users);
-        console.log(`👑 [ADMIN SEED] Initialized default Admin account for ${ADMIN_EMAIL} (Password: admin123)`);
+        console.log(`👑 [ADMIN SEED] Initialized default Admin account for ${ADMIN_EMAIL} (@${admin.username})`);
+      } else if (admin.username !== 'tineshkarthik@00001') {
+        admin.username = 'tineshkarthik@00001';
+        saveUsers(users);
+        console.log(`👑 [ADMIN UPDATE] Updated Admin username to @${admin.username}`);
       }
     } catch (err) {
       console.error('Failed to ensure admin exists:', err);
@@ -539,19 +562,8 @@ if (isClusterMode && cluster.isPrimary) {
 
       const users = getUsers();
 
-      // Generate unique username slug from name
-      let baseSlug = (pending.pendingUser.name || 'student')
-        .toLowerCase()
-        .trim()
-        .replace(/[^a-z0-9]+/g, '-')
-        .replace(/^-+|-+$/g, '');
-      if (!baseSlug) baseSlug = 'student';
-
-      let username = baseSlug;
-      let counter = 1;
-      while (users.some(u => u.username === username)) {
-        username = `${baseSlug}-${counter++}`;
-      }
+      // Generate unique username in format: fullname@12345
+      const username = generateUniqueUsername(pending.pendingUser.name, users);
 
       const newUser = {
         id: pending.pendingUser.id,
@@ -663,7 +675,7 @@ if (isClusterMode && cluster.isPrimary) {
         const passwordHash = await bcrypt.hash('admin123', salt);
         user = {
           id: 'admin-tinesh-karthik',
-          username: 'tinesh-karthik',
+          username: 'tineshkarthik@00001',
           name: 'Tinesh Karthik',
           email: ADMIN_EMAIL,
           passwordHash,
@@ -839,18 +851,9 @@ if (isClusterMode && cluster.isPrimary) {
 
     const user = users[userIndex];
     if (!user.username) {
-      let baseSlug = (user.name || 'student')
-        .toLowerCase()
-        .trim()
-        .replace(/[^a-z0-9]+/g, '-')
-        .replace(/^-+|-+$/g, '');
-      if (!baseSlug) baseSlug = 'student';
-      let username = baseSlug;
-      let counter = 1;
-      while (users.some((u, i) => i !== userIndex && u.username === username)) {
-        username = `${baseSlug}-${counter++}`;
-      }
-      user.username = username;
+      user.username = (user.email.toLowerCase() === ADMIN_EMAIL)
+        ? 'tineshkarthik@00001'
+        : generateUniqueUsername(user.name, users);
       saveUsers(users);
     }
 
@@ -1199,7 +1202,9 @@ if (isClusterMode && cluster.isPrimary) {
     const slug = (req.params.slug || '').toLowerCase();
     const users = getUsers();
     const student = users.find(u => 
-      ((u.username && u.username.toLowerCase() === slug) || u.id === req.params.slug) && u.isVerified
+      ((u.username && u.username.toLowerCase() === slug) || 
+       u.id === req.params.slug ||
+       (slug === 'tinesh-karthik' && u.email.toLowerCase() === ADMIN_EMAIL)) && u.isVerified
     );
     if (!student) return res.status(404).json({ error: 'Student portfolio not found' });
 

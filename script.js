@@ -491,7 +491,7 @@ function setupSearch() {
                 <span>${highlightMatch(student.name, rawQuery)}</span>
                 ${student.isAdmin ? '<i class="fas fa-crown" style="color: #10b981; font-size: 0.78rem;" title="Platform Admin"></i>' : ''}
               </div>
-              <div class="search-result-username">@${highlightMatch(username, cleanQ)}</div>
+              <div class="search-result-username">${highlightMatch(username, cleanQ)}</div>
             </div>
             ${isExact ? '<span class="search-exact-badge"><i class="fas fa-check-circle"></i> Exact Match</span>' : ''}
           </a>
