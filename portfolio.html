@@ -140,6 +140,7 @@
         <button id="themeToggle" class="icon-btn" aria-label="Toggle theme" title="Toggle theme">
           <i class="fas fa-moon" id="themeIcon"></i>
         </button>
+        <span id="authNavWrapper"></span>
       </div>
     </div>
   </header>
@@ -168,6 +169,7 @@
   <script>
     document.addEventListener("DOMContentLoaded", async () => {
       initTheme();
+      checkAuthStatus();
       document.getElementById("currentYear").textContent = new Date().getFullYear();
 
       // Extract username/slug from URL path (e.g. /p/tinesh-karthik) or query (?u=tinesh-karthik)
@@ -375,6 +377,35 @@
           if (themeIcon) themeIcon.className = e.newValue === 'dark' ? 'fas fa-moon' : 'fas fa-sun';
         }
       });
+    }
+
+    function checkAuthStatus() {
+      const token = localStorage.getItem("campus_token");
+      const wrapper = document.getElementById("authNavWrapper");
+      if (!wrapper) return;
+
+      if (token) {
+        wrapper.innerHTML = `
+          <a href="/dashboard.html" class="btn btn-secondary" style="padding: 8px 16px; font-size: 0.85rem;">
+            <i class="fas fa-columns"></i> My Dashboard
+          </a>
+          <button type="button" onclick="handleLogout()" class="btn btn-secondary" style="padding: 8px 16px; font-size: 0.85rem;" title="Log Out">
+            <i class="fas fa-sign-out-alt"></i> Log Out
+          </button>
+        `;
+      } else {
+        wrapper.innerHTML = `
+          <a href="/auth.html" class="btn btn-primary" style="padding: 8px 16px; font-size: 0.85rem;">
+            <i class="fas fa-sign-in-alt"></i> Sign In
+          </a>
+        `;
+      }
+    }
+
+    function handleLogout() {
+      localStorage.removeItem("campus_token");
+      localStorage.removeItem("campus_user");
+      window.location.href = "/";
     }
   </script>
 </body>

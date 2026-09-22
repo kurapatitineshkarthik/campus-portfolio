@@ -67,12 +67,28 @@ function checkAuthStatus() {
   const token = localStorage.getItem('campus_token');
   const authNavBtn = document.getElementById('authNavBtn');
   const authNavText = document.getElementById('authNavText');
+  const logoutWrapper = document.getElementById('logoutBtnWrapper');
 
   if (token && authNavBtn && authNavText) {
     authNavBtn.href = 'dashboard.html';
     authNavBtn.className = 'btn btn-secondary';
     authNavBtn.innerHTML = `<i class="fas fa-columns"></i> <span>My Dashboard</span>`;
+    if (logoutWrapper) {
+      logoutWrapper.innerHTML = `
+        <button type="button" onclick="handleLogout()" class="btn btn-secondary" style="padding: 9px 14px; font-size: 0.88rem;" title="Log Out">
+          <i class="fas fa-sign-out-alt"></i>
+        </button>
+      `;
+    }
+  } else if (logoutWrapper) {
+    logoutWrapper.innerHTML = '';
   }
+}
+
+function handleLogout() {
+  localStorage.removeItem('campus_token');
+  localStorage.removeItem('campus_user');
+  window.location.reload();
 }
 
 /* ==========================================================================
