@@ -579,13 +579,15 @@ if (isClusterMode && cluster.isPrimary) {
     console.log(`🔑 [VERIFICATION OTP FOR ${toEmail}]: [ ${otpCode} ]`);
     console.log(`========================================================\n`);
 
-    const mailOptions = {
-      from: `"UG Campus Portfolio" <${emailUser}>`,
+    return dispatchEmail({
       to: toEmail,
-      subject: subject,
+      subject,
       html: emailHtml
-    };
+    });
+  }
 
+  // Centralized Multi-Provider Resilient Email Dispatcher (Port 443 HTTPS -> Port 587 STARTTLS -> Port 465 SSL)
+  async function dispatchEmail({ to, subject, html }) {
     // METHOD A: RESEND HTTPS API (Port 443 - Never blocked on Render / Cloud)
     if (process.env.RESEND_API_KEY) {
       try {
@@ -597,14 +599,14 @@ if (isClusterMode && cluster.isPrimary) {
           },
           body: JSON.stringify({
             from: process.env.RESEND_FROM || 'UG Campus Portfolio <onboarding@resend.dev>',
-            to: [toEmail],
+            to: [to],
             subject: subject,
-            html: emailHtml
+            html: html
           })
         });
         const data = await res.json();
         if (res.ok && data.id) {
-          console.log(`[RESEND HTTPS DISPATCHED] To: ${toEmail} [Message ID: ${data.id}]`);
+          console.log(`[RESEND HTTPS DISPATCHED] To: ${to} [Message ID: ${data.id}]`);
           return { success: true, provider: 'resend', messageId: data.id };
         }
         console.warn('[RESEND NOTICE] Resend returned error:', data);
@@ -624,14 +626,14 @@ if (isClusterMode && cluster.isPrimary) {
           },
           body: JSON.stringify({
             sender: { name: 'UG Campus Portfolio', email: emailUser },
-            to: [{ email: toEmail, name: studentName || 'Student' }],
+            to: [{ email: to, name: 'Recipient' }],
             subject: subject,
-            htmlContent: emailHtml
+            htmlContent: html
           })
         });
         const data = await res.json();
         if (res.ok && data.messageId) {
-          console.log(`[BREVO HTTPS DISPATCHED] To: ${toEmail} [Message ID: ${data.messageId}]`);
+          console.log(`[BREVO HTTPS DISPATCHED] To: ${to} [Message ID: ${data.messageId}]`);
           return { success: true, provider: 'brevo', messageId: data.messageId };
         }
         console.warn('[BREVO NOTICE] Brevo returned error:', data);
@@ -640,10 +642,17 @@ if (isClusterMode && cluster.isPrimary) {
       }
     }
 
+    const mailOptions = {
+      from: `"UG Campus Security" <${emailUser}>`,
+      to,
+      subject,
+      html
+    };
+
     // METHOD C: GMAIL SMTP PORT 587 (STARTTLS - Primary standard submission)
     try {
       const info = await transporter587.sendMail(mailOptions);
-      console.log(`[EMAIL DISPATCHED via Port 587] To: ${toEmail} [Message ID: ${info.messageId}]`);
+      console.log(`[EMAIL DISPATCHED via Port 587] To: ${to} [Message ID: ${info.messageId}]`);
       return { success: true, provider: 'gmail_587', messageId: info.messageId };
     } catch (err587) {
       console.warn(`[EMAIL NOTICE] Port 587 failed (${err587.message}). Trying Port 465...`);
@@ -652,13 +661,84 @@ if (isClusterMode && cluster.isPrimary) {
     // METHOD D: GMAIL SMTP PORT 465 (Direct SSL - Fallback)
     try {
       const info = await transporter465.sendMail(mailOptions);
-      console.log(`[EMAIL DISPATCHED via Port 465] To: ${toEmail} [Message ID: ${info.messageId}]`);
+      console.log(`[EMAIL DISPATCHED via Port 465] To: ${to} [Message ID: ${info.messageId}]`);
       return { success: true, provider: 'gmail_465', messageId: info.messageId };
     } catch (err465) {
       console.error(`[EMAIL ERROR] Both Port 587 and 465 failed: ${err465.message}`);
       return { success: false, error: err465.message };
     }
   }
+
+  // REAL-TIME ATTACK ALERT EMAIL TO ADMIN (Option A: High-Severity Threats)
+  async function sendAttackAlertEmail({ culpritIp, threatType, threatName, url, snippet, score, action, timestamp }) {
+    const formattedDate = new Date(timestamp || Date.now()).toLocaleString();
+    const alertHtml = `
+      <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 580px; margin: 0 auto; padding: 28px; background-color: #0b0f19; color: #f9fafb; border-radius: 16px; border: 2px solid #ef4444;">
+        <div style="text-align: center; margin-bottom: 24px;">
+          <div style="display: inline-block; background: rgba(239, 68, 68, 0.15); color: #ef4444; padding: 6px 16px; border-radius: 9999px; font-weight: 700; font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.05em; border: 1px solid rgba(239, 68, 68, 0.35);">
+            🚨 Security Alert &bull; Threat Neutralized
+          </div>
+          <h2 style="color: #ffffff; margin: 14px 0 6px 0; font-size: 22px; font-weight: 800;">${threatName || 'Cyberattack Detected'}</h2>
+          <p style="color: #9ca3af; font-size: 13px; margin: 0;">UG Campus Portfolio Platform (tinesh.in)</p>
+        </div>
+
+        <div style="background-color: #111827; padding: 20px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.08); margin-bottom: 20px;">
+          <p style="margin: 0 0 14px 0; color: #f87171; font-weight: 600; font-size: 14px;">
+            ⚠️ The Web Application Firewall (WAF) detected a high-severity threat and neutralized it immediately.
+          </p>
+          <table style="width: 100%; font-size: 13px; color: #d1d5db; border-collapse: collapse;">
+            <tr>
+              <td style="padding: 6px 0; color: #9ca3af; width: 140px;"><strong>Threat Type:</strong></td>
+              <td style="padding: 6px 0; font-weight: 700; color: #fca5a5;">${threatName || threatType}</td>
+            </tr>
+            <tr>
+              <td style="padding: 6px 0; color: #9ca3af;"><strong>Attacker IP:</strong></td>
+              <td style="padding: 6px 0; font-family: monospace; color: #ef4444; font-weight: 700;">${culpritIp || 'Unknown'}</td>
+            </tr>
+            <tr>
+              <td style="padding: 6px 0; color: #9ca3af;"><strong>Targeted URL:</strong></td>
+              <td style="padding: 6px 0; font-family: monospace; color: #93c5fd; word-break: break-all;">${url || 'N/A'}</td>
+            </tr>
+            <tr>
+              <td style="padding: 6px 0; color: #9ca3af;"><strong>Payload / Snippet:</strong></td>
+              <td style="padding: 6px 0; font-family: monospace; color: #fbbf24; word-break: break-all;">${(snippet || 'N/A').substring(0, 150)}</td>
+            </tr>
+            <tr>
+              <td style="padding: 6px 0; color: #9ca3af;"><strong>Threat Score:</strong></td>
+              <td style="padding: 6px 0; color: #fbbf24;">${score || 10} / 30</td>
+            </tr>
+            <tr>
+              <td style="padding: 6px 0; color: #9ca3af;"><strong>Action Taken:</strong></td>
+              <td style="padding: 6px 0; font-weight: 700; color: #10b981;">${action || 'Blocked (403)'}</td>
+            </tr>
+            <tr>
+              <td style="padding: 6px 0; color: #9ca3af;"><strong>Timestamp:</strong></td>
+              <td style="padding: 6px 0;">${formattedDate}</td>
+            </tr>
+          </table>
+        </div>
+
+        <div style="background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.2); padding: 14px; border-radius: 10px; margin-bottom: 20px; font-size: 13px; color: #a7f3d0;">
+          <strong>🛡️ Platform Status: Safe</strong><br>
+          Student data and credentials remain fully protected. The attacker acquired 0 data.
+        </div>
+
+        <div style="text-align: center; font-size: 12px; color: #9ca3af;">
+          Log in as Administrator at <a href="https://tinesh.in/dashboard.html" style="color: #6366f1; text-decoration: none; font-weight: 600;">tinesh.in/dashboard.html</a> to review full telemetry or manage bans.
+        </div>
+      </div>
+    `;
+
+    console.log(`\n🚨 [WAF ATTACK ALERT] Sending incident alert to ${ADMIN_EMAIL} for IP: ${culpritIp} (${threatName})...`);
+    return dispatchEmail({
+      to: ADMIN_EMAIL,
+      subject: `🚨 [SECURITY ALERT] ${threatName || 'Cyberattack Blocked'} from IP ${culpritIp || 'Unknown'}`,
+      html: alertHtml
+    });
+  }
+
+  // Register Real-Time Attack Alert Callback with WAF (Option A)
+  waf.setAttackAlertCallback(sendAttackAlertEmail);
 
   // METHOD C: EMERGENCY SECURITY BREACH ALERT EMAIL (With Incident Telemetry)
   async function sendSecurityBreachAlertEmail({ culpritIp, reason, studentCount, timestamp, lockdownActive = true }) {
@@ -711,19 +791,12 @@ if (isClusterMode && cluster.isPrimary) {
       </div>
     `;
 
-    try {
-      const info = await transporter.sendMail({
-        from: `"Campus Security Shield" <${emailUser}>`,
-        to: ADMIN_EMAIL,
-        subject: `🚨 [SECURITY BREACH ALERT] Emergency Data Evacuated from IP ${culpritIp || 'Unknown'}`,
-        html: alertHtml
-      });
-      console.log(`📧 [ALERT EMAIL DISPATCHED] Emergency breach notification sent to ${ADMIN_EMAIL} [${info.messageId}]`);
-      return { success: true };
-    } catch (err) {
-      console.warn(`⚠️ [ALERT EMAIL FAILED] Could not send breach email: ${err.message}`);
-      return { success: false, error: err.message };
-    }
+    console.log(`📧 [ALERT EMAIL DISPATCHED] Emergency breach notification sent to ${ADMIN_EMAIL}`);
+    return dispatchEmail({
+      to: ADMIN_EMAIL,
+      subject: `🚨 [SECURITY BREACH ALERT] Emergency Data Evacuated from IP ${culpritIp || 'Unknown'}`,
+      html: alertHtml
+    });
   }
 
   // Register Emergency Alert Callback with Backup Daemon

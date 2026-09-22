@@ -28,6 +28,36 @@ const accountFailures = new Map(); // Normalized Email -> { count: number, locke
 const recentLogs = [];           // Ring buffer of max 100 blocked security events
 const MAX_LOGS = 100;
 
+// Attack Alert Notification Engine (Option A: 10-Minute Cooldown & Anti-Spam)
+let attackAlertCallback = null;
+const alertCooldownMap = new Map(); // key ("IP:threatType") -> lastAlertTimestamp
+const ALERT_COOLDOWN_MS = 10 * 60 * 1000; // 10 minutes
+
+function setAttackAlertCallback(cb) {
+  attackAlertCallback = cb;
+}
+
+function triggerAttackAlert(payload) {
+  if (typeof attackAlertCallback !== 'function') return;
+  const key = `${payload.culpritIp || 'unknown'}:${payload.threatType || 'general'}`;
+  const now = Date.now();
+  const lastAlert = alertCooldownMap.get(key) || 0;
+  if (now - lastAlert < ALERT_COOLDOWN_MS) {
+    // Within 10-minute cooldown -> Suppress duplicate email to protect admin inbox and quota
+    return;
+  }
+  alertCooldownMap.set(key, now);
+
+  // Asynchronously dispatch alert callback without blocking the request pipeline
+  Promise.resolve().then(() => {
+    try {
+      attackAlertCallback(payload);
+    } catch (err) {
+      console.warn(`[WAF ALERT NOTICE] Could not trigger attack alert callback: ${err.message}`);
+    }
+  });
+}
+
 // Periodic Memory Cleanup (Alibaba Resource Management & Leak Prevention Standard)
 setInterval(() => {
   const now = Date.now();
@@ -44,6 +74,10 @@ setInterval(() => {
     if (now > record.lockedUntil && now - record.lastFailure > 15 * 60 * 1000) {
       accountFailures.delete(email);
     }
+  }
+  // 4. Prune alert cooldown records older than ALERT_COOLDOWN_MS (10m)
+  for (const [key, time] of alertCooldownMap.entries()) {
+    if (now - time > ALERT_COOLDOWN_MS) alertCooldownMap.delete(key);
   }
 }, 5 * 60 * 1000).unref();
 
@@ -222,6 +256,20 @@ function logSecurityEvent(ip, threatType, threatName, method, url, snippet, scor
   }
 
   console.warn(`🛡️ [BANKING WAF SHIELD] ${threatName} BLOCKED from ${ip} | ${method} ${entry.url} (Score: ${score})`);
+
+  // Option A: High-severity threats trigger real-time alert email
+  if (score >= 15 || threatType === 'maliciousAgent' || threatType === 'scannerProbe') {
+    triggerAttackAlert({
+      culpritIp: ip,
+      threatType,
+      threatName,
+      url: entry.url,
+      snippet: entry.snippet,
+      score,
+      action: `Blocked (${score >= 20 ? '403 & Strike' : '403'})`,
+      timestamp: Date.now()
+    });
+  }
 }
 
 // Helper: Add strike and check for ban jail
@@ -248,6 +296,17 @@ function registerIpStrike(ip, reason, score = 10) {
 
     ipBans.set(ip, { bannedUntil, reason, level });
     console.error(`🚨 [WAF JAIL] IP ${ip} JAILED for ${multiplier} Hour(s) until ${new Date(bannedUntil).toLocaleTimeString()} (Reason: ${reason})`);
+
+    triggerAttackAlert({
+      culpritIp: ip,
+      threatType: 'bannedIp',
+      threatName: `IP Ban Level ${level} (${multiplier}h)`,
+      url: 'N/A',
+      snippet: reason,
+      score: record.totalScore,
+      action: `IP Jailed for ${multiplier} Hour(s)`,
+      timestamp: now
+    });
   }
 
   // High threat score: Jail IP for 24 hours immediately (without wiping database)
@@ -262,6 +321,17 @@ function instantBanHoneypot(ip, probeTarget) {
   const bannedUntil = now + INSTANT_BAN_MS;
   ipBans.set(ip, { bannedUntil, reason: `Honeypot probe: ${probeTarget}`, level: 3 });
   console.error(`🚨 [WAF HONEYPOT JAIL] IP ${ip} INSTANTLY JAILED FOR 24 HOURS! (Probed: ${probeTarget})`);
+
+  triggerAttackAlert({
+    culpritIp: ip,
+    threatType: 'scannerProbe',
+    threatName: 'Honeypot Sensitive File Probe',
+    url: probeTarget,
+    snippet: probeTarget,
+    score: 25,
+    action: 'IP Instantly Jailed for 24 Hours',
+    timestamp: now
+  });
 }
 
 /**
@@ -389,6 +459,17 @@ function recordLoginFailure(email, ip) {
   if (record.count >= ATO_MAX_FAILURES) {
     record.lockedUntil = now + ATO_LOCK_DURATION_MS;
     console.error(`🚨 [WAF ATO LOCK] Account ${normalized} LOCKED for 15 minutes due to ${record.count} consecutive failed attempts.`);
+
+    triggerAttackAlert({
+      culpritIp: ip,
+      threatType: 'atoLocked',
+      threatName: 'Anti-Account Takeover Lockout',
+      url: '/api/auth/login',
+      snippet: `Target Account: ${normalized} (5 failed attempts)`,
+      score: 20,
+      action: 'Account Locked for 15 Minutes',
+      timestamp: now
+    });
   }
   accountFailures.set(normalized, record);
 }
@@ -747,5 +828,6 @@ module.exports = {
   getRecentLogs,
   unbanIp,
   banIpManually,
-  clearAllBans
+  clearAllBans,
+  setAttackAlertCallback
 };
