@@ -587,6 +587,23 @@ async function runAllTests() {
     assert.ok(dashContent.includes('sessionStorage.removeItem("campus_token")'), 'Must clear campus_token from sessionStorage');
   });
 
+  test('Instagram Search: Dropdown DOM & clear button present in index.html and style.css', () => {
+    const indexContent = fs.readFileSync(path.join(__dirname, 'index.html'), 'utf8');
+    const styleContent = fs.readFileSync(path.join(__dirname, 'style.css'), 'utf8');
+    assert.ok(indexContent.includes('searchDropdownResults'), 'index.html must have searchDropdownResults container');
+    assert.ok(indexContent.includes('searchClearBtn'), 'index.html must have searchClearBtn');
+    assert.ok(styleContent.includes('.search-dropdown-menu'), 'style.css must define .search-dropdown-menu');
+    assert.ok(styleContent.includes('.search-result-item'), 'style.css must define .search-result-item');
+    assert.ok(styleContent.includes('.search-exact-badge'), 'style.css must define .search-exact-badge');
+  });
+
+  test('Instagram Search: Exact match priority logic in script.js', () => {
+    const scriptContent = fs.readFileSync(path.join(__dirname, 'script.js'), 'utf8');
+    assert.ok(scriptContent.includes('scoreAndSortStudents'), 'script.js must define scoreAndSortStudents');
+    assert.ok(scriptContent.includes('isExact = true'), 'script.js must detect exact match');
+    assert.ok(scriptContent.includes('/p/'), 'script.js must support direct navigation to /p/username on exact match and click');
+  });
+
   console.log('\n========================================================');
   console.log(`📊 TEST SUMMARY: ${passedTests}/${totalTests} PASSED`);
   if (failures.length === 0) {

@@ -133,12 +133,17 @@
         <span class="logo-accent">&lt;</span>Campus<span class="logo-accent">/&gt;</span>
       </a>
 
-      <!-- Desktop Search Bar -->
-      <div style="flex: 1; max-width: 420px; margin: 0 20px;">
-        <div class="search-input-wrapper">
-          <i class="fas fa-search" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 0.88rem;"></i>
-          <input type="text" id="searchInput" class="search-input-field" placeholder="Search student, course (BCA, B.Com), skill...">
+      <!-- Desktop Search Bar with Instagram-Style Live Dropdown -->
+      <div class="search-container" style="flex: 1; max-width: 420px; margin: 0 20px; position: relative;">
+        <div class="search-input-wrapper" style="position: relative;">
+          <i class="fas fa-search" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 0.88rem; pointer-events: none;"></i>
+          <input type="text" id="searchInput" class="search-input-field" placeholder="Search by name or @username..." autocomplete="off" spellcheck="false">
+          <button type="button" id="searchClearBtn" class="search-clear-btn" aria-label="Clear search" style="display: none;">
+            <i class="fas fa-times"></i>
+          </button>
         </div>
+        <!-- Instagram-Style Floating Accounts Dropdown -->
+        <div id="searchDropdownResults" class="search-dropdown-menu" style="display: none;"></div>
       </div>
 
       <!-- Action Controls -->

@@ -375,40 +375,163 @@ function setupYearFilters() {
 }
 
 /* ==========================================================================
-   REAL-TIME SEARCH
+   INSTAGRAM-STYLE SEARCH ENGINE WITH EXACT PROFILE DIRECT NAVIGATION
    ========================================================================== */
 function setupSearch() {
   const input = document.getElementById('searchInput');
-  if (!input) return;
+  const clearBtn = document.getElementById('searchClearBtn');
+  const dropdown = document.getElementById('searchDropdownResults');
+  if (!input || !dropdown) return;
 
-  input.addEventListener('input', (e) => {
-    const q = e.target.value.toLowerCase().trim();
+  let selectedIndex = -1;
 
-    if (!q) {
-      renderStudents();
+  function escapeHtml(str) {
+    if (!str) return '';
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
+  }
+
+  function highlightMatch(text, query) {
+    if (!text || !query) return escapeHtml(text);
+    const safeText = escapeHtml(text);
+    const safeQuery = escapeHtml(query).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const regex = new RegExp(`(${safeQuery})`, 'gi');
+    return safeText.replace(regex, '<span style="color: var(--accent); font-weight: 800;">$1</span>');
+  }
+
+  function scoreAndSortStudents(students, rawQuery) {
+    const q = rawQuery.toLowerCase().trim();
+    const cleanQ = q.startsWith('@') ? q.slice(1) : q;
+    const scored = [];
+
+    for (const s of students) {
+      const sName = (s.name || '').toLowerCase().trim();
+      const sUser = (s.username || s.id || '').toLowerCase().trim();
+      const sCourse = (s.course || '').toLowerCase().trim();
+      const sBranch = (s.branch || '').toLowerCase().trim();
+      const sSkills = (s.skills || []).map(sk => sk.toLowerCase().trim());
+
+      let score = 0;
+      let isExact = false;
+
+      // Tier 1: Exact Name or Exact Username Match (Highest Priority)
+      if (sUser === cleanQ || sName === q) {
+        score = 1000;
+        isExact = true;
+      }
+      // Tier 2: Prefix Match (Username or Name starts with query)
+      else if (sUser.startsWith(cleanQ)) {
+        score = 600;
+      } else if (sName.startsWith(q)) {
+        score = 500;
+      }
+      // Tier 3: Substring Match in Username or Name
+      else if (sUser.includes(cleanQ)) {
+        score = 400;
+      } else if (sName.includes(q)) {
+        score = 300;
+      }
+      // Tier 4: Skills or Degree / Branch Match
+      else if (sSkills.some(sk => sk === q || sk === cleanQ)) {
+        score = 200;
+      } else if (sSkills.some(sk => sk.includes(q) || sk.includes(cleanQ))) {
+        score = 150;
+      } else if (sCourse.includes(q) || sBranch.includes(q)) {
+        score = 100;
+      }
+
+      if (score > 0) {
+        scored.push({ student: s, score, isExact });
+      }
+    }
+
+    // Sort: highest score first; if tied, sort alphabetically by name
+    scored.sort((a, b) => {
+      if (b.score !== a.score) return b.score - a.score;
+      return (a.student.name || '').localeCompare(b.student.name || '');
+    });
+
+    return scored;
+  }
+
+  function renderDropdown(scoredResults, rawQuery) {
+    selectedIndex = -1;
+
+    if (scoredResults.length === 0) {
+      dropdown.innerHTML = `
+        <div class="search-empty-state">
+          <i class="fas fa-user-slash" style="margin-bottom: 8px; font-size: 1.4rem; display: block; opacity: 0.6;"></i>
+          No accounts found matching "${escapeHtml(rawQuery)}"
+        </div>
+      `;
+      dropdown.style.display = 'block';
       return;
     }
 
-    const filtered = allStudents.filter(s =>
-      (s.name || '').toLowerCase().includes(q) ||
-      (s.course || '').toLowerCase().includes(q) ||
-      (s.branch || '').toLowerCase().includes(q) ||
-      (s.year || '').toLowerCase().includes(q) ||
-      (s.skills || []).some(skill => skill.toLowerCase().includes(q)) ||
-      (s.projects || []).some(p => (p.title || '').toLowerCase().includes(q) || (p.description || '').toLowerCase().includes(q))
-    );
+    const cleanQ = rawQuery.trim().replace(/^@/, '');
+    const hasExact = scoredResults.some(r => r.isExact);
 
-    const grid = document.getElementById('studentsGrid');
+    dropdown.innerHTML = `
+      <div class="search-dropdown-header">
+        ${hasExact ? '🌟 Best Match &amp; Accounts' : '👥 Accounts'} (${scoredResults.length})
+      </div>
+      ${scoredResults.map(({ student, isExact }) => {
+        const username = student.username || student.id;
+        const avatarSrc = student.avatarUrl || `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(student.name || 'Student')}`;
+
+        return `
+          <a href="/p/${encodeURIComponent(username)}" class="search-result-item ${isExact ? 'exact-match' : ''}" data-username="${encodeURIComponent(username)}">
+            <img src="${avatarSrc}" alt="${escapeHtml(student.name)}" class="search-result-avatar" onerror="this.src='https://api.dicebear.com/7.x/bottts/svg?seed=Student'">
+            <div class="search-result-info">
+              <div class="search-result-name">
+                <span>${highlightMatch(student.name, rawQuery)}</span>
+                ${student.isAdmin ? '<i class="fas fa-crown" style="color: #10b981; font-size: 0.78rem;" title="Platform Admin"></i>' : ''}
+              </div>
+              <div class="search-result-username">@${highlightMatch(username, cleanQ)}</div>
+            </div>
+            ${isExact ? '<span class="search-exact-badge"><i class="fas fa-check-circle"></i> Exact Match</span>' : ''}
+          </a>
+        `;
+      }).join('')}
+    `;
+
+    dropdown.style.display = 'block';
+  }
+
+  function updateSelection(items, index) {
+    items.forEach((item, idx) => {
+      if (idx === index) {
+        item.classList.add('selected');
+        item.scrollIntoView({ block: 'nearest' });
+      } else {
+        item.classList.remove('selected');
+      }
+    });
+  }
+
+  function closeDropdown() {
+    dropdown.style.display = 'none';
+    selectedIndex = -1;
+  }
+
+  function filterGridByQuery(q) {
+    const scored = scoreAndSortStudents(allStudents, q);
+    const filtered = scored.map(item => item.student);
     const countEl = document.getElementById('studentsCount');
 
-    if (countEl) countEl.textContent = `Found ${filtered.length} matching students for "${q}"`;
+    if (countEl) countEl.textContent = `Found ${filtered.length} matching student${filtered.length === 1 ? '' : 's'} for "${q}"`;
 
+    const grid = document.getElementById('studentsGrid');
     if (filtered.length === 0) {
       grid.innerHTML = `
         <div style="grid-column: 1/-1; text-align: center; padding: 60px 20px;" class="card glass-card">
           <i class="fas fa-search" style="font-size: 2.5rem; color: var(--text-muted); margin-bottom: 14px;"></i>
-          <h3 style="font-size: 1.2rem; margin-bottom: 6px;">No students match "${q}"</h3>
-          <p style="color: var(--text-secondary);">Try searching by degree (BCA, B.Sc, B.Tech, B.Com), skills, or names.</p>
+          <h3 style="font-size: 1.2rem; margin-bottom: 6px;">No students match "${escapeHtml(q)}"</h3>
+          <p style="color: var(--text-secondary);">Try searching by full name, @username, or skills.</p>
         </div>
       `;
       return;
@@ -418,6 +541,126 @@ function setupSearch() {
     allStudents = filtered;
     renderStudents();
     allStudents = saved;
+  }
+
+  // --- EVENT LISTENERS ---
+
+  // Live typing search
+  input.addEventListener('input', (e) => {
+    const q = e.target.value.trim();
+
+    if (clearBtn) {
+      clearBtn.style.display = q ? 'flex' : 'none';
+    }
+
+    if (!q) {
+      closeDropdown();
+      renderStudents();
+      return;
+    }
+
+    const scored = scoreAndSortStudents(allStudents, q);
+    renderDropdown(scored, q);
+    filterGridByQuery(q);
+  });
+
+  // Focus input: show dropdown if text exists
+  input.addEventListener('focus', () => {
+    const q = input.value.trim();
+    if (q) {
+      const scored = scoreAndSortStudents(allStudents, q);
+      renderDropdown(scored, q);
+    }
+  });
+
+  // Keyboard navigation (ArrowDown, ArrowUp, Enter, Escape)
+  input.addEventListener('keydown', (e) => {
+    const items = dropdown.querySelectorAll('.search-result-item');
+
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      if (items.length === 0) return;
+      selectedIndex = (selectedIndex + 1) % items.length;
+      updateSelection(items, selectedIndex);
+      return;
+    }
+
+    if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      if (items.length === 0) return;
+      selectedIndex = (selectedIndex - 1 + items.length) % items.length;
+      updateSelection(items, selectedIndex);
+      return;
+    }
+
+    if (e.key === 'Escape') {
+      closeDropdown();
+      return;
+    }
+
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      const q = input.value.trim();
+      if (!q) return;
+
+      // 1. If an item was actively selected with arrow keys:
+      if (selectedIndex >= 0 && items[selectedIndex]) {
+        const username = items[selectedIndex].getAttribute('data-username');
+        if (username) {
+          window.location.href = `/p/${username}`;
+          return;
+        }
+      }
+
+      // 2. If there is an exact match for the query:
+      const scored = scoreAndSortStudents(allStudents, q);
+      const exact = scored.find(item => item.isExact);
+      if (exact) {
+        const username = exact.student.username || exact.student.id;
+        window.location.href = `/p/${encodeURIComponent(username)}`;
+        return;
+      }
+
+      // 3. If there is only one result:
+      if (scored.length === 1) {
+        const username = scored[0].student.username || scored[0].student.id;
+        window.location.href = `/p/${encodeURIComponent(username)}`;
+        return;
+      }
+
+      // 4. Otherwise: filter the showcase grid and close the dropdown
+      closeDropdown();
+      filterGridByQuery(q);
+    }
+  });
+
+  // Direct Click on any search result item -> Navigate to exact profile
+  dropdown.addEventListener('click', (e) => {
+    const item = e.target.closest('.search-result-item');
+    if (item) {
+      const username = item.getAttribute('data-username');
+      if (username) {
+        window.location.href = `/p/${username}`;
+      }
+    }
+  });
+
+  // Clear button click
+  if (clearBtn) {
+    clearBtn.addEventListener('click', () => {
+      input.value = '';
+      clearBtn.style.display = 'none';
+      closeDropdown();
+      renderStudents();
+      input.focus();
+    });
+  }
+
+  // Click outside to dismiss dropdown
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('.search-container')) {
+      closeDropdown();
+    }
   });
 }
 
