@@ -1129,6 +1129,8 @@ if (isClusterMode && cluster.isPrimary) {
       delete otps[normalizedEmail];
       saveOtps(otps);
 
+      waf.clearLoginFailures(normalizedEmail);
+
       console.log(`[PASSWORD RESET SUCCESSFUL] For: ${normalizedEmail}`);
       res.json({ success: true, message: 'Password reset successful! You can now sign in with your new password.' });
     } catch (err) {
@@ -1301,6 +1303,19 @@ if (isClusterMode && cluster.isPrimary) {
     if (!ip) return res.status(400).json({ error: 'IP address is required' });
     const success = waf.unbanIp(ip);
     res.json({ success, message: success ? `IP ${ip} was unbanned.` : `IP ${ip} was not in ban jail.` });
+  });
+
+  // WAF Admin: Unlock a Student Account
+  app.post('/api/admin/unlock-account', authenticateToken, (req, res) => {
+    if (req.user.email.toLowerCase() !== ADMIN_EMAIL) {
+      return res.status(403).json({ error: 'Admin access denied' });
+    }
+    const { email } = req.body;
+    if (!email) return res.status(400).json({ error: 'Email address is required' });
+    const normalized = email.toLowerCase().trim();
+    waf.clearLoginFailures(normalized);
+    console.log(`[ADMIN UNLOCKED ACCOUNT] ${normalized} by ${req.user.email}`);
+    res.json({ success: true, message: `Account "${normalized}" was successfully unlocked.` });
   });
 
   // WAF Admin: Manually Ban an IP

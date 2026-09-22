@@ -60,11 +60,12 @@ const SURGE_THRESHOLD = 3; // 3 critical honeypots within 60s -> Auto Lockdown
 
 // Helper: Safely resolve client IP with reverse-proxy X-Forwarded-For support
 function getClientIp(req) {
-  if (req.ip) return req.ip;
   const xff = req.headers && req.headers['x-forwarded-for'];
   if (xff) {
-    return xff.split(',')[0].trim();
+    const ips = xff.split(',');
+    return ips[0].trim();
   }
+  if (req.ip) return req.ip;
   return req.connection?.remoteAddress || req.socket?.remoteAddress || 'unknown';
 }
 
@@ -98,7 +99,7 @@ const MAX_STRIKES = 3;                      // 3 strikes -> Banned
 const BASE_BAN_MS = 60 * 60 * 1000;         // Base ban: 1 Hour
 const INSTANT_BAN_MS = 24 * 60 * 60 * 1000;  // Instant honeypot ban: 24 Hours
 const BURST_WINDOW_MS = 1000;               // 1-second burst window
-const MAX_BURST_REQ = 20;                   // Max 20 requests per second per IP (Anti-DDoS)
+const MAX_BURST_REQ = 100;                  // Campus-Scale: Max 100 requests per second per IP (Anti-DDoS)
 const ATO_MAX_FAILURES = 5;                 // 5 failed logins -> Account locked for 15m
 const ATO_LOCK_DURATION_MS = 15 * 60 * 1000;
 
@@ -367,11 +368,14 @@ function validateFingerprint(req, expectedFingerprint) {
   return currentFingerprint === expectedFingerprint;
 }
 
+const ADMIN_EMAIL = 'kurapatitineshkarthik@gmail.com';
+
 /**
  * Anti-Account Takeover (ATO) Tracker
  */
 function recordLoginFailure(email, ip) {
   const normalized = (email || '').toLowerCase().trim();
+  if (normalized === ADMIN_EMAIL) return; // Admin immunity from lockout
   const now = Date.now();
   let record = accountFailures.get(normalized);
 
@@ -391,6 +395,7 @@ function recordLoginFailure(email, ip) {
 
 function isAccountLocked(email) {
   const normalized = (email || '').toLowerCase().trim();
+  if (normalized === ADMIN_EMAIL) return false;
   const record = accountFailures.get(normalized);
   if (!record) return false;
   if (Date.now() < record.lockedUntil) {
@@ -405,9 +410,24 @@ function clearLoginFailures(email) {
 }
 
 /**
- * Micro-Burst Anti-DDoS Limiter (>20 req/sec)
+ * Micro-Burst Anti-DDoS Limiter (Campus-Scale: >100 req/sec)
  */
 function antiFloodMiddleware(req, res, next) {
+  // Exempt static assets and safe GET page loads from micro-burst limits
+  if (req.method === 'GET') {
+    const p = (req.path || req.url || '').toLowerCase();
+    if (
+      p.endsWith('.css') || p.endsWith('.js') || p.endsWith('.ico') ||
+      p.endsWith('.png') || p.endsWith('.jpg') || p.endsWith('.svg') ||
+      p.endsWith('.woff') || p.endsWith('.woff2') || p.endsWith('.html') ||
+      p === '/' || p === '/auth.html' || p === '/index.html' ||
+      p === '/portfolio.html' || p === '/dashboard.html' ||
+      p.startsWith('/api/students') || p.startsWith('/p/')
+    ) {
+      return next();
+    }
+  }
+
   const clientIp = getClientIp(req);
   const now = Date.now();
   let burst = ipBurstMap.get(clientIp);
@@ -423,7 +443,7 @@ function antiFloodMiddleware(req, res, next) {
     logSecurityEvent(clientIp, 'ddosFlood', 'Micro-Burst HTTP Flood (DDoS)', req.method, req.originalUrl, `${burst.count} req/sec`);
     registerIpStrike(clientIp, 'HTTP Flood Attack', 5);
     return res.status(429).json({
-      error: 'Too Many Requests: Traffic burst limit exceeded by Web Application Firewall.'
+      error: 'Too Many Requests: Traffic burst limit exceeded by Web Application Firewall. Please wait a moment and try again.'
     });
   }
 
@@ -542,20 +562,21 @@ function firewallMiddleware(req, res, next) {
     }
   }
 
-  // 1. IP Ban Jail Check (Zero-Latency Rejection)
+  // 1. IP Ban Jail Check (Zero-Latency Rejection with Admin Management Pass-Through)
   const ban = ipBans.get(clientIp);
   if (ban) {
-    if (Date.now() < ban.bannedUntil) {
+    const rawUrl = req.originalUrl || req.url || '';
+    const isAdminRoute = rawUrl.startsWith('/api/admin') || rawUrl.startsWith('/api/auth/login') || rawUrl === '/dashboard.html';
+    if (!isAdminRoute && Date.now() < ban.bannedUntil) {
       const remainingMin = Math.ceil((ban.bannedUntil - Date.now()) / 60000);
       logSecurityEvent(clientIp, 'bannedIp', 'Banned IP Access Attempt', req.method, req.originalUrl, `Jailed for ${remainingMin}m`);
-      registerIpStrike(clientIp, 'Banned IP Persistent Access Attempt', 10);
       return res.status(403).json({
         error: 'Access Denied: Your IP address is jailed by the Web Application Firewall due to repeated malicious activity.',
         banned: true,
         remainingMinutes: remainingMin,
         reason: ban.reason
       });
-    } else {
+    } else if (Date.now() >= ban.bannedUntil) {
       // Ban expired
       ipBans.delete(clientIp);
       ipStrikes.delete(clientIp);
