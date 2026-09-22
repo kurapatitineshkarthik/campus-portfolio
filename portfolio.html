@@ -225,6 +225,9 @@
             <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 10px;">
               <div>
                 <h1 class="profile-name">${s.name}</h1>
+                <div style="font-size: 0.92rem; color: var(--accent); font-weight: 600; margin-bottom: 8px;">
+                  ${s.username || s.id}
+                </div>
                 <span class="academic-pill">
                   ${s.course || 'UG'} &bull; ${s.year || '1st Year'} ${s.branch ? '(' + s.branch + ')' : ''}
                 </span>

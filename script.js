@@ -698,6 +698,7 @@ function openStudentModal(studentIdentifier) {
       <div>
         <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 6px;">
           <h2 style="font-size: 1.8rem; font-weight: 800; margin: 0;">${student.name}</h2>
+          <span style="font-size: 0.85rem; color: var(--accent); font-weight: 600; background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.3); padding: 2px 10px; border-radius: 9999px;">${student.username || student.id}</span>
           <span style="font-size: 0.8rem; font-weight: 700; padding: 4px 12px; border-radius: var(--radius-full); background: ${yearColor.bg}; color: ${yearColor.text}; border: 1px solid ${yearColor.border};">
             ${student.course || 'UG'} &bull; ${student.year || '1st Year'} ${student.branch ? '(' + student.branch + ')' : ''}
           </span>

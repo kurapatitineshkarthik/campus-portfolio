@@ -604,6 +604,19 @@ async function runAllTests() {
     assert.ok(scriptContent.includes('/p/'), 'script.js must support direct navigation to /p/username on exact match and click');
   });
 
+  test('Dashboard HTML: Username is displayed and locked (readonly)', () => {
+    const dashContent = fs.readFileSync(path.join(__dirname, 'dashboard.html'), 'utf8');
+    assert.ok(dashContent.includes('id="profUsername"'), 'dashboard.html must have profUsername input');
+    assert.ok(dashContent.includes('id="profUsername" class="locked-field" readonly'), 'profUsername must be locked-field and readonly');
+    assert.ok(dashContent.includes('id="studentUsernameBadge"'), 'dashboard.html must have studentUsernameBadge in welcome header');
+  });
+
+  test('Server JS: generateUniqueUsername produces fullname@12345 format and admin is tineshkarthik@00001', () => {
+    const serverContent = fs.readFileSync(path.join(__dirname, 'server.js'), 'utf8');
+    assert.ok(serverContent.includes('generateUniqueUsername'), 'server.js must define generateUniqueUsername');
+    assert.ok(serverContent.includes('tineshkarthik@00001'), 'server.js must set admin username to tineshkarthik@00001');
+  });
+
   console.log('\n========================================================');
   console.log(`📊 TEST SUMMARY: ${passedTests}/${totalTests} PASSED`);
   if (failures.length === 0) {

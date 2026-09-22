@@ -168,7 +168,8 @@
       <div>
         <h1 style="font-size: 2rem; margin-bottom: 6px;">Student Dashboard</h1>
         <p style="color: var(--text-secondary); font-size: 1rem;">
-          Welcome, <strong id="studentWelcomeName" class="gradient-text">Student</strong> &bull; 
+          Welcome, <strong id="studentWelcomeName" class="gradient-text">Student</strong>
+          (<code id="studentUsernameBadge" style="color: var(--accent); font-weight: 600; font-size: 0.9rem;">loading...</code>) &bull; 
           <span id="studentBadge" style="color: var(--badge-text); background: var(--badge-bg); padding: 3px 10px; border-radius: 9999px; font-size: 0.8rem; font-weight: 600;">B.Tech &bull; 3rd Year CSE</span>
         </p>
       </div>
@@ -273,6 +274,11 @@
           <div class="form-group">
             <label for="profName">Full Name</label>
             <input type="text" id="profName" required>
+          </div>
+
+          <div class="form-group">
+            <label for="profUsername">Username <span style="color: var(--text-muted); font-size: 0.8rem;">(Locked)</span></label>
+            <input type="text" id="profUsername" class="locked-field" readonly title="Server-generated username cannot be changed, like your login email.">
           </div>
 
           <div class="form-group">
@@ -1058,6 +1064,10 @@
       document.getElementById("profAvatar").value = u.avatarUrl || "";
 
       document.getElementById("profName").value = u.name || "";
+      const usernameField = document.getElementById("profUsername");
+      if (usernameField) usernameField.value = userSlug;
+      const usernameBadge = document.getElementById("studentUsernameBadge");
+      if (usernameBadge) usernameBadge.textContent = userSlug;
       document.getElementById("profEmail").value = u.email || "";
       document.getElementById("profCourse").value = u.course || "B.Tech";
       document.getElementById("profYear").value = u.year || "3rd Year";
