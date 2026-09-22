@@ -85,10 +85,18 @@ function checkAuthStatus() {
   }
 }
 
-function handleLogout() {
-  localStorage.removeItem('campus_token');
-  localStorage.removeItem('campus_user');
-  window.location.reload();
+function handleLogout(e) {
+  if (e && e.preventDefault) e.preventDefault();
+  try {
+    localStorage.removeItem('campus_token');
+    localStorage.removeItem('campus_user');
+    sessionStorage.removeItem('campus_token');
+    sessionStorage.removeItem('campus_user');
+    sessionStorage.removeItem('pending_otp_email');
+    localStorage.clear();
+    sessionStorage.clear();
+  } catch (err) {}
+  window.location.replace('index.html');
 }
 
 /* ==========================================================================

@@ -97,8 +97,8 @@ if (isClusterMode && cluster.isPrimary) {
   app.use(cors());
 
   // Strict payload limits: 50kb for normal JSON (stops JSON parse memory exhaustion DoS)
-  app.use(express.json({ limit: '50kb' }));
-  app.use(express.urlencoded({ extended: true, limit: '50kb' }));
+  app.use(express.json({ limit: '10mb' }));
+  app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
   app.use(express.static(__dirname, { maxAge: '1d', etag: true }));
 
@@ -859,7 +859,7 @@ if (isClusterMode && cluster.isPrimary) {
     res.json(safeUser);
   });
 
-  app.put('/api/student/profile', authenticateToken, express.json({ limit: '6mb' }), (req, res) => {
+  app.put('/api/student/profile', authenticateToken, express.json({ limit: '10mb' }), (req, res) => {
     try {
       const users = getUsers();
       const index = users.findIndex(u => u.id === req.user.id);

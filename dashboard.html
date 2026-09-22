@@ -14,6 +14,21 @@
         document.documentElement.setAttribute('data-theme', theme);
       } catch (e) {}
     })();
+
+    // Expose handleLogout immediately at the earliest possible stage
+    window.handleLogout = function(e) {
+      if (e && e.preventDefault) e.preventDefault();
+      try {
+        localStorage.removeItem('campus_token');
+        localStorage.removeItem('campus_user');
+        sessionStorage.removeItem('campus_token');
+        sessionStorage.removeItem('campus_user');
+        sessionStorage.removeItem('pending_otp_email');
+        localStorage.clear();
+        sessionStorage.clear();
+      } catch (err) {}
+      window.location.replace('index.html');
+    };
   </script>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -141,7 +156,7 @@
         <button id="themeToggle" class="icon-btn" aria-label="Toggle theme" title="Toggle theme">
           <i class="fas fa-moon" id="themeIcon"></i>
         </button>
-        <button onclick="handleLogout()" class="btn btn-secondary" style="padding: 8px 16px; font-size: 0.85rem;">
+        <button type="button" id="logoutBtn" onclick="handleLogout(event)" class="btn btn-secondary" style="padding: 8px 16px; font-size: 0.85rem;" title="Log Out">
           <i class="fas fa-sign-out-alt"></i> Log Out
         </button>
       </div>
@@ -193,7 +208,7 @@
     </div>
 
     <!-- ADMIN PANEL: VISIBLE ONLY TO TINESH (kurapatitineshkarthik@gmail.com) -->
-    <div id="adminPanelSection" class="card glass-card dash-section-card admin-card" style="display: none;">
+    <div id="adminStudentsSection" class="card glass-card dash-section-card admin-card" style="display: none;">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
         <h2 style="font-size: 1.35rem; color: #f59e0b; display: flex; align-items: center; gap: 10px;">
           <i class="fas fa-shield-halved"></i> Platform Admin: Manage & Delete Fake Accounts
@@ -576,12 +591,33 @@
   </main>
 
   <script>
+    // Define handleLogout on window immediately
+    window.handleLogout = function(e) {
+      if (e && e.preventDefault) e.preventDefault();
+      try {
+        localStorage.removeItem("campus_token");
+        localStorage.removeItem("campus_user");
+        sessionStorage.removeItem("campus_token");
+        sessionStorage.removeItem("campus_user");
+        sessionStorage.removeItem("pending_otp_email");
+        localStorage.clear();
+        sessionStorage.clear();
+      } catch (err) {}
+      window.location.replace("index.html");
+    };
+
     let currentUser = null;
     let learnedItems = [];
     let projectItems = [];
 
     document.addEventListener("DOMContentLoaded", async () => {
       initTheme();
+
+      const logoutBtn = document.getElementById("logoutBtn");
+      if (logoutBtn) {
+        logoutBtn.addEventListener("click", window.handleLogout);
+      }
+
       const token = localStorage.getItem("campus_token");
       if (!token) {
         window.location.href = "auth.html";
@@ -641,6 +677,10 @@
         populateFields(currentUser);
 
         if (currentUser.isAdmin) {
+          const adminStudentsSec = document.getElementById("adminStudentsSection");
+          if (adminStudentsSec) adminStudentsSec.style.display = "block";
+          loadAdminStudentsList(token);
+
           const adminSec = document.getElementById("adminPanelSection");
           if (adminSec) adminSec.style.display = "block";
           loadFirewallTelemetry();
@@ -1064,9 +1104,9 @@
         reader.onload = function(event) {
           const img = new Image();
           img.onload = function() {
-            // Compress and resize to max 400x400 to keep it lightweight (~50KB)
+            // Compress and resize to max 360x360 for high quality & small size (~35KB)
             const canvas = document.createElement('canvas');
-            const maxDim = 400;
+            const maxDim = 360;
             let width = img.width;
             let height = img.height;
 
@@ -1087,9 +1127,12 @@
             const ctx = canvas.getContext('2d');
             ctx.drawImage(img, 0, 0, width, height);
 
-            const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.88);
+            const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.85);
             if (previewImg) previewImg.src = compressedDataUrl;
             if (avatarInput) avatarInput.value = compressedDataUrl;
+
+            // Automatically save and publish photo immediately so user doesn't need to manually find "Save Changes"
+            saveProfile(true);
           };
           img.src = event.target.result;
         };
@@ -1124,6 +1167,7 @@
       const avatarInput = document.getElementById("profAvatar");
       if (previewImg) previewImg.src = avatarUrl;
       if (avatarInput) avatarInput.value = avatarUrl;
+      saveProfile(true);
     }
 
     function removeAvatarPhoto() {
@@ -1135,6 +1179,7 @@
       if (avatarInput) avatarInput.value = defaultUrl;
       const fileInput = document.getElementById("avatarFileInput");
       if (fileInput) fileInput.value = "";
+      saveProfile(true);
     }
 
     // What I Learned Handlers
@@ -1237,13 +1282,25 @@
     }
 
     // SAVE PROFILE
-    async function saveProfile() {
+    async function saveProfile(isAvatarAutoSave = false) {
       const token = localStorage.getItem("campus_token");
       const btn = document.getElementById("saveProfileBtn");
       const statusEl = document.getElementById("statusBanner");
 
-      btn.disabled = true;
-      btn.innerHTML = `<span>Saving...</span> <i class="fas fa-spinner fa-spin"></i>`;
+      if (btn && !isAvatarAutoSave) {
+        btn.disabled = true;
+        btn.innerHTML = `<span>Saving...</span> <i class="fas fa-spinner fa-spin"></i>`;
+      }
+
+      if (statusEl) {
+        statusEl.style.display = "block";
+        if (isAvatarAutoSave) {
+          statusEl.style.background = "rgba(59, 130, 246, 0.15)";
+          statusEl.style.border = "1px solid #3b82f6";
+          statusEl.style.color = "#60a5fa";
+          statusEl.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Uploading &amp; saving profile photo live...`;
+        }
+      }
 
       const skillsArr = document.getElementById("profSkills").value
         .split(",")
@@ -1284,22 +1341,30 @@
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || "Failed to save profile");
 
-        statusEl.style.display = "block";
-        statusEl.style.background = "rgba(16, 185, 129, 0.15)";
-        statusEl.style.border = "1px solid #10b981";
-        statusEl.style.color = "#10b981";
-        statusEl.innerHTML = `<i class="fas fa-check-circle"></i> Portfolio updated and published live successfully!`;
+        if (statusEl) {
+          statusEl.style.display = "block";
+          statusEl.style.background = "rgba(16, 185, 129, 0.15)";
+          statusEl.style.border = "1px solid #10b981";
+          statusEl.style.color = "#10b981";
+          statusEl.innerHTML = isAvatarAutoSave
+            ? `<i class="fas fa-check-circle"></i> Profile photo uploaded and saved live successfully!`
+            : `<i class="fas fa-check-circle"></i> Portfolio updated and published live successfully!`;
 
-        setTimeout(() => { statusEl.style.display = "none"; }, 5000);
+          setTimeout(() => { statusEl.style.display = "none"; }, 5000);
+        }
       } catch (err) {
-        statusEl.style.display = "block";
-        statusEl.style.background = "rgba(239, 68, 68, 0.15)";
-        statusEl.style.border = "1px solid #ef4444";
-        statusEl.style.color = "#ef4444";
-        statusEl.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${err.message}`;
+        if (statusEl) {
+          statusEl.style.display = "block";
+          statusEl.style.background = "rgba(239, 68, 68, 0.15)";
+          statusEl.style.border = "1px solid #ef4444";
+          statusEl.style.color = "#ef4444";
+          statusEl.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${err.message}`;
+        }
       } finally {
-        btn.disabled = false;
-        btn.innerHTML = `<i class="fas fa-save"></i> Save Changes`;
+        if (btn) {
+          btn.disabled = false;
+          btn.innerHTML = `<i class="fas fa-save"></i> Save Changes`;
+        }
       }
     }
 
@@ -1413,13 +1478,14 @@
       }
     }
 
-    function handleLogout() {
-      localStorage.removeItem("campus_token");
-      localStorage.removeItem("campus_user");
-      sessionStorage.removeItem("campus_token");
-      sessionStorage.removeItem("campus_user");
-      sessionStorage.removeItem("pending_otp_email");
-      window.location.href = "index.html";
+    function handleLogout(e) {
+      if (window.handleLogout) {
+        window.handleLogout(e);
+      } else {
+        localStorage.clear();
+        sessionStorage.clear();
+        window.location.replace("index.html");
+      }
     }
   </script>
 </body>
