@@ -172,12 +172,12 @@ function isUserPortfolio(student, currentUser) {
   return false;
 }
 
-function renderStudents() {
+function renderStudents(customList) {
   const grid = document.getElementById('studentsGrid');
   const countEl = document.getElementById('studentsCount');
   const filterAddWrapper = document.getElementById('filterAddPortfolioWrapper');
 
-  const filtered = allStudents.filter(s => {
+  const filtered = customList ? customList : allStudents.filter(s => {
     const sCourse = (s.course || 'B.Tech').toLowerCase();
     const sYear = (s.year || '').toLowerCase();
 
@@ -191,7 +191,11 @@ function renderStudents() {
   const yearLabel = activeYearFilter === 'all' ? 'All Years' : activeYearFilter;
 
   if (countEl) {
-    countEl.textContent = `Showing ${filtered.length} student${filtered.length === 1 ? '' : 's'} (${courseLabel} \u2022 ${yearLabel})`;
+    if (customList) {
+      countEl.textContent = `Found ${filtered.length} matching student${filtered.length === 1 ? '' : 's'}`;
+    } else {
+      countEl.textContent = `Showing ${filtered.length} student${filtered.length === 1 ? '' : 's'} (${courseLabel} \u2022 ${yearLabel})`;
+    }
   }
 
   const currentUser = getCurrentUser();
@@ -537,10 +541,7 @@ function setupSearch() {
       return;
     }
 
-    const saved = allStudents;
-    allStudents = filtered;
-    renderStudents();
-    allStudents = saved;
+    renderStudents(filtered);
   }
 
   // --- EVENT LISTENERS ---

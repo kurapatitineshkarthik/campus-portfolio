@@ -1183,6 +1183,24 @@ img {
 }
 
 @media (max-width: 768px) {
+  .nav-container {
+    padding: 0 12px;
+    gap: 8px;
+  }
+  .search-container {
+    margin: 0 8px !important;
+    max-width: none !important;
+  }
+  .search-input-field {
+    font-size: 0.82rem !important;
+    padding: 7px 12px 7px 32px !important;
+  }
+  #authNavText {
+    display: none;
+  }
+  #authNavBtn {
+    padding: 8px 12px !important;
+  }
   .desktop-nav {
     display: none;
   }
@@ -1219,6 +1237,9 @@ img {
 }
 
 @media (max-width: 480px) {
+  .brand-logo {
+    font-size: 1.15rem;
+  }
   .hero-title {
     font-size: 2.1rem;
   }
@@ -1267,18 +1288,18 @@ img {
   right: 0;
   max-height: 380px;
   overflow-y: auto;
-  background: var(--card-bg);
+  background: #18191d;
   border: 1px solid var(--border-color);
   border-radius: var(--radius-md);
-  backdrop-filter: blur(25px) saturate(180%);
-  -webkit-backdrop-filter: blur(25px) saturate(180%);
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45);
-  z-index: 1000;
+  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.65);
+  z-index: 99999;
   animation: searchDropdownFade 0.18s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 [data-theme="light"] .search-dropdown-menu {
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.12);
+  background: #ffffff;
+  border-color: rgba(0, 0, 0, 0.12);
+  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.16);
 }
 
 @keyframes searchDropdownFade {

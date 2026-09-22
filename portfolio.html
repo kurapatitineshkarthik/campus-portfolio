@@ -20,7 +20,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-  <link rel="stylesheet" href="/style.css?v=3.0">
+  <link rel="stylesheet" href="/style.css?v=3.1">
 
   <style>
     .portfolio-wrapper {
@@ -172,14 +172,23 @@
       checkAuthStatus();
       document.getElementById("currentYear").textContent = new Date().getFullYear();
 
-      // Extract username/slug from URL path (e.g. /p/tinesh-karthik) or query (?u=tinesh-karthik)
+      // Extract username/slug from URL path (e.g. /p/joysharma@48192 or /p/tineshkarthik@00001) or query (?u=...)
       let slug = "";
       const pathParts = window.location.pathname.split("/").filter(Boolean);
       if (pathParts.length >= 2 && pathParts[0] === "p") {
-        slug = pathParts[1];
+        try {
+          slug = decodeURIComponent(pathParts[1]);
+        } catch (e) {
+          slug = pathParts[1];
+        }
       } else {
         const params = new URLSearchParams(window.location.search);
-        slug = params.get("u") || params.get("student") || "tinesh-karthik";
+        const rawParam = params.get("u") || params.get("student") || "tineshkarthik@00001";
+        try {
+          slug = decodeURIComponent(rawParam);
+        } catch (e) {
+          slug = rawParam;
+        }
       }
 
       await loadStudentPortfolio(slug);

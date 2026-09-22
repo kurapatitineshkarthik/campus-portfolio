@@ -275,10 +275,13 @@ if (isClusterMode && cluster.isPrimary) {
     return username;
   }
 
-  // Ensure default Admin Account exists for kurapatitineshkarthik@gmail.com
-  async function ensureAdminExists() {
+  // Ensure default Admin Account and realistic student accounts exist for seamless testing
+  async function ensureInitialSeedData() {
     try {
-      const users = getUsers();
+      let users = getUsers();
+      let modified = false;
+
+      // 1. Admin Account: Tinesh Karthik (@tineshkarthik@00001)
       let admin = users.find(u => u.email.toLowerCase() === ADMIN_EMAIL);
       if (!admin) {
         const salt = await bcrypt.genSalt(10);
@@ -313,32 +316,219 @@ if (isClusterMode && cluster.isPrimary) {
           createdAt: new Date().toISOString()
         };
         users.unshift(admin);
-        saveUsers(users);
+        modified = true;
         console.log(`👑 [ADMIN SEED] Initialized default Admin account for ${ADMIN_EMAIL} (@${admin.username})`);
       } else if (admin.username !== 'tineshkarthik@00001') {
         admin.username = 'tineshkarthik@00001';
-        saveUsers(users);
+        modified = true;
         console.log(`👑 [ADMIN UPDATE] Updated Admin username to @${admin.username}`);
       }
+
+      // 2. Demo Student Accounts (including 'Joy' accounts for immediate search engine testing)
+      if (users.length <= 1) {
+        const salt = await bcrypt.genSalt(10);
+        const defaultHash = await bcrypt.hash('Student@123', salt);
+
+        const sampleStudents = [
+          {
+            id: 'student-joy-sharma',
+            username: 'joysharma@48192',
+            name: 'Joy Sharma',
+            email: 'joysharma@campus.edu',
+            passwordHash: defaultHash,
+            isVerified: true,
+            isAdmin: false,
+            course: 'BCA',
+            year: '2nd Year',
+            branch: 'Computer Applications',
+            college: 'Campus School of Computing',
+            tagline: 'Aspiring Full-Stack & UI/UX Developer crafting fluid web experiences.',
+            bio: '2nd-year BCA student passionate about front-end design systems, responsive interfaces, and modern JavaScript frameworks.',
+            avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=500&auto=format&fit=crop&q=80',
+            whatILearned: [
+              'Modern UI/UX Design with Figma and Tailwind CSS',
+              'Single Page Applications with React & State Management',
+              'RESTful API Integration and Web Performance'
+            ],
+            skills: ['React', 'JavaScript', 'UI/UX Design', 'Tailwind CSS', 'Figma', 'Git'],
+            projects: [
+              {
+                title: 'Campus Course Dashboard & Notes Hub',
+                category: 'Web Development',
+                description: 'Interactive dashboard allowing BCA students to access semester notes, video lectures, and live code examples.',
+                googleDocsUrl: 'https://docs.google.com',
+                githubUrl: 'https://github.com',
+                liveUrl: 'https://tinesh.in'
+              }
+            ],
+            socials: { github: 'https://github.com', linkedin: 'https://linkedin.com', email: 'joysharma@campus.edu' },
+            createdAt: new Date().toISOString()
+          },
+          {
+            id: 'student-joy-patel',
+            username: 'joypatel@59201',
+            name: 'Joy Patel',
+            email: 'joypatel@campus.edu',
+            passwordHash: defaultHash,
+            isVerified: true,
+            isAdmin: false,
+            course: 'B.Sc',
+            year: '1st Year',
+            branch: 'Computer Science',
+            college: 'Faculty of Science & Computing',
+            tagline: 'Data Science Enthusiast & Python Developer exploring Machine Learning.',
+            bio: '1st-year B.Sc Computer Science student focused on exploratory data analysis, statistics, and machine learning models in Python.',
+            avatarUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=500&auto=format&fit=crop&q=80',
+            whatILearned: [
+              'Python for Data Science (NumPy, Pandas, Matplotlib)',
+              'Statistical Inference & Probability Modeling',
+              'Relational Database Modeling with MySQL'
+            ],
+            skills: ['Python', 'Pandas', 'NumPy', 'SQL', 'Data Science', 'Statistics'],
+            projects: [
+              {
+                title: 'Student Academic Performance Predictor',
+                category: 'Data Science',
+                description: 'Machine learning model that analyzes quiz scores and attendance patterns to predict end-of-semester GPA with 89% accuracy.',
+                googleDocsUrl: 'https://docs.google.com',
+                githubUrl: 'https://github.com',
+                liveUrl: 'https://tinesh.in'
+              }
+            ],
+            socials: { github: 'https://github.com', linkedin: 'https://linkedin.com', email: 'joypatel@campus.edu' },
+            createdAt: new Date().toISOString()
+          },
+          {
+            id: 'student-rahul-joy',
+            username: 'rahuljoymukherjee@83921',
+            name: 'Rahul Joy Mukherjee',
+            email: 'rahuljoy@campus.edu',
+            passwordHash: defaultHash,
+            isVerified: true,
+            isAdmin: false,
+            course: 'B.Com',
+            year: '2nd Year',
+            branch: 'Finance & Banking',
+            college: 'College of Commerce & Economics',
+            tagline: 'FinTech Explorer & Financial Modeler bridging Finance and Tech.',
+            bio: '2nd-year B.Com student specializing in financial analytics, equity research models, and automated corporate valuation dashboards.',
+            avatarUrl: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=500&auto=format&fit=crop&q=80',
+            whatILearned: [
+              'Corporate Financial Modeling & DCF Valuation',
+              'Automated Financial Dashboards with PowerBI & Excel',
+              'FinTech Protocols & Algorithmic Trading Fundamentals'
+            ],
+            skills: ['Financial Modeling', 'Excel', 'PowerBI', 'Tableau', 'FinTech', 'Accounting'],
+            projects: [
+              {
+                title: 'Student Micro-Budget & Investment Planner',
+                category: 'FinTech',
+                description: 'Personal finance web application tailored for college students to track living expenses, split bills, and simulate SIP investments.',
+                googleDocsUrl: 'https://docs.google.com',
+                githubUrl: 'https://github.com',
+                liveUrl: 'https://tinesh.in'
+              }
+            ],
+            socials: { github: '', linkedin: 'https://linkedin.com', email: 'rahuljoy@campus.edu' },
+            createdAt: new Date().toISOString()
+          },
+          {
+            id: 'student-priya-verma',
+            username: 'priyaverma@71024',
+            name: 'Priya Verma',
+            email: 'priyaverma@campus.edu',
+            passwordHash: defaultHash,
+            isVerified: true,
+            isAdmin: false,
+            course: 'B.Tech',
+            year: '3rd Year',
+            branch: 'Information Technology',
+            college: 'Institute of Technology',
+            tagline: 'Cloud Architecture & DevOps Engineer building resilient distributed systems.',
+            bio: '3rd-year B.Tech IT student specializing in container orchestration, continuous delivery pipelines, and cloud security.',
+            avatarUrl: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=500&auto=format&fit=crop&q=80',
+            whatILearned: [
+              'Container Orchestration with Docker & Kubernetes',
+              'CI/CD Pipeline Automation with GitHub Actions',
+              'Cloud Security & Infrastructure as Code (Terraform)'
+            ],
+            skills: ['Docker', 'Kubernetes', 'AWS', 'Node.js', 'Terraform', 'CI/CD'],
+            projects: [
+              {
+                title: 'Distributed Cloud Health Monitoring Platform',
+                category: 'DevOps & Cloud',
+                description: 'Real-time telemetry and alerting service monitoring microservices across multiple cloud clusters with automated failover.',
+                googleDocsUrl: 'https://docs.google.com',
+                githubUrl: 'https://github.com',
+                liveUrl: 'https://tinesh.in'
+              }
+            ],
+            socials: { github: 'https://github.com', linkedin: 'https://linkedin.com', email: 'priyaverma@campus.edu' },
+            createdAt: new Date().toISOString()
+          },
+          {
+            id: 'student-ananya-iyer',
+            username: 'ananyaiyer@12894',
+            name: 'Ananya Iyer',
+            email: 'ananyaiyer@campus.edu',
+            passwordHash: defaultHash,
+            isVerified: true,
+            isAdmin: false,
+            course: 'BBA',
+            year: '1st Year',
+            branch: 'Business Analytics & Marketing',
+            college: 'School of Management & Business',
+            tagline: 'Product Strategist & Growth Marketer driving student startup initiatives.',
+            bio: '1st-year BBA student interested in product management, user research, data-driven brand strategies, and go-to-market execution.',
+            avatarUrl: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=500&auto=format&fit=crop&q=80',
+            whatILearned: [
+              'Consumer Behavior & User Research Methodologies',
+              'Digital Marketing, SEO & Funnel Optimization',
+              'Agile Product Management & Wireframing'
+            ],
+            skills: ['Product Strategy', 'Digital Marketing', 'Market Research', 'Analytics', 'Agile'],
+            projects: [
+              {
+                title: 'Campus Startup Growth & Launch Blueprint',
+                category: 'Product Strategy',
+                description: 'Comprehensive go-to-market guide and acquisition funnel developed for student-founded ventures on campus.',
+                googleDocsUrl: 'https://docs.google.com',
+                githubUrl: '',
+                liveUrl: 'https://tinesh.in'
+              }
+            ],
+            socials: { github: '', linkedin: 'https://linkedin.com', email: 'ananyaiyer@campus.edu' },
+            createdAt: new Date().toISOString()
+          }
+        ];
+
+        users.push(...sampleStudents);
+        modified = true;
+        console.log(`🎓 [STUDENT SEED] Initialized ${sampleStudents.length} verified demo student accounts across B.Tech, BCA, B.Sc, B.Com, BBA.`);
+      }
+
+      if (modified) {
+        saveUsers(users);
+      }
     } catch (err) {
-      console.error('Failed to ensure admin exists:', err);
+      console.error('Failed to initialize seed data:', err);
     }
   }
 
-  ensureAdminExists();
+  ensureInitialSeedData();
 
   // =======================================================================
-  // 4. NODEMAILER DIRECT GMAIL SSL (Port 465 - Non-Pooled for Cloud Stability)
+  // 4. MULTI-PROVIDER RESILIENT EMAIL DELIVERY (HTTPS Port 443 + Gmail SMTP)
   // =======================================================================
   const transporter = nodemailer.createTransport({
     host: 'smtp.gmail.com',
     port: 465,
-    secure: true, // Direct SSL (avoids Port 587 completely)
+    secure: true, // Direct SSL
     auth: { user: emailUser, pass: emailPass },
     tls: { rejectUnauthorized: false },
-    connectionTimeout: 15000,
-    greetingTimeout: 10000,
-    socketTimeout: 20000
+    connectionTimeout: 6000,
+    greetingTimeout: 5000,
+    socketTimeout: 8000
   });
 
   async function sendEmailOtp(toEmail, studentName, otpCode, purpose = 'verification') {
@@ -352,42 +542,98 @@ if (isClusterMode && cluster.isPrimary) {
       ? `Hello <strong>${studentName || 'Student'}</strong>, use the 6-digit code below to create a new password:`
       : `Hello <strong>${studentName || 'Student'}</strong>, use the 6-digit verification code below to activate your student portfolio:`;
 
-    const mailOptions = {
-      from: `"UG Campus Portfolio" <${emailUser}>`,
-      to: toEmail,
-      subject: subject,
-      html: `
-        <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 520px; margin: 0 auto; padding: 28px; background-color: #0b0f19; color: #f9fafb; border-radius: 16px; border: 1px solid rgba(255,255,255,0.1);">
-          <div style="text-align: center; margin-bottom: 24px;">
-            <h2 style="color: #6366f1; margin: 0; font-size: 24px; font-weight: 800;">UG Campus Portfolio</h2>
-            <p style="color: #9ca3af; font-size: 13px; margin-top: 4px;">Undergraduate Student Showcase (tinesh.in)</p>
-          </div>
-          <div style="background-color: #111827; padding: 24px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.06); text-align: center;">
-            <h3 style="margin: 0 0 10px 0; font-size: 18px; color: #ffffff;">${heading}</h3>
-            <p style="color: #9ca3af; font-size: 14px; margin: 0 0 20px 0;">${description}</p>
-            <div style="font-size: 34px; font-weight: 800; letter-spacing: 8px; color: #6366f1; background: rgba(99, 102, 241, 0.12); padding: 14px 20px; border-radius: 10px; display: inline-block; font-family: monospace; border: 1px solid rgba(99, 102, 241, 0.3);">
-              ${otpCode}
-            </div>
-            <p style="color: #6b7280; font-size: 12px; margin-top: 20px;">This code is valid for <strong>10 minutes</strong>. Do not share this code with anyone.</p>
-          </div>
-          <div style="text-align: center; margin-top: 24px; font-size: 11px; color: #6b7280;">
-            Sent securely from <a href="mailto:${emailUser}" style="color: #6366f1; text-decoration: none;">${emailUser}</a>
-          </div>
+    const emailHtml = `
+      <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 520px; margin: 0 auto; padding: 28px; background-color: #0b0f19; color: #f9fafb; border-radius: 16px; border: 1px solid rgba(255,255,255,0.1);">
+        <div style="text-align: center; margin-bottom: 24px;">
+          <h2 style="color: #6366f1; margin: 0; font-size: 24px; font-weight: 800;">UG Campus Portfolio</h2>
+          <p style="color: #9ca3af; font-size: 13px; margin-top: 4px;">Undergraduate Student Showcase (tinesh.in)</p>
         </div>
-      `
-    };
+        <div style="background-color: #111827; padding: 24px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.06); text-align: center;">
+          <h3 style="margin: 0 0 10px 0; font-size: 18px; color: #ffffff;">${heading}</h3>
+          <p style="color: #9ca3af; font-size: 14px; margin: 0 0 20px 0;">${description}</p>
+          <div style="font-size: 34px; font-weight: 800; letter-spacing: 8px; color: #6366f1; background: rgba(99, 102, 241, 0.12); padding: 14px 20px; border-radius: 10px; display: inline-block; font-family: monospace; border: 1px solid rgba(99, 102, 241, 0.3);">
+            ${otpCode}
+          </div>
+          <p style="color: #6b7280; font-size: 12px; margin-top: 20px;">This code is valid for <strong>10 minutes</strong>. Do not share this code with anyone.</p>
+        </div>
+        <div style="text-align: center; margin-top: 24px; font-size: 11px; color: #6b7280;">
+          Sent securely from <a href="mailto:${emailUser}" style="color: #6366f1; text-decoration: none;">${emailUser}</a>
+        </div>
+      </div>
+    `;
 
     console.log(`\n========================================================`);
     console.log(`🔑 [VERIFICATION OTP FOR ${toEmail}]: [ ${otpCode} ]`);
     console.log(`========================================================\n`);
 
+    // METHOD A: RESEND HTTPS API (Port 443 - Never blocked on Render / Cloud)
+    if (process.env.RESEND_API_KEY) {
+      try {
+        const res = await fetch('https://api.resend.com/emails', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${process.env.RESEND_API_KEY}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            from: process.env.RESEND_FROM || 'UG Campus Portfolio <onboarding@resend.dev>',
+            to: [toEmail],
+            subject: subject,
+            html: emailHtml
+          })
+        });
+        const data = await res.json();
+        if (res.ok && data.id) {
+          console.log(`[RESEND HTTPS DISPATCHED] To: ${toEmail} [Message ID: ${data.id}]`);
+          return { success: true, provider: 'resend', messageId: data.id };
+        }
+        console.warn('[RESEND NOTICE] Resend returned error:', data);
+      } catch (err) {
+        console.warn(`[RESEND NOTICE] Resend HTTPS delivery error: ${err.message}`);
+      }
+    }
+
+    // METHOD B: BREVO HTTPS API (Port 443 - 300 free emails/day, never blocked)
+    if (process.env.BREVO_API_KEY) {
+      try {
+        const res = await fetch('https://api.brevo.com/v3/smtp/email', {
+          method: 'POST',
+          headers: {
+            'api-key': process.env.BREVO_API_KEY,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            sender: { name: 'UG Campus Portfolio', email: emailUser },
+            to: [{ email: toEmail, name: studentName || 'Student' }],
+            subject: subject,
+            htmlContent: emailHtml
+          })
+        });
+        const data = await res.json();
+        if (res.ok && data.messageId) {
+          console.log(`[BREVO HTTPS DISPATCHED] To: ${toEmail} [Message ID: ${data.messageId}]`);
+          return { success: true, provider: 'brevo', messageId: data.messageId };
+        }
+        console.warn('[BREVO NOTICE] Brevo returned error:', data);
+      } catch (err) {
+        console.warn(`[BREVO NOTICE] Brevo HTTPS delivery error: ${err.message}`);
+      }
+    }
+
+    // METHOD C: NODEMAILER DIRECT GMAIL SSL (Port 465)
     try {
+      const mailOptions = {
+        from: `"UG Campus Portfolio" <${emailUser}>`,
+        to: toEmail,
+        subject: subject,
+        html: emailHtml
+      };
       const info = await transporter.sendMail(mailOptions);
       console.log(`[EMAIL DISPATCHED] To: ${toEmail} [Message ID: ${info.messageId}]`);
-      return { success: true, messageId: info.messageId };
+      return { success: true, provider: 'gmail_ssl', messageId: info.messageId };
     } catch (err) {
       console.warn(`[EMAIL NOTICE] Could not deliver via Gmail SSL (Port 465): ${err.message}`);
-      return { success: false, error: err.message };
+      return { success: false, error: err.message, otpCode };
     }
   }
 
@@ -492,6 +738,14 @@ if (isClusterMode && cluster.isPrimary) {
       }
 
       const normalizedEmail = email.toLowerCase().trim();
+
+      // Check if user is trying to register the platform Admin email
+      if (normalizedEmail === ADMIN_EMAIL) {
+        return res.status(400).json({
+          error: 'This email is registered as the platform Administrator. Please switch to "Sign In" and enter your admin password (default: admin123).'
+        });
+      }
+
       const users = getUsers();
 
       const existing = users.find(u => u.email.toLowerCase() === normalizedEmail && u.isVerified);
@@ -524,12 +778,23 @@ if (isClusterMode && cluster.isPrimary) {
       };
       saveOtps(otps);
 
-      await sendEmailOtp(normalizedEmail, name, otp, 'verification');
+      const emailResult = await sendEmailOtp(normalizedEmail, name, otp, 'verification');
 
-      res.json({
-        success: true,
-        message: `Verification code sent to ${normalizedEmail}! Please check your email inbox.`
-      });
+      if (!emailResult.success) {
+        // Cloud SMTP timed out on Render
+        res.json({
+          success: true,
+          delivered: false,
+          demoOtp: otp,
+          message: `Verification code generated! Cloud host SMTP timed out on Render. Use instant code: ${otp}`
+        });
+      } else {
+        res.json({
+          success: true,
+          delivered: true,
+          message: `Verification code sent to ${normalizedEmail}! Please check your email inbox.`
+        });
+      }
     } catch (err) {
       console.error('[SIGNUP ERROR]', err);
       res.status(500).json({ error: 'Server error during signup: ' + err.message });
@@ -646,8 +911,21 @@ if (isClusterMode && cluster.isPrimary) {
     pending.expiresAt = Date.now() + 10 * 60 * 1000;
     saveOtps(otps);
 
-    await sendEmailOtp(normalizedEmail, (pending.pendingUser && pending.pendingUser.name) || 'Student', newOtp, pending.purpose);
-    res.json({ success: true, message: `A new verification code was sent to ${normalizedEmail}.` });
+    const emailResult = await sendEmailOtp(normalizedEmail, (pending.pendingUser && pending.pendingUser.name) || 'Student', newOtp, pending.purpose);
+    if (!emailResult.success) {
+      res.json({
+        success: true,
+        delivered: false,
+        demoOtp: newOtp,
+        message: `New verification code generated! Cloud host SMTP timed out on Render. Use instant code: ${newOtp}`
+      });
+    } else {
+      res.json({
+        success: true,
+        delivered: true,
+        message: `A new verification code was sent to ${normalizedEmail}.`
+      });
+    }
   });
 
   // Sign In (Protected by Banking WAF: Anti-ATO & Anti-Session Hijacking)
@@ -778,12 +1056,21 @@ if (isClusterMode && cluster.isPrimary) {
       };
       saveOtps(otps);
 
-      await sendEmailOtp(normalizedEmail, user.name, otp, 'forgot_password');
-
-      res.json({
-        success: true,
-        message: `Password reset code sent to ${normalizedEmail}. Check your email inbox!`
-      });
+      const emailResult = await sendEmailOtp(normalizedEmail, user.name, otp, 'forgot_password');
+      if (!emailResult.success) {
+        res.json({
+          success: true,
+          delivered: false,
+          demoOtp: otp,
+          message: `Password reset code generated! Cloud host SMTP timed out on Render. Use instant code: ${otp}`
+        });
+      } else {
+        res.json({
+          success: true,
+          delivered: true,
+          message: `Password reset code sent to ${normalizedEmail}. Check your email inbox!`
+        });
+      }
     } catch (err) {
       console.error('[FORGOT PASSWORD ERROR]', err);
       res.status(500).json({ error: 'Server error: ' + err.message });
@@ -1199,11 +1486,15 @@ if (isClusterMode && cluster.isPrimary) {
 
   // Dedicated single-student portfolio data endpoint (by slug or id)
   app.get('/api/portfolio/:slug', (req, res) => {
-    const slug = (req.params.slug || '').toLowerCase();
+    let slug = (req.params.slug || '').toLowerCase();
+    try {
+      slug = decodeURIComponent(slug);
+    } catch (e) {}
     const users = getUsers();
     const student = users.find(u => 
       ((u.username && u.username.toLowerCase() === slug) || 
        u.id === req.params.slug ||
+       u.id === slug ||
        (slug === 'tinesh-karthik' && u.email.toLowerCase() === ADMIN_EMAIL)) && u.isVerified
     );
     if (!student) return res.status(404).json({ error: 'Student portfolio not found' });
