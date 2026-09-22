@@ -293,18 +293,10 @@
       </div>
 
       <h2 style="font-size: 1.4rem; margin-bottom: 8px;">Verify Your Email Address</h2>
-      <p style="color: var(--text-secondary); font-size: 0.9rem; line-height: 1.5;">
-        We sent a 6-digit verification code via direct Gmail SSL to<br>
+      <p style="color: var(--text-secondary); font-size: 0.9rem; line-height: 1.5; margin-bottom: 16px;">
+        We sent a 6-digit verification code to<br>
         <strong id="otpEmailTarget" style="color: var(--text-primary);"></strong>
       </p>
-
-      <!-- Cloud SMTP Fallback / Instant Verification Banner -->
-      <div id="otpCloudNotice" style="display: none; background: rgba(99, 102, 241, 0.12); border: 1px solid rgba(99, 102, 241, 0.35); border-radius: var(--radius-sm); padding: 12px; margin-top: 14px; margin-bottom: 16px; font-size: 0.86rem; color: var(--text-primary); text-align: left;">
-        <div style="font-weight: 700; color: #818cf8; margin-bottom: 4px; display: flex; align-items: center; gap: 6px;">
-          <i class="fas fa-bolt"></i> Instant Verification Code
-        </div>
-        <div id="otpCloudNoticeText" style="line-height: 1.4;"></div>
-      </div>
 
       <div class="otp-inputs">
         <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]*" class="otp-digit" data-index="0" autofocus>
@@ -346,14 +338,6 @@
       <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 20px;" id="forgotSubtext">
         Enter your registered email to receive a 6-digit verification code.
       </p>
-
-      <!-- Cloud SMTP Fallback Notice for Password Reset -->
-      <div id="forgotCloudNotice" style="display: none; background: rgba(99, 102, 241, 0.12); border: 1px solid rgba(99, 102, 241, 0.35); border-radius: var(--radius-sm); padding: 12px; margin-bottom: 16px; font-size: 0.86rem; color: var(--text-primary); text-align: left;">
-        <div style="font-weight: 700; color: #818cf8; margin-bottom: 4px; display: flex; align-items: center; gap: 6px;">
-          <i class="fas fa-bolt"></i> Instant Password Reset Code
-        </div>
-        <div id="forgotCloudNoticeText" style="line-height: 1.4;"></div>
-      </div>
 
       <div id="forgotStep1">
         <div class="form-group" style="text-align: left; margin-bottom: 16px;">
@@ -495,23 +479,6 @@
         document.getElementById('otpModal').classList.add('active');
         startResendTimer();
         setupOtpInputs();
-
-        // Handle instant code if cloud SMTP timed out on Render
-        const noticeEl = document.getElementById('otpCloudNotice');
-        const noticeText = document.getElementById('otpCloudNoticeText');
-        if (data.demoOtp && noticeEl && noticeText) {
-          noticeText.innerHTML = `Cloud host email connection timed out on Render. Your verification code is: <strong style="font-size: 1.15rem; color: #6366f1; letter-spacing: 2px;">${data.demoOtp}</strong> (Auto-filled below).`;
-          noticeEl.style.display = 'block';
-
-          const inputs = document.querySelectorAll('.otp-digit');
-          data.demoOtp.split('').forEach((d, idx) => {
-            if (inputs[idx]) inputs[idx].value = d;
-          });
-          const verifyBtn = document.getElementById('verifyOtpBtn');
-          if (verifyBtn) verifyBtn.focus();
-        } else if (noticeEl) {
-          noticeEl.style.display = 'none';
-        }
       } catch (err) {
         errorEl.textContent = err.message;
         errorEl.style.display = 'block';
@@ -610,19 +577,6 @@
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || 'Failed to resend code');
         startResendTimer();
-
-        // Handle instant code on resend
-        const noticeEl = document.getElementById('otpCloudNotice');
-        const noticeText = document.getElementById('otpCloudNoticeText');
-        if (data.demoOtp && noticeEl && noticeText) {
-          noticeText.innerHTML = `New verification code generated: <strong style="font-size: 1.15rem; color: #6366f1; letter-spacing: 2px;">${data.demoOtp}</strong> (Auto-filled below).`;
-          noticeEl.style.display = 'block';
-
-          const inputs = document.querySelectorAll('.otp-digit');
-          data.demoOtp.split('').forEach((d, idx) => {
-            if (inputs[idx]) inputs[idx].value = d;
-          });
-        }
       } catch (err) {
         alert(err.message);
         resendBtn.disabled = false;
@@ -752,20 +706,6 @@
         document.getElementById('forgotStep1').style.display = 'none';
         document.getElementById('forgotStep2').style.display = 'block';
         document.getElementById('forgotSubtext').innerHTML = `Enter the 6-digit code sent to <strong>${email}</strong> and choose a new password.`;
-
-        // Handle instant code for forgot password
-        const noticeEl = document.getElementById('forgotCloudNotice');
-        const noticeText = document.getElementById('forgotCloudNoticeText');
-        if (data.demoOtp && noticeEl && noticeText) {
-          noticeText.innerHTML = `Cloud host email connection timed out on Render. Your reset code is: <strong style="font-size: 1.15rem; color: #6366f1; letter-spacing: 2px;">${data.demoOtp}</strong> (Auto-filled below).`;
-          noticeEl.style.display = 'block';
-          const codeInput = document.getElementById('forgotOtpCode');
-          if (codeInput) codeInput.value = data.demoOtp;
-          const newPassInput = document.getElementById('forgotNewPassword');
-          if (newPassInput) newPassInput.focus();
-        } else if (noticeEl) {
-          noticeEl.style.display = 'none';
-        }
       } catch (err) {
         errorEl.textContent = err.message;
         errorEl.style.display = 'block';

@@ -518,17 +518,30 @@ if (isClusterMode && cluster.isPrimary) {
   ensureInitialSeedData();
 
   // =======================================================================
-  // 4. MULTI-PROVIDER RESILIENT EMAIL DELIVERY (HTTPS Port 443 + Gmail SMTP)
+  // 4. MULTI-PROVIDER RESILIENT EMAIL DELIVERY (Port 587 Primary + Port 465 + HTTPS)
   // =======================================================================
-  const transporter = nodemailer.createTransport({
+  // Primary SMTP: Port 587 (STARTTLS - standard submission)
+  const transporter587 = nodemailer.createTransport({
     host: 'smtp.gmail.com',
-    port: 465,
-    secure: true, // Direct SSL
+    port: 587,
+    secure: false, // STARTTLS
     auth: { user: emailUser, pass: emailPass },
     tls: { rejectUnauthorized: false },
-    connectionTimeout: 6000,
-    greetingTimeout: 5000,
-    socketTimeout: 8000
+    connectionTimeout: 10000,
+    greetingTimeout: 8000,
+    socketTimeout: 12000
+  });
+
+  // Fallback SMTP: Port 465 (Direct SSL)
+  const transporter465 = nodemailer.createTransport({
+    host: 'smtp.gmail.com',
+    port: 465,
+    secure: true,
+    auth: { user: emailUser, pass: emailPass },
+    tls: { rejectUnauthorized: false },
+    connectionTimeout: 10000,
+    greetingTimeout: 8000,
+    socketTimeout: 12000
   });
 
   async function sendEmailOtp(toEmail, studentName, otpCode, purpose = 'verification') {
@@ -565,6 +578,13 @@ if (isClusterMode && cluster.isPrimary) {
     console.log(`\n========================================================`);
     console.log(`🔑 [VERIFICATION OTP FOR ${toEmail}]: [ ${otpCode} ]`);
     console.log(`========================================================\n`);
+
+    const mailOptions = {
+      from: `"UG Campus Portfolio" <${emailUser}>`,
+      to: toEmail,
+      subject: subject,
+      html: emailHtml
+    };
 
     // METHOD A: RESEND HTTPS API (Port 443 - Never blocked on Render / Cloud)
     if (process.env.RESEND_API_KEY) {
@@ -620,20 +640,23 @@ if (isClusterMode && cluster.isPrimary) {
       }
     }
 
-    // METHOD C: NODEMAILER DIRECT GMAIL SSL (Port 465)
+    // METHOD C: GMAIL SMTP PORT 587 (STARTTLS - Primary standard submission)
     try {
-      const mailOptions = {
-        from: `"UG Campus Portfolio" <${emailUser}>`,
-        to: toEmail,
-        subject: subject,
-        html: emailHtml
-      };
-      const info = await transporter.sendMail(mailOptions);
-      console.log(`[EMAIL DISPATCHED] To: ${toEmail} [Message ID: ${info.messageId}]`);
-      return { success: true, provider: 'gmail_ssl', messageId: info.messageId };
-    } catch (err) {
-      console.warn(`[EMAIL NOTICE] Could not deliver via Gmail SSL (Port 465): ${err.message}`);
-      return { success: false, error: err.message, otpCode };
+      const info = await transporter587.sendMail(mailOptions);
+      console.log(`[EMAIL DISPATCHED via Port 587] To: ${toEmail} [Message ID: ${info.messageId}]`);
+      return { success: true, provider: 'gmail_587', messageId: info.messageId };
+    } catch (err587) {
+      console.warn(`[EMAIL NOTICE] Port 587 failed (${err587.message}). Trying Port 465...`);
+    }
+
+    // METHOD D: GMAIL SMTP PORT 465 (Direct SSL - Fallback)
+    try {
+      const info = await transporter465.sendMail(mailOptions);
+      console.log(`[EMAIL DISPATCHED via Port 465] To: ${toEmail} [Message ID: ${info.messageId}]`);
+      return { success: true, provider: 'gmail_465', messageId: info.messageId };
+    } catch (err465) {
+      console.error(`[EMAIL ERROR] Both Port 587 and 465 failed: ${err465.message}`);
+      return { success: false, error: err465.message };
     }
   }
 
@@ -781,20 +804,15 @@ if (isClusterMode && cluster.isPrimary) {
       const emailResult = await sendEmailOtp(normalizedEmail, name, otp, 'verification');
 
       if (!emailResult.success) {
-        // Cloud SMTP timed out on Render
-        res.json({
-          success: true,
-          delivered: false,
-          demoOtp: otp,
-          message: `Verification code generated! Cloud host SMTP timed out on Render. Use instant code: ${otp}`
-        });
-      } else {
-        res.json({
-          success: true,
-          delivered: true,
-          message: `Verification code sent to ${normalizedEmail}! Please check your email inbox.`
+        return res.status(500).json({
+          error: `Unable to deliver verification email to ${normalizedEmail}. Please check that the email address is correct or try again in a few moments.`
         });
       }
+
+      res.json({
+        success: true,
+        message: `Verification code sent to ${normalizedEmail}! Please check your email inbox.`
+      });
     } catch (err) {
       console.error('[SIGNUP ERROR]', err);
       res.status(500).json({ error: 'Server error during signup: ' + err.message });
@@ -913,19 +931,15 @@ if (isClusterMode && cluster.isPrimary) {
 
     const emailResult = await sendEmailOtp(normalizedEmail, (pending.pendingUser && pending.pendingUser.name) || 'Student', newOtp, pending.purpose);
     if (!emailResult.success) {
-      res.json({
-        success: true,
-        delivered: false,
-        demoOtp: newOtp,
-        message: `New verification code generated! Cloud host SMTP timed out on Render. Use instant code: ${newOtp}`
-      });
-    } else {
-      res.json({
-        success: true,
-        delivered: true,
-        message: `A new verification code was sent to ${normalizedEmail}.`
+      return res.status(500).json({
+        error: `Unable to deliver verification email to ${normalizedEmail}. Please check that the email address is correct or try again in a few moments.`
       });
     }
+
+    res.json({
+      success: true,
+      message: `A new verification code was sent to ${normalizedEmail}. Please check your email inbox.`
+    });
   });
 
   // Sign In (Protected by Banking WAF: Anti-ATO & Anti-Session Hijacking)
@@ -1058,19 +1072,15 @@ if (isClusterMode && cluster.isPrimary) {
 
       const emailResult = await sendEmailOtp(normalizedEmail, user.name, otp, 'forgot_password');
       if (!emailResult.success) {
-        res.json({
-          success: true,
-          delivered: false,
-          demoOtp: otp,
-          message: `Password reset code generated! Cloud host SMTP timed out on Render. Use instant code: ${otp}`
-        });
-      } else {
-        res.json({
-          success: true,
-          delivered: true,
-          message: `Password reset code sent to ${normalizedEmail}. Check your email inbox!`
+        return res.status(500).json({
+          error: `Unable to deliver password reset email to ${normalizedEmail}. Please check that the email address is correct or try again in a few moments.`
         });
       }
+
+      res.json({
+        success: true,
+        message: `Password reset code sent to ${normalizedEmail}. Check your email inbox!`
+      });
     } catch (err) {
       console.error('[FORGOT PASSWORD ERROR]', err);
       res.status(500).json({ error: 'Server error: ' + err.message });
