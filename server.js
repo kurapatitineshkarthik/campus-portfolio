@@ -13,6 +13,8 @@
 
 const cluster = require('cluster');
 const os = require('os');
+const http = require('http');
+const https = require('https');
 const express = require('express');
 const nodemailer = require('nodemailer');
 const cors = require('cors');
@@ -273,6 +275,63 @@ if (isClusterMode && cluster.isPrimary) {
     } while (users.some(u => u.username && u.username.toLowerCase() === username.toLowerCase()) && attempts < 100);
 
     return username;
+  }
+
+  // Asynchronously stream student registration/update events to Google Sheet
+  function streamToGoogleSheet(eventData) {
+    const webhookUrl = process.env.GOOGLE_SHEET_WEBHOOK_URL;
+    if (!webhookUrl || typeof webhookUrl !== 'string' || webhookUrl.trim() === '') {
+      return;
+    }
+
+    const payload = JSON.stringify({
+      timestamp: new Date().toISOString(),
+      event: eventData?.event || 'unknown',
+      student: eventData?.student ? {
+        name: eventData.student.name || '',
+        email: eventData.student.email || '',
+        username: eventData.student.username || '',
+        course: eventData.student.course || '',
+        year: eventData.student.year || '',
+        branch: eventData.student.branch || '',
+        college: eventData.student.college || '',
+        skills: Array.isArray(eventData.student.skills) ? eventData.student.skills.join(', ') : (eventData.student.skills || ''),
+        projectsCount: Array.isArray(eventData.student.projects) ? eventData.student.projects.length : 0,
+        profileUrl: `https://tinesh.in/portfolio.html?username=${encodeURIComponent(eventData.student.username || '')}`
+      } : null
+    });
+
+    try {
+      if (typeof fetch === 'function') {
+        fetch(webhookUrl.trim(), {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: payload
+        }).catch(err => {
+          console.warn('⚠️ [GOOGLE SHEET SYNC] Webhook dispatch warning:', err.message);
+        });
+      } else {
+        const parsedUrl = new URL(webhookUrl.trim());
+        const isHttps = parsedUrl.protocol === 'https:';
+        const client = isHttps ? https : http;
+        const req = client.request({
+          hostname: parsedUrl.hostname,
+          port: parsedUrl.port || (isHttps ? 443 : 80),
+          path: parsedUrl.pathname + parsedUrl.search,
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Content-Length': Buffer.byteLength(payload)
+          },
+          timeout: 5000
+        }, () => {});
+        req.on('error', (err) => console.warn('⚠️ [GOOGLE SHEET SYNC] Webhook error:', err.message));
+        req.write(payload);
+        req.end();
+      }
+    } catch (err) {
+      console.warn('⚠️ [GOOGLE SHEET SYNC] Webhook exception:', err.message);
+    }
   }
 
   // Ensure default Admin Account and realistic student accounts exist for seamless testing
@@ -965,6 +1024,9 @@ if (isClusterMode && cluster.isPrimary) {
 
       console.log(`[USER REGISTERED] ${newUser.name} (@${newUser.username}) - ${newUser.course} (${newUser.year})`);
 
+      // Stream new registration to Google Sheet (non-blocking)
+      streamToGoogleSheet({ event: 'student_registered', student: newUser });
+
       res.json({
         success: true,
         token,
@@ -1268,6 +1330,9 @@ if (isClusterMode && cluster.isPrimary) {
       backupDaemon.createSnapshot('student_profile_update');
       console.log(`[PROFILE UPDATED] ${users[index].name} (${users[index].course} - ${users[index].year})`);
 
+      // Stream profile update to Google Sheet (non-blocking)
+      streamToGoogleSheet({ event: 'profile_updated', student: users[index] });
+
       const { passwordHash, ...safeUser } = users[index];
       safeUser.isAdmin = (safeUser.email.toLowerCase() === ADMIN_EMAIL);
       res.json({ success: true, message: 'Profile updated successfully!', user: safeUser });
@@ -1472,6 +1537,31 @@ if (isClusterMode && cluster.isPrimary) {
     });
   });
 
+  // WAF Admin: Export Incremental Clean Data (WhatsApp style delta sync)
+  app.get('/api/admin/export-incremental', (req, res, next) => {
+    const syncKey = req.headers['x-admin-sync-key'];
+    const expectedKey = process.env.ADMIN_SYNC_KEY || 'campus_sync_key_2026_tinesh';
+    const sinceParam = req.query.since || 0;
+
+    const handleExport = () => {
+      const deltaData = backupDaemon.exportIncrementalData(sinceParam);
+      res.setHeader('Content-Type', 'application/json');
+      return res.json(deltaData);
+    };
+
+    if (syncKey && syncKey === expectedKey) {
+      return handleExport();
+    }
+
+    // Otherwise require authenticated admin session
+    authenticateToken(req, res, () => {
+      if (req.user.email.toLowerCase() !== ADMIN_EMAIL) {
+        return res.status(403).json({ error: 'Admin access denied' });
+      }
+      handleExport();
+    });
+  });
+
   // WAF Admin: List Encrypted Backup Snapshots
   app.get('/api/admin/backup-list', authenticateToken, (req, res) => {
     if (req.user.email.toLowerCase() !== ADMIN_EMAIL) {
@@ -1499,6 +1589,42 @@ if (isClusterMode && cluster.isPrimary) {
       waf.liftLockdown();
     }
     res.json(result);
+  });
+
+  // WAF Admin: Push & Restore Data from Laptop (Supports X-Admin-Sync-Key & Admin JWT)
+  app.post('/api/admin/restore-data', express.json({ limit: '20mb' }), (req, res) => {
+    const syncKey = req.headers['x-admin-sync-key'];
+    const expectedKey = process.env.ADMIN_SYNC_KEY || 'campus_sync_key_2026_tinesh';
+
+    const handleRestore = () => {
+      const incomingUsers = req.body.users || req.body;
+      if (!Array.isArray(incomingUsers) || incomingUsers.length === 0) {
+        return res.status(400).json({ error: 'Invalid payload: expected non-empty users array.' });
+      }
+
+      saveUsers(incomingUsers);
+      backupDaemon.createSnapshot('laptop_remote_restore');
+      waf.liftLockdown();
+
+      console.log(`✅ [REMOTE RESTORE] Successfully restored ${incomingUsers.length} student records from Laptop.`);
+      return res.json({
+        success: true,
+        message: `Successfully restored ${incomingUsers.length} student records to server!`,
+        studentCount: incomingUsers.length,
+        timestamp: new Date().toISOString()
+      });
+    };
+
+    if (syncKey && syncKey === expectedKey) {
+      return handleRestore();
+    }
+
+    authenticateToken(req, res, () => {
+      if (req.user.email.toLowerCase() !== ADMIN_EMAIL) {
+        return res.status(403).json({ error: 'Admin access denied' });
+      }
+      handleRestore();
+    });
   });
 
   // WAF Admin: Get Laptop Vault Status

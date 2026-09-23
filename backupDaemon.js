@@ -22,8 +22,15 @@ const BACKUP_DIR = path.join(DATA_DIR, 'backups');
 const USERS_FILE = path.join(DATA_DIR, 'users.json');
 const OTPS_FILE = path.join(DATA_DIR, 'otps.json');
 
-// Dedicated Laptop Vault Directory (Outside web root, on user's machine)
-const LAPTOP_VAULT_DIR = path.join(os.homedir(), 'Documents', 'Campus_Emergency_Vault');
+// Dedicated Laptop Vault Directory (Outside web root, on user's machine, detects OneDrive)
+function resolveVaultDir() {
+  const oneDriveDocs = path.join(os.homedir(), 'OneDrive', 'Documents');
+  if (fs.existsSync(oneDriveDocs)) {
+    return path.join(oneDriveDocs, 'Campus_Emergency_Vault');
+  }
+  return path.join(os.homedir(), 'Documents', 'Campus_Emergency_Vault');
+}
+const LAPTOP_VAULT_DIR = resolveVaultDir();
 
 // Ensure directories exist
 if (!fs.existsSync(BACKUP_DIR)) {
@@ -201,6 +208,32 @@ function exportCleanData() {
 }
 
 /**
+ * Export only new or modified student records since a given timestamp (WhatsApp style incremental sync)
+ */
+function exportIncrementalData(sinceTimestamp = 0) {
+  const full = exportCleanData();
+  const sinceTime = typeof sinceTimestamp === 'string'
+    ? (isNaN(Number(sinceTimestamp)) ? new Date(sinceTimestamp).getTime() : Number(sinceTimestamp))
+    : (Number(sinceTimestamp) || 0);
+
+  const validSince = isNaN(sinceTime) ? 0 : sinceTime;
+
+  const records = full.users.filter(u => {
+    if (!u) return false;
+    const t = new Date(u.updatedAt || u.createdAt || 0).getTime();
+    return isNaN(t) ? true : t > validSince;
+  });
+
+  return {
+    exportedAt: new Date().toISOString(),
+    since: validSince,
+    newRecordsCount: records.length,
+    totalRecordsCount: full.totalStudents,
+    records
+  };
+}
+
+/**
  * Restore database from an encrypted snapshot
  */
 function restoreSnapshot(filename) {
@@ -366,31 +399,40 @@ function restoreFromVault() {
       throw new Error(`Laptop Vault directory ${LAPTOP_VAULT_DIR} does not exist.`);
     }
 
-    const files = fs.readdirSync(LAPTOP_VAULT_DIR)
-      .filter(f => f.startsWith('EMERGENCY_VAULT_users_') && f.endsWith('.json'))
-      .sort();
+    const masterPath = path.join(LAPTOP_VAULT_DIR, 'master_students.json');
+    let sourceFile = 'master_students.json';
+    let users = [];
 
-    if (files.length === 0) {
-      throw new Error('No emergency vault snapshots found in Laptop Vault.');
+    if (fs.existsSync(masterPath)) {
+      const raw = fs.readFileSync(masterPath, 'utf8');
+      users = JSON.parse(raw);
+    } else {
+      const files = fs.readdirSync(LAPTOP_VAULT_DIR)
+        .filter(f => f.startsWith('EMERGENCY_VAULT_users_') && f.endsWith('.json'))
+        .sort();
+
+      if (files.length === 0) {
+        throw new Error('No emergency vault snapshots or master_students.json found in Laptop Vault.');
+      }
+
+      sourceFile = files[files.length - 1];
+      const fullPath = path.join(LAPTOP_VAULT_DIR, sourceFile);
+      const raw = fs.readFileSync(fullPath, 'utf8');
+      users = JSON.parse(raw);
     }
-
-    const latestFile = files[files.length - 1];
-    const fullPath = path.join(LAPTOP_VAULT_DIR, latestFile);
-    const raw = fs.readFileSync(fullPath, 'utf8');
-    const users = JSON.parse(raw);
 
     if (!Array.isArray(users)) {
       throw new Error('Vault snapshot corrupted: expected JSON array of users.');
     }
 
     fs.writeFileSync(USERS_FILE, JSON.stringify(users, null, 2), 'utf8');
-    console.log(`✅ [LAPTOP VAULT RESTORE] Successfully restored ${users.length} student records from ${latestFile}`);
+    console.log(`✅ [LAPTOP VAULT RESTORE] Successfully restored ${users.length} student records from ${sourceFile}`);
 
     return {
       success: true,
-      message: `Database successfully restored from ${latestFile}`,
+      message: `Database successfully restored from ${sourceFile}`,
       studentCount: users.length,
-      sourceFile: latestFile
+      sourceFile
     };
   } catch (err) {
     console.error('❌ [LAPTOP VAULT RESTORE ERROR]', err);
@@ -421,6 +463,7 @@ module.exports = {
   createSnapshot,
   listSnapshots,
   exportCleanData,
+  exportIncrementalData,
   restoreSnapshot,
   startSchedule,
   executeAutomatedEvacuation,
