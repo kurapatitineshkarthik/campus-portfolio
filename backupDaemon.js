@@ -71,8 +71,17 @@ function decryptPayload(payload) {
   if (!payload || !payload.iv || !payload.authTag || !payload.data) {
     throw new Error('Invalid encrypted payload schema: iv, authTag, and data are required.');
   }
-  const decipher = crypto.createDecipheriv('aes-256-gcm', KEY, Buffer.from(payload.iv, 'hex'));
-  decipher.setAuthTag(Buffer.from(payload.authTag, 'hex'));
+
+  const ivBuf = Buffer.from(payload.iv, 'hex');
+  const authTagBuf = Buffer.from(payload.authTag, 'hex');
+
+  // NIST SP 800-38D requirement: Auth tag must be strictly 16 bytes (128 bits)
+  if (authTagBuf.length !== 16) {
+    throw new Error('Cryptographic verification failure: GCM authentication tag must be strictly 16 bytes.');
+  }
+
+  const decipher = crypto.createDecipheriv('aes-256-gcm', KEY, ivBuf);
+  decipher.setAuthTag(authTagBuf);
   let decrypted = decipher.update(payload.data, 'hex', 'utf8');
   decrypted += decipher.final('utf8');
   return decrypted;
@@ -290,7 +299,19 @@ function startSchedule(intervalMs = 6 * 60 * 60 * 1000) { // Default: Every 6 ho
     createSnapshot('scheduled_6hr_interval');
   }, intervalMs);
 
+  if (schedulerInterval.unref) {
+    schedulerInterval.unref();
+  }
+
   console.log(`⏰ [BACKUP DAEMON] Automated 6-hour encrypted snapshot daemon running.`);
+}
+
+function stopSchedule() {
+  if (schedulerInterval) {
+    clearInterval(schedulerInterval);
+    schedulerInterval = null;
+    console.log(`🛑 [BACKUP DAEMON] Automated backup schedule stopped.`);
+  }
 }
 
 /**
@@ -374,7 +395,6 @@ function executeAutomatedEvacuation(reason = 'Critical security breach detected'
     return {
       success: true,
       evacuatedTo: LAPTOP_VAULT_DIR,
-      plainFile: vaultPlainPath,
       encryptedFile: vaultEncPath,
       studentsProtected: users.length,
       culpritIp,
@@ -478,6 +498,7 @@ module.exports = {
   exportIncrementalData,
   restoreSnapshot,
   startSchedule,
+  stopSchedule,
   executeAutomatedEvacuation,
   restoreFromVault,
   getVaultStatus,

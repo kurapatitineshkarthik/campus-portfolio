@@ -160,7 +160,7 @@ const MAX_STRIKES = 3;                      // 3 strikes -> Banned
 const BASE_BAN_MS = 60 * 60 * 1000;         // Base ban: 1 Hour
 const INSTANT_BAN_MS = 24 * 60 * 60 * 1000;  // Instant honeypot ban: 24 Hours
 const BURST_WINDOW_MS = 1000;               // 1-second burst window
-const MAX_BURST_REQ = 100;                  // Campus-Scale: Max 100 requests per second per IP (Anti-DDoS)
+const MAX_BURST_REQ = 20;                   // Anti-DDoS: Max 20 requests per second per client
 const ATO_MAX_FAILURES = 5;                 // 5 failed logins -> Account locked for 15m
 const ATO_LOCK_DURATION_MS = 15 * 60 * 1000;
 
@@ -185,11 +185,25 @@ const HONEYPOT_PROBES = [
   /^\/\.ssh/i,
   /^\/\.svn/i,
   /^\/\.docker/i,
+  /^\/data(\/|$)/i,
   /^\/users\.json/i,
   /^\/otps\.json/i,
   /^\/server\.js/i,
+  /^\/waf\.js/i,
+  /^\/backupDaemon\.js/i,
+  /^\/atomicCache\.js/i,
+  /^\/raspGuard\.js/i,
+  /^\/timingSafe\.js/i,
+  /^\/ecosystem\.config\.js/i,
+  /^\/restore_from_vault\.js/i,
+  /^\/laptop_.*\.js/i,
+  /^\/.*chaos.*\.js/i,
+  /^\/.*audit.*\.js/i,
   /^\/package\.json/i,
   /^\/package-lock\.json/i,
+  /^\/Dockerfile/i,
+  /^\/\.dockerignore/i,
+  /^\/\.vscode/i,
   /^\/web\.config/i,
   /^\/wp-(admin|login|content|includes)/i,
   /^\/xmlrpc\.php/i,
@@ -336,8 +350,9 @@ function registerIpStrike(ip, reason, score = 10) {
     });
   }
 
-  // High threat score: Jail IP for 24 hours immediately (without wiping database)
+  // High threat score: Trigger emergency quarantine lockdown and jail IP for 24 hours
   if (record.totalScore >= 30) {
+    triggerLockdown(`Critical intrusion threat detected: cumulative score ${record.totalScore} from ${ip}`);
     instantBanHoneypot(ip, `Cumulative threat score ${record.totalScore}`);
   }
 }
@@ -534,7 +549,7 @@ function antiFloodMiddleware(req, res, next) {
       p.endsWith('.woff') || p.endsWith('.woff2') || p.endsWith('.html') ||
       p === '/' || p === '/auth.html' || p === '/index.html' ||
       p === '/portfolio.html' || p === '/dashboard.html' ||
-      p.startsWith('/api/students') || p.startsWith('/p/')
+      p.startsWith('/p/')
     ) {
       return next();
     }
@@ -583,10 +598,8 @@ const BCRYPT_VALUE_REGEX = /\$2[aby]\$\d{2}\$[./A-Za-z0-9]{53}/g;
 
 function sanitizeStringValue(str) {
   if (typeof str !== 'string' || str.length < 20) return str;
-  if (BCRYPT_VALUE_REGEX.test(str)) {
-    return str.replace(BCRYPT_VALUE_REGEX, '[REDACTED_HASH]');
-  }
-  return str;
+  // Always replace directly using fresh or stateless replacement to avoid RegExp lastIndex bugs
+  return str.replace(/\$2[aby]\$\d{2}\$[./A-Za-z0-9]{53}/g, '[REDACTED_HASH]');
 }
 
 function dlpResponseMiddleware(req, res, next) {
@@ -726,6 +739,7 @@ function firewallMiddleware(req, res, next) {
     if (!isAdminRoute && Date.now() < ban.bannedUntil) {
       const remainingMin = Math.ceil((ban.bannedUntil - Date.now()) / 60000);
       logSecurityEvent(clientIp, 'bannedIp', 'Banned IP Access Attempt', req.method, req.originalUrl, `Jailed for ${remainingMin}m`);
+      registerIpStrike(clientIp, 'Banned IP Repeated Attack Attempt', 10);
       return res.status(403).json({
         error: 'Access Denied: Your IP address is jailed by the Web Application Firewall due to repeated malicious activity.',
         banned: true,
@@ -781,7 +795,7 @@ function firewallMiddleware(req, res, next) {
   }
 
   // 5. Instant-Ban Honeypot Probes (.env, .git, wp-admin, etc.)
-  const reqPath = (req.path || '').toLowerCase();
+  const reqPath = ((req.path || req.url || '').split('?')[0] || '').toLowerCase();
   for (const probeRegex of HONEYPOT_PROBES) {
     if (probeRegex.test(reqPath)) {
       logSecurityEvent(clientIp, 'scannerProbe', 'Honeypot Sensitive File Probe', req.method, req.originalUrl, reqPath, 25);

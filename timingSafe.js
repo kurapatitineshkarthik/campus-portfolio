@@ -24,10 +24,13 @@ function timingSafeEqual(a, b) {
     return false;
   }
 
-  const hashA = crypto.createHash('sha256').update(a, 'utf8').digest();
-  const hashB = crypto.createHash('sha256').update(b, 'utf8').digest();
+  // Double-HMAC with an ephemeral random key guarantees constant-time comparison,
+  // prevents length leak, and protects against hash collision side-channels.
+  const ephemeralKey = crypto.randomBytes(32);
+  const hmacA = crypto.createHmac('sha256', ephemeralKey).update(a, 'utf8').digest();
+  const hmacB = crypto.createHmac('sha256', ephemeralKey).update(b, 'utf8').digest();
 
-  return crypto.timingSafeEqual(hashA, hashB);
+  return crypto.timingSafeEqual(hmacA, hmacB);
 }
 
 /**
@@ -48,12 +51,13 @@ function timingSafeSyncKeyVerify(headerKey, expectedKey) {
 
 /**
  * Generates an unpredictable 6-digit verification code using hardware CSPRNG.
+ * Full 1,000,000 combination range (000000 to 999999) with guaranteed 6-digit padding.
  * (RFC 4086 compliant via OpenSSL crypto.randomInt)
  *
  * @returns {string} - 6-digit numeric OTP string
  */
 function generateSecureOtp() {
-  return crypto.randomInt(100000, 1000000).toString();
+  return crypto.randomInt(0, 1000000).toString().padStart(6, '0');
 }
 
 module.exports = {

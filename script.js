@@ -12,6 +12,28 @@ let allStudents = [];
 let activeCourseFilter = 'all';
 let activeYearFilter = 'all';
 
+/**
+ * Universal Frontend XSS Defense Helpers
+ */
+function escapeHtml(str) {
+  if (str === null || str === undefined) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
+function sanitizeUrl(url) {
+  if (!url) return '#';
+  const trimmed = String(url).trim();
+  if (/^(https?:\/\/|mailto:)/i.test(trimmed)) {
+    return encodeURI(trimmed);
+  }
+  return '#';
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   initTheme();
   checkAuthStatus();
@@ -248,24 +270,28 @@ function renderStudents(customList) {
       ? s.whatILearned.slice(0, 2)
       : ['Coursework fundamentals'];
 
+    const safeId = encodeURIComponent(s.username || s.id || '');
+    const safeName = escapeHtml(s.name || 'Student');
+    const safeTagline = escapeHtml(s.tagline || ((s.course || 'UG') + ' ' + (s.year || '') + ' student at ' + (s.college || 'College')));
+
     return `
       <article class="project-card card glass-card" style="padding: 24px; display: flex; flex-direction: column;">
         
         <!-- Student Header -->
         <div style="display: flex; gap: 16px; align-items: center; margin-bottom: 18px;">
           <div style="width: 60px; height: 60px; border-radius: 50%; overflow: hidden; border: 2px solid var(--accent); flex-shrink: 0; box-shadow: 0 0 12px var(--accent-glow);">
-            <img src="${s.avatarUrl || 'https://api.dicebear.com/7.x/bottts/svg?seed=' + encodeURIComponent(s.name)}" alt="${s.name}" style="width: 100%; height: 100%; object-fit: cover; pointer-events: none;">
+            <img src="${s.avatarUrl || 'https://api.dicebear.com/7.x/bottts/svg?seed=' + encodeURIComponent(s.name || 'Student')}" alt="${safeName}" style="width: 100%; height: 100%; object-fit: cover; pointer-events: none;">
           </div>
           <div>
-            <h3 style="font-size: 1.2rem; font-weight: 700; margin-bottom: 4px;">${s.name}</h3>
+            <h3 style="font-size: 1.2rem; font-weight: 700; margin-bottom: 4px;">${safeName}</h3>
             <span style="font-size: 0.78rem; font-weight: 700; padding: 4px 10px; border-radius: var(--radius-full); background: ${yearColor.bg}; color: ${yearColor.text}; border: 1px solid ${yearColor.border};">
-              ${s.course || 'UG'} &bull; ${s.year || '1st Year'} ${s.branch ? '(' + s.branch + ')' : ''}
+              ${escapeHtml(s.course || 'UG')} &bull; ${escapeHtml(s.year || '1st Year')} ${s.branch ? '(' + escapeHtml(s.branch) + ')' : ''}
             </span>
           </div>
         </div>
 
         <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 16px; line-height: 1.5; flex-grow: 1;">
-          ${s.tagline || ((s.course || 'UG') + ' ' + (s.year || '') + ' student at ' + (s.college || 'College'))}
+          ${safeTagline}
         </p>
 
         <!-- What I Learned Highlights -->
@@ -274,13 +300,13 @@ function renderStudents(customList) {
             <i class="fas fa-book-open"></i> What I Learned:
           </div>
           <ul style="list-style: none; padding-left: 0; margin: 0; font-size: 0.85rem; color: var(--text-secondary);">
-            ${learnedPreview.map(l => `<li style="margin-bottom: 4px; display: flex; align-items: baseline; gap: 6px;"><span style="color: var(--accent);">&bull;</span> <span>${l}</span></li>`).join('')}
+            ${learnedPreview.map(l => `<li style="margin-bottom: 4px; display: flex; align-items: baseline; gap: 6px;"><span style="color: var(--accent);">&bull;</span> <span>${escapeHtml(l)}</span></li>`).join('')}
           </ul>
         </div>
 
         <!-- Skills Tags -->
         <div class="project-tags" style="margin-bottom: 20px;">
-          ${(s.skills || []).slice(0, 4).map(skill => `<span class="project-tag">${skill}</span>`).join('')}
+          ${(s.skills || []).slice(0, 4).map(skill => `<span class="project-tag">${escapeHtml(skill)}</span>`).join('')}
           ${(s.skills || []).length > 4 ? `<span class="project-tag">+${s.skills.length - 4}</span>` : ''}
         </div>
 
@@ -290,10 +316,10 @@ function renderStudents(customList) {
             <span>View Full Portfolio</span>
             <i class="fas fa-arrow-right"></i>
           </button>
-          <a href="/p/${s.username || s.id || ''}" target="_blank" class="btn btn-secondary" style="padding: 0 14px;" title="Open in dedicated page">
+          <a href="/p/${safeId}" target="_blank" class="btn btn-secondary" style="padding: 0 14px;" title="Open in dedicated page">
             <i class="fas fa-external-link-alt"></i>
           </a>
-          <button type="button" onclick="copyStudentUrl('${s.username || s.id || ''}', this)" class="btn btn-secondary" style="padding: 0 14px;" title="Copy direct portfolio link">
+          <button type="button" onclick="copyStudentUrl('${safeId}', this)" class="btn btn-secondary" style="padding: 0 14px;" title="Copy direct portfolio link">
             <i class="fas fa-share-nodes"></i>
           </button>
         </div>
@@ -690,35 +716,42 @@ function openStudentModal(studentIdentifier) {
   if (!modal || !body) return;
   const yearColor = getYearColor(student.year);
 
-  body.innerHTML = `
+    const safeId = encodeURIComponent(student.username || student.id || '');
+    const safeName = escapeHtml(student.name || 'Student');
+    const safeUser = escapeHtml(student.username || student.id || '');
+    const safeTagline = escapeHtml(student.tagline || '');
+    const safeCollege = escapeHtml(student.college || 'College');
+    const safeBio = escapeHtml(student.bio || 'Undergraduate student.');
+
+    body.innerHTML = `
     <!-- Modal Student Header -->
     <div style="display: flex; gap: 24px; align-items: center; flex-wrap: wrap; margin-bottom: 28px; padding-bottom: 24px; border-bottom: 1px solid var(--border-color);">
       <div style="width: 90px; height: 90px; border-radius: 50%; overflow: hidden; border: 3px solid var(--accent); box-shadow: 0 0 20px var(--accent-glow);">
-        <img src="${student.avatarUrl || 'https://api.dicebear.com/7.x/bottts/svg?seed=' + encodeURIComponent(student.name)}" alt="${student.name}" style="width: 100%; height: 100%; object-fit: cover; pointer-events: none;">
+        <img src="${student.avatarUrl || 'https://api.dicebear.com/7.x/bottts/svg?seed=' + encodeURIComponent(student.name || 'Student')}" alt="${safeName}" style="width: 100%; height: 100%; object-fit: cover; pointer-events: none;">
       </div>
       <div>
         <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 6px;">
-          <h2 style="font-size: 1.8rem; font-weight: 800; margin: 0;">${student.name}</h2>
-          <span style="font-size: 0.85rem; color: var(--accent); font-weight: 600; background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.3); padding: 2px 10px; border-radius: 9999px;">${student.username || student.id}</span>
+          <h2 style="font-size: 1.8rem; font-weight: 800; margin: 0;">${safeName}</h2>
+          <span style="font-size: 0.85rem; color: var(--accent); font-weight: 600; background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.3); padding: 2px 10px; border-radius: 9999px;">${safeUser}</span>
           <span style="font-size: 0.8rem; font-weight: 700; padding: 4px 12px; border-radius: var(--radius-full); background: ${yearColor.bg}; color: ${yearColor.text}; border: 1px solid ${yearColor.border};">
-            ${student.course || 'UG'} &bull; ${student.year || '1st Year'} ${student.branch ? '(' + student.branch + ')' : ''}
+            ${escapeHtml(student.course || 'UG')} &bull; ${escapeHtml(student.year || '1st Year')} ${student.branch ? '(' + escapeHtml(student.branch) + ')' : ''}
           </span>
         </div>
         <p style="color: var(--text-secondary); font-size: 0.95rem; margin-bottom: 10px;">
-          ${student.tagline || ''} &bull; <em>${student.college || 'College'}</em>
+          ${safeTagline} &bull; <em>${safeCollege}</em>
         </p>
 
         <!-- Direct Link & Social Links -->
         <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
-          <a href="/p/${student.username || student.id}" target="_blank" class="btn btn-primary" style="padding: 6px 14px; font-size: 0.85rem;">
+          <a href="/p/${safeId}" target="_blank" class="btn btn-primary" style="padding: 6px 14px; font-size: 0.85rem;">
             <i class="fas fa-external-link-alt"></i> Dedicated Portfolio URL
           </a>
-          <button onclick="copyStudentUrl('${student.username || student.id}', this)" class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.85rem;" title="Copy shareable link">
+          <button onclick="copyStudentUrl('${safeId}', this)" class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.85rem;" title="Copy shareable link">
             <i class="fas fa-share-nodes"></i>
           </button>
-          ${student.socials && student.socials.github ? `<a href="${student.socials.github}" target="_blank" rel="noopener noreferrer" class="social-link" style="width: 36px; height: 36px; font-size: 1rem;"><i class="fab fa-github"></i></a>` : ''}
-          ${student.socials && student.socials.linkedin ? `<a href="${student.socials.linkedin}" target="_blank" rel="noopener noreferrer" class="social-link" style="width: 36px; height: 36px; font-size: 1rem;"><i class="fab fa-linkedin-in"></i></a>` : ''}
-          ${student.email ? `<a href="mailto:${student.email}" class="social-link" style="width: 36px; height: 36px; font-size: 1rem;"><i class="fas fa-envelope"></i></a>` : ''}
+          ${student.socials && student.socials.github ? `<a href="${sanitizeUrl(student.socials.github)}" target="_blank" rel="noopener noreferrer" class="social-link" style="width: 36px; height: 36px; font-size: 1rem;"><i class="fab fa-github"></i></a>` : ''}
+          ${student.socials && student.socials.linkedin ? `<a href="${sanitizeUrl(student.socials.linkedin)}" target="_blank" rel="noopener noreferrer" class="social-link" style="width: 36px; height: 36px; font-size: 1rem;"><i class="fab fa-linkedin-in"></i></a>` : ''}
+          ${student.email ? `<a href="mailto:${encodeURI(student.email)}" class="social-link" style="width: 36px; height: 36px; font-size: 1rem;"><i class="fas fa-envelope"></i></a>` : ''}
         </div>
       </div>
     </div>
@@ -734,14 +767,14 @@ function openStudentModal(studentIdentifier) {
     <!-- WHAT I LEARNED SECTION -->
     <div style="margin-bottom: 32px; background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 20px;">
       <h3 style="font-size: 1.15rem; margin-bottom: 12px; color: var(--text-primary); display: flex; align-items: center; gap: 8px;">
-        <i class="fas fa-book-open logo-accent"></i> What I Learned (${student.course || 'UG'} &bull; ${student.year || '1st Year'})
+        <i class="fas fa-book-open logo-accent"></i> What I Learned (${escapeHtml(student.course || 'UG')} &bull; ${escapeHtml(student.year || '1st Year')})
       </h3>
       <ul style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 8px;">
         ${(student.whatILearned && student.whatILearned.length > 0)
           ? student.whatILearned.map(l => `
             <li style="display: flex; align-items: baseline; gap: 10px; color: var(--text-secondary); font-size: 0.95rem;">
               <i class="fas fa-check-circle" style="color: var(--accent); font-size: 0.85rem;"></i>
-              <span>${l}</span>
+              <span>${escapeHtml(l)}</span>
             </li>
           `).join('')
           : '<li style="color: var(--text-muted); font-size: 0.9rem;">No learning points documented yet.</li>'
@@ -760,19 +793,19 @@ function openStudentModal(studentIdentifier) {
           ? student.projects.map(p => `
             <div style="background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 20px;">
               <div style="display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 8px; margin-bottom: 8px;">
-                <h4 style="font-size: 1.15rem; font-weight: 700; margin: 0;">${p.title}</h4>
+                <h4 style="font-size: 1.15rem; font-weight: 700; margin: 0;">${escapeHtml(p.title || 'Project')}</h4>
                 <span style="font-size: 0.75rem; font-weight: 600; padding: 3px 10px; border-radius: var(--radius-full); background: var(--badge-bg); color: var(--badge-text);">
-                  ${p.category || 'Project'}
+                  ${escapeHtml(p.category || 'Project')}
                 </span>
               </div>
               <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 16px; line-height: 1.5;">
-                ${p.description || ''}
+                ${escapeHtml(p.description || '')}
               </p>
 
               <!-- Action Links (Google Docs, GitHub, Live Demo) -->
               <div style="display: flex; flex-wrap: wrap; gap: 10px; align-items: center;">
                 ${p.googleDocsUrl ? `
-                  <a href="${p.googleDocsUrl}" target="_blank" rel="noopener noreferrer" class="btn docs-btn" style="padding: 7px 16px; font-size: 0.85rem;">
+                  <a href="${sanitizeUrl(p.googleDocsUrl)}" target="_blank" rel="noopener noreferrer" class="btn docs-btn" style="padding: 7px 16px; font-size: 0.85rem;">
                     <i class="fas fa-file-alt"></i>
                     <span>Project Report (Google Docs)</span>
                     <i class="fas fa-external-link-alt" style="font-size: 0.75rem;"></i>
@@ -780,14 +813,14 @@ function openStudentModal(studentIdentifier) {
                 ` : ''}
 
                 ${p.githubUrl ? `
-                  <a href="${p.githubUrl}" target="_blank" rel="noopener noreferrer" class="btn btn-secondary" style="padding: 7px 16px; font-size: 0.85rem;">
+                  <a href="${sanitizeUrl(p.githubUrl)}" target="_blank" rel="noopener noreferrer" class="btn btn-secondary" style="padding: 7px 16px; font-size: 0.85rem;">
                     <i class="fab fa-github"></i>
                     <span>GitHub</span>
                   </a>
                 ` : ''}
 
                 ${p.liveUrl ? `
-                  <a href="${p.liveUrl}" target="_blank" rel="noopener noreferrer" class="btn btn-ghost" style="padding: 7px 16px; font-size: 0.85rem;">
+                  <a href="${sanitizeUrl(p.liveUrl)}" target="_blank" rel="noopener noreferrer" class="btn btn-ghost" style="padding: 7px 16px; font-size: 0.85rem;">
                     <i class="fas fa-globe"></i>
                     <span>Live Demo</span>
                   </a>
@@ -804,7 +837,7 @@ function openStudentModal(studentIdentifier) {
     <div>
       <h3 style="font-size: 1.15rem; margin-bottom: 12px; color: var(--text-primary);"><i class="fas fa-code logo-accent"></i> Skills</h3>
       <div style="display: flex; flex-wrap: wrap; gap: 8px;">
-        ${(student.skills || []).map(skill => `<span class="project-tag" style="font-size: 0.85rem; padding: 6px 14px;">${skill}</span>`).join('')}
+        ${(student.skills || []).map(skill => `<span class="project-tag" style="font-size: 0.85rem; padding: 6px 14px;">${escapeHtml(skill)}</span>`).join('')}
       </div>
     </div>
   `;

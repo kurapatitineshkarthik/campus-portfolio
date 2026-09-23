@@ -248,8 +248,8 @@
           <input type="text" id="regCollege" placeholder="e.g. City College of Arts & Science">
         </div>
 
-        <!-- Anti-Bot Honeypot Trap (Invisible to humans, filled by bots) -->
-        <input type="text" id="regHpTrap" name="hp_company_trap" style="position: absolute; left: -9999px; opacity: 0; pointer-events: none;" tabindex="-1" autocomplete="off">
+        <!-- Anti-Bot Honeypot Trap (Invisible to humans & screen readers, filled by bots) -->
+        <input type="text" id="regHpTrap" name="hp_company_trap" style="position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); border: 0;" tabindex="-1" aria-hidden="true" autocomplete="off">
 
         <button type="submit" class="btn btn-primary submit-btn" id="signUpBtn" style="width: 100%; margin-top: 10px;">
           <span>Send Verification OTP</span>
@@ -272,8 +272,8 @@
           <span class="forgot-link" onclick="openForgotModal()">Forgot Password?</span>
         </div>
 
-        <!-- Anti-Bot Honeypot Trap (Invisible to humans, filled by bots) -->
-        <input type="text" id="loginHpTrap" name="hp_company_trap" style="position: absolute; left: -9999px; opacity: 0; pointer-events: none;" tabindex="-1" autocomplete="off">
+        <!-- Anti-Bot Honeypot Trap (Invisible to humans & screen readers, filled by bots) -->
+        <input type="text" id="loginHpTrap" name="hp_company_trap" style="position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); border: 0;" tabindex="-1" aria-hidden="true" autocomplete="off">
 
         <button type="submit" class="btn btn-primary submit-btn" id="signInBtn" style="width: 100%; margin-top: 10px;">
           <span>Sign In to Dashboard</span>

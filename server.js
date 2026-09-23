@@ -124,14 +124,42 @@ if (isClusterMode && cluster.isPrimary) {
   app.use(raspErrorHandler(waf));
   app.use(express.urlencoded({ extended: true, limit: '100kb' }));
 
-  app.use(express.static(__dirname, { maxAge: '1d', etag: true }));
-
   // 2. DATA LOSS PREVENTION (DLP) OUTBOUND RESPONSE SCANNER
   app.use(waf.dlpResponseMiddleware);
 
   // 3. ENTERPRISE WAF & ANTI-FLOOD ACTIVE SHIELD
   app.use(waf.antiFloodMiddleware);
   app.use(waf.firewallMiddleware);
+
+  // 4. PHYSICAL STATIC ASSET ISOLATION (Dedicated /public Directory)
+  // Physically prevents serving server source code (*.js), data directory (data/*),
+  // environment files (.env), or configuration files under any circumstance.
+  const PUBLIC_DIR = path.join(__dirname, 'public');
+
+  // Explicit honeypot probe blocker for sensitive root filenames
+  const SENSITIVE_PROBES = new Set([
+    '/server.js', '/waf.js', '/atomiccache.js', '/backupdaemon.js',
+    '/raspguard.js', '/timingsafe.js', '/package.json', '/package-lock.json',
+    '/data/users.json', '/data/otps.json', '/.env', '/config.json',
+    '/ecosystem.config.js', '/dockerfile', '/restore_from_vault.js'
+  ]);
+
+  app.use((req, res, next) => {
+    const cleanPath = (req.path || '').toLowerCase().replace(/\\/g, '/');
+    if (SENSITIVE_PROBES.has(cleanPath)) {
+      return res.status(403).json({ error: 'Forbidden: Access to server source code or databases is prohibited.' });
+    }
+    next();
+  });
+
+  // Mount static middleware strictly on the isolated /public directory
+  app.use(express.static(PUBLIC_DIR, {
+    maxAge: '1h',
+    etag: true,
+    lastModified: true,
+    dotfiles: 'ignore',
+    index: ['index.html']
+  }));
 
   // 2. ANTI-BOT & HONEYPOT PROTECTION
   function botProtection(req, res, next) {
@@ -225,6 +253,8 @@ if (isClusterMode && cluster.isPrimary) {
   // =======================================================================
   // 3. DATABASE & OTP HELPERS (Atomic In-Memory Cache: Zero Disk Reads on HTTP)
   // =======================================================================
+  const otpEngine = atomicCache.otpEngine;
+
   function getUsers() {
     return atomicCache.getUsers();
   }
@@ -907,30 +937,23 @@ if (isClusterMode && cluster.isPrimary) {
         return res.status(400).json({ error: 'An account with this email already exists. Please sign in.' });
       }
 
-      const otp = generateSecureOtp();
-      const expiresAt = Date.now() + 10 * 60 * 1000;
-
       const salt = await bcrypt.genSalt(10);
       const passwordHash = await bcrypt.hash(password, salt);
 
-      const otps = getOtps();
-      otps[normalizedEmail] = {
-        otp,
-        expiresAt,
-        purpose: 'signup',
-        pendingUser: {
-          id: 'student-' + Date.now(),
-          name: sanitizeString(name),
-          email: normalizedEmail,
-          passwordHash,
-          course: course || 'B.Tech',
-          year,
-          branch: branch ? sanitizeString(branch) : 'General',
-          college: college ? sanitizeString(college) : 'Undergraduate College',
-          isVerified: true
-        }
+      const pendingUser = {
+        id: 'student-' + Date.now(),
+        name: sanitizeString(name),
+        email: normalizedEmail,
+        passwordHash,
+        course: course || 'B.Tech',
+        year,
+        branch: branch ? sanitizeString(branch) : 'General',
+        college: college ? sanitizeString(college) : 'Undergraduate College',
+        isVerified: true
       };
-      saveOtps(otps);
+
+      // Create 6-digit OTP with 10-minute validity via in-memory CAS engine
+      const otp = otpEngine.createOtp(normalizedEmail, 'signup', pendingUser, 10 * 60 * 1000);
 
       const emailResult = await sendEmailOtp(normalizedEmail, name, otp, 'verification');
 
@@ -950,51 +973,49 @@ if (isClusterMode && cluster.isPrimary) {
     }
   });
 
-  // Verify OTP & Create Account
+  // Verify OTP & Create Account (Atomic CAS & 5-Attempt Burn Protection)
   app.post('/api/auth/verify-otp', async (req, res) => {
     try {
       const { email, otp } = req.body;
       if (!email || !otp) return res.status(400).json({ error: 'Email and OTP are required' });
 
       const normalizedEmail = email.toLowerCase().trim();
-      const otps = getOtps();
-      const pending = otps[normalizedEmail];
 
-      if (!pending || pending.purpose !== 'signup') {
-        return res.status(400).json({ error: 'No pending verification found for this email. Please sign up again.' });
+      // Atomic verification with instant burn upon success or 5th failure
+      const verifyResult = otpEngine.verifyOtp(normalizedEmail, String(otp).trim(), 'signup');
+      if (!verifyResult.success) {
+        return res.status(400).json({
+          error: verifyResult.message || 'Incorrect verification code. Please try again.',
+          attemptsRemaining: verifyResult.attemptsRemaining
+        });
       }
 
-      if (Date.now() > pending.expiresAt) {
-        delete otps[normalizedEmail];
-        saveOtps(otps);
-        return res.status(400).json({ error: 'Verification code expired. Please request a new code.' });
-      }
-
-      if (!timingSafeOtpVerify(otp.trim(), pending.otp)) {
-        return res.status(400).json({ error: 'Incorrect 6-digit OTP code. Please try again.' });
+      const pendingUser = verifyResult.pendingUser;
+      if (!pendingUser) {
+        return res.status(400).json({ error: 'No pending registration details found. Please sign up again.' });
       }
 
       const users = getUsers();
 
       // Generate unique username in format: fullname@12345
-      const username = generateUniqueUsername(pending.pendingUser.name, users);
+      const username = generateUniqueUsername(pendingUser.name, users);
 
       const newUser = {
-        id: pending.pendingUser.id,
+        id: pendingUser.id,
         username,
-        name: pending.pendingUser.name,
-        email: pending.pendingUser.email,
-        passwordHash: pending.pendingUser.passwordHash,
+        name: pendingUser.name,
+        email: pendingUser.email,
+        passwordHash: pendingUser.passwordHash,
         isVerified: true,
-        course: pending.pendingUser.course,
-        year: pending.pendingUser.year,
-        branch: pending.pendingUser.branch,
-        college: pending.pendingUser.college,
-        tagline: `${pending.pendingUser.year} ${pending.pendingUser.course} (${pending.pendingUser.branch}) Student`,
-        bio: `Hello! I am a ${pending.pendingUser.year} student pursuing ${pending.pendingUser.course} in ${pending.pendingUser.branch}. Welcome to my portfolio!`,
-        avatarUrl: `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(pending.pendingUser.name)}`,
+        course: pendingUser.course,
+        year: pendingUser.year,
+        branch: pendingUser.branch,
+        college: pendingUser.college,
+        tagline: `${pendingUser.year} ${pendingUser.course} (${pendingUser.branch}) Student`,
+        bio: `Hello! I am a ${pendingUser.year} student pursuing ${pendingUser.course} in ${pendingUser.branch}. Welcome to my portfolio!`,
+        avatarUrl: `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(pendingUser.name)}`,
         whatILearned: [
-          `Core coursework in ${pending.pendingUser.course} (${pending.pendingUser.branch})`,
+          `Core coursework in ${pendingUser.course} (${pendingUser.branch})`,
           'Practical applications and project development'
         ],
         skills: ['Problem Solving', 'Analytical Skills', 'Project Work'],
@@ -1002,7 +1023,7 @@ if (isClusterMode && cluster.isPrimary) {
         socials: {
           github: '',
           linkedin: '',
-          email: pending.pendingUser.email
+          email: pendingUser.email
         },
         createdAt: new Date().toISOString()
       };
@@ -1010,9 +1031,6 @@ if (isClusterMode && cluster.isPrimary) {
       const updatedUsers = users.filter(u => u.email.toLowerCase() !== normalizedEmail);
       updatedUsers.push(newUser);
       saveUsers(updatedUsers);
-
-      delete otps[normalizedEmail];
-      saveOtps(otps);
 
       const fingerprint = waf.generateFingerprint(req);
       const token = jwt.sign(
@@ -1051,19 +1069,16 @@ if (isClusterMode && cluster.isPrimary) {
     if (!email) return res.status(400).json({ error: 'Email is required' });
 
     const normalizedEmail = email.toLowerCase().trim();
-    const otps = getOtps();
-    const pending = otps[normalizedEmail];
+    const pending = otpEngine.getPending(normalizedEmail);
 
-    if (!pending) {
-      return res.status(400).json({ error: 'No pending registration found.' });
+    if (!pending || !pending.pendingUser) {
+      return res.status(400).json({ error: 'No pending registration found for this email. Please sign up again.' });
     }
 
-    const newOtp = generateSecureOtp();
-    pending.otp = newOtp;
-    pending.expiresAt = Date.now() + 10 * 60 * 1000;
-    saveOtps(otps);
+    const newOtp = otpEngine.createOtp(normalizedEmail, pending.purpose, pending.pendingUser, 10 * 60 * 1000);
+    const recipientName = (pending.pendingUser && pending.pendingUser.name) || 'Student';
 
-    const emailResult = await sendEmailOtp(normalizedEmail, (pending.pendingUser && pending.pendingUser.name) || 'Student', newOtp, pending.purpose);
+    const emailResult = await sendEmailOtp(normalizedEmail, recipientName, newOtp, pending.purpose);
     if (!emailResult.success) {
       return res.status(500).json({
         error: `Unable to deliver verification email to ${normalizedEmail}. Please check that the email address is correct or try again in a few moments.`
@@ -1186,17 +1201,8 @@ if (isClusterMode && cluster.isPrimary) {
         return res.status(400).json({ error: 'No account found with this email address.' });
       }
 
-      const otp = generateSecureOtp();
-      const expiresAt = Date.now() + 10 * 60 * 1000;
-
-      const otps = getOtps();
-      otps[normalizedEmail] = {
-        otp,
-        expiresAt,
-        purpose: 'forgot_password',
-        userId: user.id
-      };
-      saveOtps(otps);
+      // Create 6-digit password reset OTP with 10-minute validity via in-memory CAS engine
+      const otp = otpEngine.createOtp(normalizedEmail, 'forgot_password', { userId: user.id }, 10 * 60 * 1000);
 
       const emailResult = await sendEmailOtp(normalizedEmail, user.name, otp, 'forgot_password');
       if (!emailResult.success) {
@@ -1215,7 +1221,7 @@ if (isClusterMode && cluster.isPrimary) {
     }
   });
 
-  // Forgot Password: Step 2
+  // Forgot Password: Step 2 (Atomic CAS & 5-Attempt Burn Protection)
   app.post('/api/auth/reset-password', async (req, res) => {
     try {
       const { email, otp, newPassword } = req.body;
@@ -1227,21 +1233,14 @@ if (isClusterMode && cluster.isPrimary) {
       }
 
       const normalizedEmail = email.toLowerCase().trim();
-      const otps = getOtps();
-      const pending = otps[normalizedEmail];
 
-      if (!pending || pending.purpose !== 'forgot_password') {
-        return res.status(400).json({ error: 'No active password reset request found. Please request a new code.' });
-      }
-
-      if (Date.now() > pending.expiresAt) {
-        delete otps[normalizedEmail];
-        saveOtps(otps);
-        return res.status(400).json({ error: 'Password reset code has expired. Please request a new code.' });
-      }
-
-      if (!timingSafeOtpVerify(otp.trim(), pending.otp)) {
-        return res.status(400).json({ error: 'Incorrect 6-digit OTP code. Please try again.' });
+      // Atomic verification with instant burn upon success or 5th failure
+      const verifyResult = otpEngine.verifyOtp(normalizedEmail, String(otp).trim(), 'forgot_password');
+      if (!verifyResult.success) {
+        return res.status(400).json({
+          error: verifyResult.message || 'Incorrect verification code. Please try again.',
+          attemptsRemaining: verifyResult.attemptsRemaining
+        });
       }
 
       const users = getUsers();
@@ -1251,11 +1250,14 @@ if (isClusterMode && cluster.isPrimary) {
       }
 
       const salt = await bcrypt.genSalt(10);
-      users[userIndex].passwordHash = await bcrypt.hash(newPassword, salt);
-      saveUsers(users);
+      const newPasswordHash = await bcrypt.hash(newPassword, salt);
 
-      delete otps[normalizedEmail];
-      saveOtps(otps);
+      // Copy-on-Write update
+      const updatedUser = JSON.parse(JSON.stringify(users[userIndex]));
+      updatedUser.passwordHash = newPasswordHash;
+      const updatedUsers = [...users];
+      updatedUsers[userIndex] = updatedUser;
+      saveUsers(updatedUsers);
 
       waf.clearLoginFailures(normalizedEmail);
 
@@ -1743,17 +1745,19 @@ if (isClusterMode && cluster.isPrimary) {
 
   // Dedicated single-student portfolio URL route (e.g. /p/tinesh-karthik)
   app.get('/p/:slug', (req, res) => {
-    res.sendFile(path.join(__dirname, 'portfolio.html'));
+    res.sendFile(path.join(__dirname, 'public', 'portfolio.html'));
   });
 
   const server = app.listen(PORT, () => {
     console.log(`  -> Worker ${process.pid} listening on port ${PORT}`);
   });
 
-  // Slowloris & Server Overload Protection: Drop hanging / idle sockets
-  server.setTimeout(30000); // 30 seconds max request time
-  server.headersTimeout = 35000;
-  server.keepAliveTimeout = 30000;
+  // Slowloris & Server Overload Protection + Render Cloud Reverse-Proxy Synchronization
+  // keepAliveTimeout (65s) MUST strictly exceed Render/Envoy idle proxy timeout (60s)
+  server.keepAliveTimeout = 65000;   // 65 seconds (> Render 60s idle timeout)
+  server.headersTimeout = 70000;     // 70 seconds (> keepAliveTimeout)
+  server.requestTimeout = 30000;     // 30 seconds
+  server.maxHeadersCount = 100;
 
   // Global Process Lifecycle Handlers (Crash-Proof RASP)
   process.on('unhandledRejection', (reason) => {

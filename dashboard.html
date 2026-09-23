@@ -667,15 +667,30 @@
       }
     }
 
-    async function loadProfile(token) {
+    async function loadProfile(token, retries = 3) {
       try {
         const res = await fetch("/api/student/me", {
           headers: { "Authorization": `Bearer ${token}` }
         });
 
-        if (!res.ok) {
+        // CRITICAL FIX: Only HTTP 401 Unauthorized purges credentials
+        if (res.status === 401) {
+          console.warn("[AUTH] Session expired (HTTP 401). Redirecting to login.");
           localStorage.removeItem("campus_token");
-          window.location.href = "auth.html";
+          sessionStorage.removeItem("campus_token");
+          window.location.href = "auth.html?session_expired=1";
+          return;
+        }
+
+        // On transient gateway blips (502, 503, 504), retry with backoff instead of kicking user out
+        if ([502, 503, 504].includes(res.status) && retries > 0) {
+          console.warn(`[RETRY] Server returned ${res.status}. Retrying in 1.5s (${retries} left)...`);
+          await new Promise(r => setTimeout(r, 1500));
+          return loadProfile(token, retries - 1);
+        }
+
+        if (!res.ok) {
+          console.error("Profile fetch error. HTTP Status:", res.status);
           return;
         }
 
