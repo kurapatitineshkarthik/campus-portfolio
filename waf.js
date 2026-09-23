@@ -20,6 +20,13 @@
 const crypto = require('crypto');
 const backupDaemon = require('./backupDaemon');
 
+// Runtime Application Self-Protection (RASP): Freeze Object.prototype against prototype pollution
+try {
+  Object.freeze(Object.prototype);
+} catch (e) {
+  console.warn('[WAF RASP NOTICE] Unable to freeze Object.prototype:', e.message);
+}
+
 // In-Memory Firewall State
 const ipStrikes = new Map();     // IP -> { strikes: number, lastStrike: number, totalScore: number }
 const ipBans = new Map();        // IP -> { bannedUntil: number, reason: string, level: number }
@@ -92,15 +99,35 @@ const recentHoneypotHits = [];
 const SURGE_WINDOW_MS = 60 * 1000;
 const SURGE_THRESHOLD = 3; // 3 critical honeypots within 60s -> Auto Lockdown
 
-// Helper: Safely resolve client IP with reverse-proxy X-Forwarded-For support
+// Helper: Safely resolve client IP with Cloudflare & reverse-proxy support
 function getClientIp(req) {
-  const xff = req.headers && req.headers['x-forwarded-for'];
-  if (xff) {
+  if (!req || !req.headers) return 'unknown';
+  // Cloudflare header (spoof-proof when proxied via Cloudflare)
+  const cfIp = req.headers['cf-connecting-ip'];
+  if (cfIp && typeof cfIp === 'string') return cfIp.trim();
+
+  // True-Client-IP header
+  const trueClientIp = req.headers['true-client-ip'];
+  if (trueClientIp && typeof trueClientIp === 'string') return trueClientIp.trim();
+
+  // Standard Express req.ip (when app has 'trust proxy' configured)
+  if (req.ip) return req.ip;
+
+  const xff = req.headers['x-forwarded-for'];
+  if (xff && typeof xff === 'string') {
     const ips = xff.split(',');
     return ips[0].trim();
   }
-  if (req.ip) return req.ip;
   return req.connection?.remoteAddress || req.socket?.remoteAddress || 'unknown';
+}
+
+// Helper: Resolve composite client key to prevent campus Wi-Fi NAT collateral bans
+function getCompositeClientKey(req) {
+  if (!req) return 'unknown';
+  const ip = getClientIp(req);
+  const ua = req.headers?.['user-agent'] || '';
+  const clientId = req.headers?.['x-client-id'] || req.headers?.['x-device-fingerprint'] || req.cookies?.['__ug_cid'] || '';
+  return crypto.createHash('sha256').update(`${ip}|${ua}|${clientId}`).digest('hex').substring(0, 32);
 }
 
 // Live Threat Counters (Banking Telemetry)
@@ -178,21 +205,21 @@ const HONEYPOT_PROBES = [
   /\.(bak|backup|old|orig|save|sql|tar|gz|zip|rar|7z|7zip|dump|swp|temp)$/i
 ];
 
-// 4. Advanced Threat Inspection Signatures (DPI Engine)
+// 4. Advanced Threat Inspection Signatures (DPI Engine - ReDoS-Hardened)
 const THREAT_RULES = [
   // SQL Injection (Boolean, Union, Time-based blind, Stacked, Function calls)
   {
     type: 'sqli',
     name: 'SQL Injection',
     score: 10,
-    regex: /(\bunion\s+(all\s+)?select\b|\bselect\s+.*\s+from\b|\binsert\s+into\b|\bdrop\s+(table|database|view)\b|\bupdate\s+.*\s+set\b|\bdelete\s+from\b|\bexec(ute)?\s*\(|\bbenchmark\s*\(\d+|\bsleep\s*\(\d+\)|\bwaitfor\s+delay\b|\bpg_sleep\s*\(|'\s*or\s*'?\d+'?\s*=\s*'?\d+|;\s*declare\b|--\s*$|\/\*.*?\*\/|\bchar\s*\(\d+\)|\bconcat\s*\(|0x[0-9a-fA-F]{4,})/i
+    regex: /(\bunion\s+(all\s+)?select\b|\bselect\s+[^\n;]{0,100}\s+from\b|\binsert\s+into\b|\bdrop\s+(table|database|view)\b|\bupdate\s+[^\n;]{0,100}\s+set\b|\bdelete\s+from\b|\bexec(ute)?\s*\(|\bbenchmark\s*\(\d+|\bsleep\s*\(\d+\)|\bwaitfor\s+delay\b|\bpg_sleep\s*\(|'\s*or\s*'?\d+'?\s*=\s*'?\d+|;\s*declare\b|--\s*$|\/\*[^*]{0,200}\*\/|\bchar\s*\(\d+\)|\bconcat\s*\(|0x[0-9a-fA-F]{4,})/i
   },
   // Cross-Site Scripting (XSS, DOM Sinks, Event Handlers, Obfuscation)
   {
     type: 'xss',
     name: 'Cross-Site Scripting (XSS)',
     score: 10,
-    regex: /(<\s*script\b[^>]*>|javascript\s*:\s*|vbscript\s*:\s*|data\s*:\s*text\/html|on(load|error|click|mouseover|submit|focus|blur|change)\s*=|\bdocument\.(cookie|location|write|domain)\b|\bwindow\.(location|navigate)\b|\beval\s*\(|\bsettimeout\s*\(|\bsetinterval\s*\(|<\s*iframe\b|<\s*object\b|<\s*embed\b|<\s*svg\b[^>]*onload|<\s*img\b[^>]*onerror|&#x[0-9a-f]+;|\\u003c)/i
+    regex: /(<\s*script\b[^>]{0,200}>|javascript\s*:\s*|vbscript\s*:\s*|data\s*:\s*text\/html|on(load|error|click|mouseover|submit|focus|blur|change)\s*=|\bdocument\.(cookie|location|write|domain)\b|\bwindow\.(location|navigate)\b|\beval\s*\(|\bsettimeout\s*\(|\bsetinterval\s*\(|<\s*iframe\b|<\s*object\b|<\s*embed\b|<\s*svg\b[^>]{0,200}onload|<\s*img\b[^>]{0,200}onerror|&#x[0-9a-f]+;|\\u003c)/i
   },
   // Path Traversal & LFI/RFI
   {
@@ -206,14 +233,14 @@ const THREAT_RULES = [
     type: 'commandInjection',
     name: 'Command Injection (RCE)',
     score: 20,
-    regex: /(;\s*(bash|sh|zsh|cmd|powershell|cat|whoami|id|uname|dir|type|curl|wget|nc|netcat|ncat|certutil)\b|\|\s*(bash|sh|zsh|cmd|powershell|cat|whoami|id|uname|dir|type|curl|wget)\b|`.*?`|\$\(.*?\)|powershell(\.exe)?\s+(-enc|-e|-w\s+hidden)|cmd(\.exe)?\s+\/c|\bnet\s+(user|localgroup)\b|\bvssadmin\b)/i
+    regex: /(;\s*(bash|sh|zsh|cmd|powershell|cat|whoami|id|uname|dir|type|curl|wget|nc|netcat|ncat|certutil)\b|\|\s*(bash|sh|zsh|cmd|powershell|cat|whoami|id|uname|dir|type|curl|wget)\b|`[^`\n]{0,80}`|\$\([^)\n]{0,80}\)|powershell(\.exe)?\s+(-enc|-e|-w\s+hidden)|cmd(\.exe)?\s+\/c|\bnet\s+(user|localgroup)\b|\bvssadmin\b)/i
   },
   // Server-Side Template Injection (SSTI)
   {
     type: 'ssti',
     name: 'Server-Side Template Injection (SSTI)',
     score: 12,
-    regex: /(\{\{.*?\}\}|\$\{.*?\}|<%.*?%>|\b__proto__\b|\bconstructor\.prototype\b)/i
+    regex: /(\{\{[^}\n]{0,80}\}\}|\$\{[^}\n]{0,80}\}|<%[^%\n]{0,80}%>|\b__proto__\b|\bconstructor\.prototype\b)/i
   },
   // Prototype Pollution
   {
@@ -335,10 +362,14 @@ function instantBanHoneypot(ip, probeTarget) {
 }
 
 /**
- * Banking-Grade Multi-Pass De-Obfuscation Pipeline
+ * Banking-Grade Multi-Pass De-Obfuscation Pipeline (ReDoS-Hardened)
  */
 function deobfuscatePayload(str) {
   if (typeof str !== 'string' || str.length === 0) return '';
+  // Guard against massive payloads causing CPU exhaustion
+  if (str.length > 8192) {
+    str = str.substring(0, 8192);
+  }
   // Check for Null-byte attack
   if (str.includes('\0') || str.includes('%00')) {
     return '__NULL_BYTE_ATTACK__';
@@ -362,8 +393,8 @@ function deobfuscatePayload(str) {
     cleaned = cleaned.normalize('NFKC');
   } catch (e) {}
 
-  // 3. Strip SQL inline comments e.g. "SEL/*foo*/ECT" -> "SELECT"
-  cleaned = cleaned.replace(/\/\*.*?\*\//g, ' ');
+  // 3. Strip SQL inline comments e.g. "SEL/*foo*/ECT" -> "SELECT" (bounded)
+  cleaned = cleaned.replace(/\/\*[^*]{0,200}\*\//g, ' ');
 
   // 4. Collapse excessive whitespace
   cleaned = cleaned.replace(/\s+/g, ' ').trim();
@@ -509,20 +540,21 @@ function antiFloodMiddleware(req, res, next) {
     }
   }
 
+  const clientKey = getCompositeClientKey(req);
   const clientIp = getClientIp(req);
   const now = Date.now();
-  let burst = ipBurstMap.get(clientIp);
+  let burst = ipBurstMap.get(clientKey);
 
   if (!burst || (now - burst.windowStart > BURST_WINDOW_MS)) {
     burst = { count: 1, windowStart: now };
   } else {
     burst.count++;
   }
-  ipBurstMap.set(clientIp, burst);
+  ipBurstMap.set(clientKey, burst);
 
   if (burst.count > MAX_BURST_REQ) {
     logSecurityEvent(clientIp, 'ddosFlood', 'Micro-Burst HTTP Flood (DDoS)', req.method, req.originalUrl, `${burst.count} req/sec`);
-    registerIpStrike(clientIp, 'HTTP Flood Attack', 5);
+    registerIpStrike(clientKey, 'HTTP Flood Attack', 5);
     return res.status(429).json({
       error: 'Too Many Requests: Traffic burst limit exceeded by Web Application Firewall. Please wait a moment and try again.'
     });
@@ -540,7 +572,7 @@ function dlpResponseMiddleware(req, res, next) {
 
   res.json = function(data) {
     if (data && typeof data === 'object') {
-      redactSensitiveData(data);
+      data = redactSensitiveData(data);
     }
     return originalJson.call(this, data);
   };
@@ -549,26 +581,30 @@ function dlpResponseMiddleware(req, res, next) {
 }
 
 function redactSensitiveData(obj, depth = 5) {
-  if (!obj || depth <= 0) return;
+  if (!obj || depth <= 0 || typeof obj !== 'object' || obj instanceof Date || obj instanceof RegExp || Buffer.isBuffer(obj)) {
+    return obj;
+  }
+
   if (Array.isArray(obj)) {
-    for (const item of obj) {
-      if (typeof item === 'object') redactSensitiveData(item, depth - 1);
-    }
-    return;
+    return obj.map(item => redactSensitiveData(item, depth - 1));
   }
-  if (typeof obj === 'object') {
-    for (const key of Object.keys(obj)) {
-      const lowerKey = key.toLowerCase();
-      // Redact passwordHash, salts, private keys, secrets
-      if (lowerKey === 'passwordhash' || lowerKey === 'salt' || lowerKey === 'jwt_secret') {
-        delete obj[key];
-        stats.threatsByType.dlpLeakPrevented++;
-        console.warn(`🛡️ [WAF DLP] Outbound leak prevented: Redacted sensitive key "${key}"`);
-      } else if (typeof obj[key] === 'object') {
-        redactSensitiveData(obj[key], depth - 1);
-      }
+
+  const cleaned = {};
+  for (const [key, value] of Object.entries(obj)) {
+    const lowerKey = key.toLowerCase();
+    // Redact passwordHash, salts, private keys, secrets
+    if (lowerKey === 'passwordhash' || lowerKey === 'salt' || lowerKey === 'jwt_secret' || lowerKey === 'otpsecret') {
+      stats.threatsByType.dlpLeakPrevented++;
+      console.warn(`🛡️ [WAF DLP] Outbound leak prevented: Redacted sensitive key "${key}"`);
+      continue;
+    }
+    if (value && typeof value === 'object') {
+      cleaned[key] = redactSensitiveData(value, depth - 1);
+    } else {
+      cleaned[key] = value;
     }
   }
+  return cleaned;
 }
 
 /**
@@ -644,7 +680,8 @@ function firewallMiddleware(req, res, next) {
   }
 
   // 1. IP Ban Jail Check (Zero-Latency Rejection with Admin Management Pass-Through)
-  const ban = ipBans.get(clientIp);
+  const clientKey = getCompositeClientKey(req);
+  const ban = ipBans.get(clientIp) || ipBans.get(clientKey);
   if (ban) {
     const rawUrl = req.originalUrl || req.url || '';
     const isAdminRoute = rawUrl.startsWith('/api/admin') || rawUrl.startsWith('/api/auth/login') || rawUrl === '/dashboard.html';
@@ -829,5 +866,7 @@ module.exports = {
   unbanIp,
   banIpManually,
   clearAllBans,
-  setAttackAlertCallback
+  setAttackAlertCallback,
+  getClientIp,
+  getCompositeClientKey
 };

@@ -51,7 +51,7 @@ const MAX_SNAPSHOTS = 30;
  * Encrypt a string buffer using AES-256-GCM
  */
 function encryptPayload(plaintext) {
-  const iv = crypto.randomBytes(16);
+  const iv = crypto.randomBytes(12);
   const cipher = crypto.createCipheriv('aes-256-gcm', KEY, iv);
   let encrypted = cipher.update(plaintext, 'utf8', 'hex');
   encrypted += cipher.final('hex');
@@ -68,6 +68,9 @@ function encryptPayload(plaintext) {
  * Decrypt a payload using AES-256-GCM
  */
 function decryptPayload(payload) {
+  if (!payload || !payload.iv || !payload.authTag || !payload.data) {
+    throw new Error('Invalid encrypted payload schema: iv, authTag, and data are required.');
+  }
   const decipher = crypto.createDecipheriv('aes-256-gcm', KEY, Buffer.from(payload.iv, 'hex'));
   decipher.setAuthTag(Buffer.from(payload.authTag, 'hex'));
   let decrypted = decipher.update(payload.data, 'hex', 'utf8');
@@ -335,25 +338,19 @@ function executeAutomatedEvacuation(reason = 'Critical security breach detected'
     }
 
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-    const vaultPlainPath = path.join(LAPTOP_VAULT_DIR, `EMERGENCY_VAULT_users_${timestamp}.json`);
     const vaultEncPath = path.join(LAPTOP_VAULT_DIR, `EMERGENCY_VAULT_users_${timestamp}.enc`);
     const vaultLogPath = path.join(LAPTOP_VAULT_DIR, `evacuation_incident_log.txt`);
 
-    // 1. Write clean JSON copy to Laptop Vault
-    fs.writeFileSync(vaultPlainPath, usersRaw, 'utf8');
-
-    // 2. Write AES-256 encrypted copy to Laptop Vault
+    // 1. Write AES-256-GCM encrypted copy to Laptop Vault
     const encrypted = encryptPayload(usersRaw);
     fs.writeFileSync(vaultEncPath, JSON.stringify(encrypted, null, 2), 'utf8');
 
-    // 3. Write Incident Log to Laptop Vault
+    // 2. Write Incident Log to Laptop Vault
     const logEntry = `[${new Date().toISOString()}] EMERGENCY DATA EVACUATION TRIGGERED\n`
       + `Culprit IP: ${culpritIp}\n`
       + `Reason: ${reason}\n`
       + `Students Protected: ${users.length}\n`
-      + `Saved Plain Vault: ${vaultPlainPath}\n`
       + `Saved Encrypted Vault: ${vaultEncPath}\n`
-      + `Server State: Sanitized to empty array []\n`
       + `--------------------------------------------------------\n\n`;
     fs.appendFileSync(vaultLogPath, logEntry, 'utf8');
 
@@ -459,8 +456,23 @@ function getVaultStatus() {
   };
 }
 
+/**
+ * Debounced snapshot queueing to prevent disk I/O thrashing under concurrent student updates
+ */
+let snapshotDebounceTimer = null;
+function queueSnapshot(reason = 'debounced_update', delayMs = 3000) {
+  if (snapshotDebounceTimer) {
+    clearTimeout(snapshotDebounceTimer);
+  }
+  snapshotDebounceTimer = setTimeout(() => {
+    createSnapshot(reason);
+    snapshotDebounceTimer = null;
+  }, delayMs);
+}
+
 module.exports = {
   createSnapshot,
+  queueSnapshot,
   listSnapshots,
   exportCleanData,
   exportIncrementalData,

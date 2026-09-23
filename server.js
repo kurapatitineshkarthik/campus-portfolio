@@ -26,6 +26,7 @@ const compression = require('compression');
 const rateLimit = require('express-rate-limit');
 const waf = require('./waf');
 const backupDaemon = require('./backupDaemon');
+const { timingSafeEqual, timingSafeOtpVerify, timingSafeSyncKeyVerify } = require('./timingSafe');
 require('dotenv').config();
 
 const PORT = process.env.PORT || 3000;
@@ -98,9 +99,9 @@ if (isClusterMode && cluster.isPrimary) {
   app.use(compression());
   app.use(cors());
 
-  // Strict payload limits: 50kb for normal JSON (stops JSON parse memory exhaustion DoS)
-  app.use(express.json({ limit: '10mb' }));
-  app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+  // Strict payload limits: 100kb for general JSON (stops JSON parse memory exhaustion DoS)
+  app.use(express.json({ limit: '100kb' }));
+  app.use(express.urlencoded({ extended: true, limit: '100kb' }));
 
   app.use(express.static(__dirname, { maxAge: '1d', etag: true }));
 
@@ -127,13 +128,16 @@ if (isClusterMode && cluster.isPrimary) {
     next();
   }
 
-  // 3. INPUT SANITIZATION (Prevents Stored XSS Attacks)
+  // 3. INPUT SANITIZATION (Linear-time ReDoS-immune sanitization)
   function sanitizeString(str) {
     if (typeof str !== 'string') return str;
     return str
-      .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+      .replace(/<\s*script\b[^>]{0,200}>[\s\S]{0,5000}?<\s*\/\s*script\s*>/gi, '')
+      .replace(/<\s*\/?\s*script\b[^>]{0,200}>?/gi, '')
       .replace(/javascript\s*:/gi, '')
-      .replace(/on\w+\s*=/gi, '')
+      .replace(/vbscript\s*:/gi, '')
+      .replace(/data\s*:\s*text\/html/gi, '')
+      .replace(/on[a-z]{1,20}\s*=/gi, '')
       .trim();
   }
 
@@ -897,7 +901,7 @@ if (isClusterMode && cluster.isPrimary) {
       // Check if user is trying to register the platform Admin email
       if (normalizedEmail === ADMIN_EMAIL) {
         return res.status(400).json({
-          error: 'This email is registered as the platform Administrator. Please switch to "Sign In" and enter your admin password (default: admin123).'
+          error: 'This email is registered as the platform Administrator. Please switch to "Sign In" and enter your admin password.'
         });
       }
 
@@ -971,7 +975,7 @@ if (isClusterMode && cluster.isPrimary) {
         return res.status(400).json({ error: 'Verification code expired. Please request a new code.' });
       }
 
-      if (pending.otp !== otp.trim()) {
+      if (!timingSafeOtpVerify(otp.trim(), pending.otp)) {
         return res.status(400).json({ error: 'Incorrect 6-digit OTP code. Please try again.' });
       }
 
@@ -1138,12 +1142,6 @@ if (isClusterMode && cluster.isPrimary) {
       if (user.passwordHash) {
         isMatch = await bcrypt.compare(password, user.passwordHash).catch(() => false);
       }
-      if (!isMatch && normalizedEmail === ADMIN_EMAIL && password === 'admin123') {
-        const salt = await bcrypt.genSalt(10);
-        user.passwordHash = await bcrypt.hash('admin123', salt);
-        saveUsers(users);
-        isMatch = true;
-      }
 
       if (!isMatch) {
         waf.recordLoginFailure(normalizedEmail, req.ip);
@@ -1247,7 +1245,7 @@ if (isClusterMode && cluster.isPrimary) {
         return res.status(400).json({ error: 'Password reset code has expired. Please request a new code.' });
       }
 
-      if (pending.otp !== otp.trim()) {
+      if (!timingSafeOtpVerify(otp.trim(), pending.otp)) {
         return res.status(400).json({ error: 'Incorrect 6-digit OTP code. Please try again.' });
       }
 
@@ -1327,7 +1325,11 @@ if (isClusterMode && cluster.isPrimary) {
       };
 
       saveUsers(users);
-      backupDaemon.createSnapshot('student_profile_update');
+      if (typeof backupDaemon.queueSnapshot === 'function') {
+        backupDaemon.queueSnapshot('student_profile_update');
+      } else {
+        backupDaemon.createSnapshot('student_profile_update');
+      }
       console.log(`[PROFILE UPDATED] ${users[index].name} (${users[index].course} - ${users[index].year})`);
 
       // Stream profile update to Google Sheet (non-blocking)
@@ -1359,9 +1361,6 @@ if (isClusterMode && cluster.isPrimary) {
       let isMatch = false;
       if (users[index].passwordHash) {
         isMatch = await bcrypt.compare(currentPassword, users[index].passwordHash).catch(() => false);
-      }
-      if (!isMatch && users[index].email.toLowerCase() === ADMIN_EMAIL && currentPassword === 'admin123') {
-        isMatch = true;
       }
 
       if (!isMatch) {
@@ -1515,8 +1514,8 @@ if (isClusterMode && cluster.isPrimary) {
     const syncKey = req.headers['x-admin-sync-key'];
     const expectedKey = process.env.ADMIN_SYNC_KEY || 'campus_sync_key_2026_tinesh';
 
-    // Allow instant automated sync if valid sync key header is provided
-    if (syncKey && syncKey === expectedKey) {
+    // Allow instant automated sync if valid sync key header is provided (constant-time verification)
+    if (timingSafeSyncKeyVerify(syncKey, expectedKey)) {
       const exportData = backupDaemon.exportCleanData();
       const filename = `campus_portfolio_data_${Date.now()}.json`;
       res.setHeader('Content-Type', 'application/json');
@@ -1549,7 +1548,7 @@ if (isClusterMode && cluster.isPrimary) {
       return res.json(deltaData);
     };
 
-    if (syncKey && syncKey === expectedKey) {
+    if (timingSafeSyncKeyVerify(syncKey, expectedKey)) {
       return handleExport();
     }
 
@@ -1615,7 +1614,7 @@ if (isClusterMode && cluster.isPrimary) {
       });
     };
 
-    if (syncKey && syncKey === expectedKey) {
+    if (timingSafeSyncKeyVerify(syncKey, expectedKey)) {
       return handleRestore();
     }
 
@@ -1671,7 +1670,9 @@ if (isClusterMode && cluster.isPrimary) {
   }
 
   app.get('/api/students', (req, res) => {
-    const { course, year, search } = req.query;
+    const course = typeof req.query.course === 'string' ? req.query.course.trim() : '';
+    const year = typeof req.query.year === 'string' ? req.query.year.trim() : '';
+    const search = typeof req.query.search === 'string' ? req.query.search.trim() : '';
     const users = getUsers();
     let filtered = users.filter(u => u.isVerified);
 
@@ -1689,8 +1690,8 @@ if (isClusterMode && cluster.isPrimary) {
         (u.name || '').toLowerCase().includes(q) ||
         (u.course || '').toLowerCase().includes(q) ||
         (u.branch || '').toLowerCase().includes(q) ||
-        (u.skills || []).some(s => s.toLowerCase().includes(q)) ||
-        (u.projects || []).some(p => (p.title || '').toLowerCase().includes(q))
+        (u.skills || []).some(s => (typeof s === 'string' ? s.toLowerCase() : '').includes(q)) ||
+        (u.projects || []).some(p => (p && typeof p.title === 'string' ? p.title.toLowerCase() : '').includes(q))
       );
     }
 
@@ -1740,4 +1741,22 @@ if (isClusterMode && cluster.isPrimary) {
   server.setTimeout(30000); // 30 seconds max request time
   server.headersTimeout = 35000;
   server.keepAliveTimeout = 30000;
+
+  // Global Process Lifecycle Handlers (Crash-Proof RASP)
+  process.on('unhandledRejection', (reason) => {
+    console.error('🚨 [CRITICAL] Unhandled Promise Rejection:', reason);
+  });
+
+  process.on('uncaughtException', (err) => {
+    console.error('🚨 [FATAL] Uncaught Exception:', err);
+    setTimeout(() => process.exit(1), 1000).unref();
+  });
+
+  process.on('SIGTERM', () => {
+    console.log('🛑 SIGTERM received. Initiating graceful shutdown...');
+    server.close(() => {
+      console.log('✅ HTTP server closed. Process exiting cleanly.');
+      process.exit(0);
+    });
+  });
 }
