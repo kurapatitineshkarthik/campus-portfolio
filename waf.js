@@ -565,10 +565,33 @@ function antiFloodMiddleware(req, res, next) {
 
 /**
  * Data Loss Prevention (DLP) - Outgoing Response Inspector Middleware
- * Scans outgoing JSON for accidental leakage of password hashes, API keys, or private tokens.
+ * Scans outgoing JSON and responses for accidental leakage of password hashes, API keys, or private tokens.
  */
+const DLP_BLOCKED_KEYS = new Set([
+  'passwordhash',
+  'salt',
+  'jwt_secret',
+  'otpsecret',
+  'privatekey',
+  'apikey',
+  'synckey',
+  'email_pass',
+  'backup_encryption_key'
+]);
+
+const BCRYPT_VALUE_REGEX = /\$2[aby]\$\d{2}\$[./A-Za-z0-9]{53}/g;
+
+function sanitizeStringValue(str) {
+  if (typeof str !== 'string' || str.length < 20) return str;
+  if (BCRYPT_VALUE_REGEX.test(str)) {
+    return str.replace(BCRYPT_VALUE_REGEX, '[REDACTED_HASH]');
+  }
+  return str;
+}
+
 function dlpResponseMiddleware(req, res, next) {
   const originalJson = res.json;
+  const originalSend = res.send;
 
   res.json = function(data) {
     if (data && typeof data === 'object') {
@@ -577,12 +600,25 @@ function dlpResponseMiddleware(req, res, next) {
     return originalJson.call(this, data);
   };
 
+  res.send = function(body) {
+    if (typeof body === 'string' && (body.startsWith('{') || body.startsWith('['))) {
+      try {
+        const parsed = JSON.parse(body);
+        const cleaned = redactSensitiveData(parsed);
+        body = JSON.stringify(cleaned);
+      } catch (_) {}
+    } else if (body && typeof body === 'object' && !Buffer.isBuffer(body)) {
+      body = redactSensitiveData(body);
+    }
+    return originalSend.call(this, body);
+  };
+
   next();
 }
 
-function redactSensitiveData(obj, depth = 5) {
+function redactSensitiveData(obj, depth = 6) {
   if (!obj || depth <= 0 || typeof obj !== 'object' || obj instanceof Date || obj instanceof RegExp || Buffer.isBuffer(obj)) {
-    return obj;
+    return typeof obj === 'string' ? sanitizeStringValue(obj) : obj;
   }
 
   if (Array.isArray(obj)) {
@@ -592,14 +628,16 @@ function redactSensitiveData(obj, depth = 5) {
   const cleaned = {};
   for (const [key, value] of Object.entries(obj)) {
     const lowerKey = key.toLowerCase();
-    // Redact passwordHash, salts, private keys, secrets
-    if (lowerKey === 'passwordhash' || lowerKey === 'salt' || lowerKey === 'jwt_secret' || lowerKey === 'otpsecret') {
+    // Redact sensitive keys
+    if (DLP_BLOCKED_KEYS.has(lowerKey)) {
       stats.threatsByType.dlpLeakPrevented++;
       console.warn(`🛡️ [WAF DLP] Outbound leak prevented: Redacted sensitive key "${key}"`);
       continue;
     }
     if (value && typeof value === 'object') {
       cleaned[key] = redactSensitiveData(value, depth - 1);
+    } else if (typeof value === 'string') {
+      cleaned[key] = sanitizeStringValue(value);
     } else {
       cleaned[key] = value;
     }

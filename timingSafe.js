@@ -46,8 +46,20 @@ function timingSafeSyncKeyVerify(headerKey, expectedKey) {
   return timingSafeEqual(String(headerKey), String(expectedKey));
 }
 
+/**
+ * Generates an unpredictable 6-digit verification code using hardware CSPRNG.
+ * (RFC 4086 compliant via OpenSSL crypto.randomInt)
+ *
+ * @returns {string} - 6-digit numeric OTP string
+ */
+function generateSecureOtp() {
+  return crypto.randomInt(100000, 1000000).toString();
+}
+
 module.exports = {
   timingSafeEqual,
   timingSafeOtpVerify,
-  timingSafeSyncKeyVerify
+  timingSafeSyncKeyVerify,
+  generateSecureOtp
 };
+

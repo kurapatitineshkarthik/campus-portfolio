@@ -26,8 +26,20 @@ const compression = require('compression');
 const rateLimit = require('express-rate-limit');
 const waf = require('./waf');
 const backupDaemon = require('./backupDaemon');
-const { timingSafeEqual, timingSafeOtpVerify, timingSafeSyncKeyVerify } = require('./timingSafe');
+const { timingSafeEqual, timingSafeOtpVerify, timingSafeSyncKeyVerify, generateSecureOtp } = require('./timingSafe');
+const atomicCache = require('./atomicCache');
+const {
+  activatePrototypeFreezing,
+  secureJsonReviver,
+  structuralJsonGuard,
+  raspErrorHandler,
+  HeapBoundMonitor,
+  canaryHoneypotMiddleware
+} = require('./raspGuard');
 require('dotenv').config();
+
+// Activate RASP native V8 prototype freezing immediately upon process boot
+activatePrototypeFreezing();
 
 const PORT = process.env.PORT || 3000;
 const JWT_SECRET = process.env.JWT_SECRET || 'all_ug_portfolio_secret_key_2026_tinesh';
@@ -96,11 +108,20 @@ if (isClusterMode && cluster.isPrimary) {
     next();
   });
 
+  // RASP 1: Heap Bound & Adaptive Watermark Monitor (384MB Cloud Ceiling)
+  const heapBoundMonitor = new HeapBoundMonitor({ maxHeapMb: 384 });
+  app.use(heapBoundMonitor.middleware());
+
+  // RASP 2: Canary Honeypot Decoys (/api/v1/internal/*, /.git/config, etc.)
+  app.use(canaryHoneypotMiddleware(waf));
+
   app.use(compression());
   app.use(cors());
 
-  // Strict payload limits: 100kb for general JSON (stops JSON parse memory exhaustion DoS)
-  app.use(express.json({ limit: '100kb' }));
+  // RASP 3: Secure JSON Parser with Prototype Reviver Trap & Structural Complexity Limiter
+  app.use(express.json({ limit: '100kb', reviver: secureJsonReviver }));
+  app.use(structuralJsonGuard);
+  app.use(raspErrorHandler(waf));
   app.use(express.urlencoded({ extended: true, limit: '100kb' }));
 
   app.use(express.static(__dirname, { maxAge: '1d', etag: true }));
@@ -202,40 +223,14 @@ if (isClusterMode && cluster.isPrimary) {
   app.use('/api/portfolio/', publicLimiter);
 
   // =======================================================================
-  // 3. DATABASE & OTP HELPERS (Concurrency-Safe)
+  // 3. DATABASE & OTP HELPERS (Atomic In-Memory Cache: Zero Disk Reads on HTTP)
   // =======================================================================
   function getUsers() {
-    try {
-      const data = fs.readFileSync(DB_PATH, 'utf8');
-      const parsed = JSON.parse(data || '[]');
-      if (!Array.isArray(parsed)) throw new Error('users.json is not an array');
-      return parsed;
-    } catch (e) {
-      console.error('[DB READ ERROR]', e.message);
-      if (fs.existsSync(DB_PATH) && fs.statSync(DB_PATH).size > 10) {
-        throw new Error('Database read error: ' + e.message);
-      }
-      return [];
-    }
+    return atomicCache.getUsers();
   }
 
   function saveUsers(users) {
-    if (!Array.isArray(users)) {
-      console.error('[DB ERROR] saveUsers requires an array');
-      return false;
-    }
-    const tempPath = `${DB_PATH}.${process.pid}.${Date.now()}.tmp`;
-    try {
-      fs.writeFileSync(tempPath, JSON.stringify(users, null, 2), 'utf8');
-      fs.renameSync(tempPath, DB_PATH);
-      return true;
-    } catch (e) {
-      console.error('[DB WRITE ERROR]', e);
-      if (fs.existsSync(tempPath)) {
-        try { fs.unlinkSync(tempPath); } catch (_) {}
-      }
-      return false;
-    }
+    return atomicCache.saveUsers(users);
   }
 
   function getOtps() {
@@ -912,7 +907,7 @@ if (isClusterMode && cluster.isPrimary) {
         return res.status(400).json({ error: 'An account with this email already exists. Please sign in.' });
       }
 
-      const otp = Math.floor(100000 + Math.random() * 900000).toString();
+      const otp = generateSecureOtp();
       const expiresAt = Date.now() + 10 * 60 * 1000;
 
       const salt = await bcrypt.genSalt(10);
@@ -1063,7 +1058,7 @@ if (isClusterMode && cluster.isPrimary) {
       return res.status(400).json({ error: 'No pending registration found.' });
     }
 
-    const newOtp = Math.floor(100000 + Math.random() * 900000).toString();
+    const newOtp = generateSecureOtp();
     pending.otp = newOtp;
     pending.expiresAt = Date.now() + 10 * 60 * 1000;
     saveOtps(otps);
@@ -1191,7 +1186,7 @@ if (isClusterMode && cluster.isPrimary) {
         return res.status(400).json({ error: 'No account found with this email address.' });
       }
 
-      const otp = Math.floor(100000 + Math.random() * 900000).toString();
+      const otp = generateSecureOtp();
       const expiresAt = Date.now() + 10 * 60 * 1000;
 
       const otps = getOtps();
@@ -1673,6 +1668,21 @@ if (isClusterMode && cluster.isPrimary) {
     const course = typeof req.query.course === 'string' ? req.query.course.trim() : '';
     const year = typeof req.query.year === 'string' ? req.query.year.trim() : '';
     const search = typeof req.query.search === 'string' ? req.query.search.trim() : '';
+
+    // Fast Path: Unparameterized public directory served from pre-serialized buffer + ETag (Sub-millisecond)
+    if (!course && !year && !search) {
+      const { buffer, etag } = atomicCache.getPublicBufferAndETag();
+      if (req.headers['if-none-match'] === etag) {
+        return res.status(304).end();
+      }
+      res.set({
+        'Content-Type': 'application/json; charset=utf-8',
+        'ETag': etag,
+        'Cache-Control': 'public, max-age=30, s-maxage=120'
+      });
+      return res.send(buffer);
+    }
+
     const users = getUsers();
     let filtered = users.filter(u => u.isVerified);
 
@@ -1701,9 +1711,8 @@ if (isClusterMode && cluster.isPrimary) {
   });
 
   app.get('/api/students/:id', (req, res) => {
-    const users = getUsers();
-    const student = users.find(u => u.id === req.params.id && u.isVerified);
-    if (!student) return res.status(404).json({ error: 'Student not found' });
+    const student = atomicCache.getUserById(req.params.id);
+    if (!student || !student.isVerified) return res.status(404).json({ error: 'Student not found' });
 
     res.set('Cache-Control', 'public, max-age=30, s-maxage=120');
     res.json(sanitizePublicStudent(student));
@@ -1715,13 +1724,17 @@ if (isClusterMode && cluster.isPrimary) {
     try {
       slug = decodeURIComponent(slug);
     } catch (e) {}
-    const users = getUsers();
-    const student = users.find(u => 
-      ((u.username && u.username.toLowerCase() === slug) || 
-       u.id === req.params.slug ||
-       u.id === slug ||
-       (slug === 'tinesh-karthik' && u.email.toLowerCase() === ADMIN_EMAIL)) && u.isVerified
-    );
+
+    let student = atomicCache.getUserByUsername(slug) || atomicCache.getUserById(slug);
+    if (!student || !student.isVerified) {
+      const users = getUsers();
+      student = users.find(u => 
+        ((u.username && u.username.toLowerCase() === slug) || 
+         u.id === req.params.slug ||
+         u.id === slug ||
+         (slug === 'tinesh-karthik' && u.email.toLowerCase() === ADMIN_EMAIL)) && u.isVerified
+      );
+    }
     if (!student) return res.status(404).json({ error: 'Student portfolio not found' });
 
     res.set('Cache-Control', 'public, max-age=30, s-maxage=120');

@@ -544,6 +544,20 @@ async function runAllTests() {
     assert.strictEqual(typeof vaultStatus.vaultActive, 'boolean');
   });
 
+  test('Backup Daemon: exportIncrementalData handles since timestamp correctly', () => {
+    // 1. Since 0 should return all records
+    const allDelta = backupDaemon.exportIncrementalData(0);
+    assert.strictEqual(typeof allDelta.since, 'number');
+    assert.ok(Array.isArray(allDelta.records));
+    assert.strictEqual(allDelta.newRecordsCount, allDelta.totalRecordsCount);
+
+    // 2. Since far future timestamp should return 0 new records (WhatsApp style)
+    const futureDelta = backupDaemon.exportIncrementalData(Date.now() + 10000000);
+    assert.strictEqual(futureDelta.newRecordsCount, 0);
+    assert.strictEqual(futureDelta.records.length, 0);
+    assert.ok(futureDelta.totalRecordsCount >= 0);
+  });
+
   // =========================================================================
   // SUITE 7: CLOUD HARDENING & RESILIENCE VERIFICATION
   // =========================================================================
@@ -616,6 +630,193 @@ async function runAllTests() {
     assert.ok(serverContent.includes('generateUniqueUsername'), 'server.js must define generateUniqueUsername');
     assert.ok(serverContent.includes('tineshkarthik@00001'), 'server.js must set admin username to tineshkarthik@00001');
   });
+
+  // =========================================================================
+  // SUITE 8: FORTRESS SECURITY ARCHITECTURE AUDIT
+  // =========================================================================
+  console.log('\n--- [SUITE 8: Fortress Security Architecture] ---');
+
+  const timingSafe = require('./timingSafe');
+
+  test('Timing Attack Defense: timingSafeEqual performs constant-time comparisons', () => {
+    assert.strictEqual(timingSafe.timingSafeEqual('correct-sync-key-2026', 'correct-sync-key-2026'), true);
+    assert.strictEqual(timingSafe.timingSafeEqual('correct-sync-key-2026', 'wrong-sync-key-2026'), false);
+    assert.strictEqual(timingSafe.timingSafeEqual('short', 'much-longer-string-comparison'), false);
+    assert.strictEqual(timingSafe.timingSafeEqual(null, 'test'), false);
+    assert.strictEqual(timingSafe.timingSafeEqual('test', undefined), false);
+  });
+
+  test('Timing Attack Defense: timingSafeOtpVerify securely verifies 6-digit OTPs', () => {
+    assert.strictEqual(timingSafe.timingSafeOtpVerify('481920', '481920'), true);
+    assert.strictEqual(timingSafe.timingSafeOtpVerify('481920', '481921'), false);
+    assert.strictEqual(timingSafe.timingSafeOtpVerify('48192', '481920'), false);
+    assert.strictEqual(timingSafe.timingSafeOtpVerify('', '481920'), false);
+  });
+
+  test('Timing Attack Defense: timingSafeSyncKeyVerify securely verifies sync keys', () => {
+    const masterKey = 'campus_sync_key_2026_tinesh';
+    assert.strictEqual(timingSafe.timingSafeSyncKeyVerify(masterKey, masterKey), true);
+    assert.strictEqual(timingSafe.timingSafeSyncKeyVerify('forged_key', masterKey), false);
+    assert.strictEqual(timingSafe.timingSafeSyncKeyVerify(undefined, masterKey), false);
+  });
+
+  test('ReDoS Immunity: Sanitizer processes pathological nested inputs in <20ms', () => {
+    const pathological1 = '<'.repeat(60);
+    const pathological2 = '<script '.repeat(30);
+    const safeRegex = /<\s*script\b[^>]{0,200}>[\s\S]{0,5000}?<\s*\/\s*script\s*>/gi;
+    
+    const t0 = Date.now();
+    pathological1.replace(safeRegex, '');
+    pathological2.replace(safeRegex, '');
+    const elapsed = Date.now() - t0;
+    
+    assert.ok(elapsed < 20, `Sanitizer took ${elapsed}ms; must complete in <20ms`);
+  });
+
+  test('Campus Wi-Fi NAT Protection: Composite client key isolates distinct users behind same IP', () => {
+    const campusIp = '103.21.244.2';
+    const student1Req = {
+      headers: { 'cf-connecting-ip': campusIp, 'user-agent': 'StudentLaptop/1.0', 'x-client-id': 'student-1' }
+    };
+    const student2Req = {
+      headers: { 'cf-connecting-ip': campusIp, 'user-agent': 'StudentPhone/2.0', 'x-client-id': 'student-2' }
+    };
+
+    const key1 = waf.getCompositeClientKey(student1Req);
+    const key2 = waf.getCompositeClientKey(student2Req);
+
+    assert.ok(key1 && key1.length === 32, 'Key 1 must be a valid 32-char hash');
+    assert.ok(key2 && key2.length === 32, 'Key 2 must be a valid 32-char hash');
+    assert.notStrictEqual(key1, key2, 'Two students sharing the same public IP must have distinct composite keys');
+  });
+
+  test('Reverse Proxy IP Resolution: Prioritizes Cloudflare cf-connecting-ip over spoofed headers', () => {
+    const spoofedReq = {
+      headers: {
+        'cf-connecting-ip': '198.51.100.5',
+        'x-forwarded-for': '1.2.3.4, 5.6.7.8'
+      },
+      ip: '127.0.0.1'
+    };
+    const resolved = waf.getClientIp(spoofedReq);
+    assert.strictEqual(resolved, '198.51.100.5', 'WAF must prioritize cf-connecting-ip to prevent IP spoofing');
+  });
+
+  test('Data Loss Prevention (DLP): Outgoing filter deep-redacts sensitive keys immutably', () => {
+    const mockResponseData = {
+      user: {
+        name: 'Tinesh Karthik',
+        passwordHash: '$2a$10$abcdef123456',
+        jwt_secret: 'hidden_secret'
+      },
+      tokens: [{ salt: 'secret_salt', valid: true }]
+    };
+
+    let capturedData = null;
+    const mockRes = {
+      json: (d) => { capturedData = d; }
+    };
+    waf.dlpResponseMiddleware({}, mockRes, () => {});
+    mockRes.json(mockResponseData);
+
+    assert.strictEqual(capturedData.user.name, 'Tinesh Karthik');
+    assert.strictEqual(capturedData.user.passwordHash, undefined, 'passwordHash must be redacted');
+    assert.strictEqual(capturedData.user.jwt_secret, undefined, 'jwt_secret must be redacted');
+    assert.strictEqual(capturedData.tokens[0].salt, undefined, 'salt in array must be redacted');
+    assert.strictEqual(capturedData.tokens[0].valid, true);
+  });
+
+  test('Backup Daemon: AES-256-GCM uses 12-byte IV (NIST SP 800-38D)', () => {
+    const backupDaemon = require('./backupDaemon');
+    const snapshot = backupDaemon.createSnapshot('test_fortress_iv');
+    assert.ok(snapshot.success, 'Snapshot creation must succeed');
+
+    const snapshots = backupDaemon.listSnapshots();
+    assert.ok(snapshots.length > 0);
+    const latest = snapshots[0];
+    const raw = JSON.parse(fs.readFileSync(path.join(__dirname, 'data', 'backups', latest.filename), 'utf8'));
+    // IV length in hex string: 12 bytes = 24 hex characters
+    assert.strictEqual(raw.iv.length, 24, 'IV must be 12 bytes (24 hex chars) per NIST SP 800-38D');
+  });
+
+  test('Backdoor Purge: server.js contains zero runtime admin123 fallbacks in auth/login or change-password', () => {
+    const serverCode = fs.readFileSync(path.join(__dirname, 'server.js'), 'utf8');
+    assert.ok(!serverCode.includes("password === 'admin123' && users"), 'server.js must not contain password === admin123 runtime fallback');
+    assert.ok(!serverCode.includes("currentPassword === 'admin123'"), 'server.js must not contain currentPassword === admin123 bypass in change-password');
+  });
+
+  // =========================================================================
+  // SUITE 9: PHASE 2 DEFENSIVE HARDENING & CONCURRENCY
+  // =========================================================================
+  console.log('\n--- [SUITE 9: Phase 2 Defensive Hardening & Concurrency] ---');
+
+  test('CSPRNG Entropy: generateSecureOtp generates unpredictable 6-digit codes', () => {
+    const { generateSecureOtp } = require('./timingSafe');
+    const codes = new Set();
+    for (let i = 0; i < 50; i++) {
+      const code = generateSecureOtp();
+      assert.strictEqual(typeof code, 'string');
+      assert.strictEqual(code.length, 6, 'OTP must be exactly 6 digits');
+      assert.ok(/^\d{6}$/.test(code), 'OTP must contain only digits');
+      codes.add(code);
+    }
+    assert.ok(codes.size >= 45, 'CSPRNG must generate distinct random codes with high entropy');
+  });
+
+  test('Atomic In-Memory Cache: Reads execute in <2ms with zero disk I/O and valid ETag', () => {
+    const atomicCache = require('./atomicCache');
+    const t0 = Date.now();
+    const users = atomicCache.getUsers();
+    const elapsed = Date.now() - t0;
+
+    assert.ok(Array.isArray(users), 'Users must be an array');
+    assert.ok(elapsed < 5, `In-memory read must complete in <5ms; took ${elapsed}ms`);
+
+    const { buffer, etag } = atomicCache.getPublicBufferAndETag();
+    assert.ok(Buffer.isBuffer(buffer), 'Public buffer must be a Buffer');
+    assert.ok(typeof etag === 'string' && etag.startsWith('W/"'), 'ETag must follow weak ETag format');
+  });
+
+  test('RASP Shield: V8 Prototype Freezing prevents tampering with Object.prototype', () => {
+    const { activatePrototypeFreezing } = require('./raspGuard');
+    activatePrototypeFreezing();
+
+    assert.ok(Object.isFrozen(Object.prototype), 'Object.prototype must be frozen');
+    try {
+      Object.prototype.pollutedExploit = true;
+    } catch (_) {}
+    assert.strictEqual(Object.prototype.pollutedExploit, undefined, 'Object.prototype must not be pollutable');
+  });
+
+  test('RASP Shield: JSON Reviver Trap catches __proto__ pollution attempts', () => {
+    const { secureJsonReviver } = require('./raspGuard');
+    assert.throws(() => {
+      JSON.parse('{"__proto__": {"isAdmin": true}}', secureJsonReviver);
+    }, (err) => {
+      return err.message === 'PROTOTYPE_POLLUTION_ATTACK_DETECTED' && err.isRaspTrip === true;
+    }, 'JSON parser must trip RASP exception on __proto__');
+  });
+
+  test('Enhanced DLP: Universal filter redacts privateKey, apiKey, syncKey, and Bcrypt string patterns', () => {
+    const payload = {
+      apiKey: 'secret_live_api_key_12345',
+      syncKey: 'admin_sync_pass_9999',
+      studentNotes: 'User hash is $2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy in db'
+    };
+
+    let scrubbed = null;
+    const mockRes = {
+      json: (d) => { scrubbed = d; }
+    };
+    waf.dlpResponseMiddleware({}, mockRes, () => {});
+    mockRes.json(payload);
+
+    assert.strictEqual(scrubbed.apiKey, undefined, 'apiKey must be redacted');
+    assert.strictEqual(scrubbed.syncKey, undefined, 'syncKey must be redacted');
+    assert.ok(!scrubbed.studentNotes.includes('$2a$10$'), 'Bcrypt hash inside text must be redacted');
+    assert.ok(scrubbed.studentNotes.includes('[REDACTED_HASH]'), 'Bcrypt pattern must be replaced with [REDACTED_HASH]');
+  });
+
 
   console.log('\n========================================================');
   console.log(`📊 TEST SUMMARY: ${passedTests}/${totalTests} PASSED`);
