@@ -131,10 +131,11 @@ if (isClusterMode && cluster.isPrimary) {
   app.use(waf.antiFloodMiddleware);
   app.use(waf.firewallMiddleware);
 
-  // 4. PHYSICAL STATIC ASSET ISOLATION (Dedicated /public Directory)
+  // 4. STATIC ASSET SERVING (Auto-detects /public directory or root fallback)
   // Physically prevents serving server source code (*.js), data directory (data/*),
   // environment files (.env), or configuration files under any circumstance.
-  const PUBLIC_DIR = path.join(__dirname, 'public');
+  const hasPublicDir = fs.existsSync(path.join(__dirname, 'public')) && fs.readdirSync(path.join(__dirname, 'public')).length > 0;
+  const PUBLIC_DIR = hasPublicDir ? path.join(__dirname, 'public') : __dirname;
 
   // Explicit honeypot probe blocker for sensitive root filenames
   const SENSITIVE_PROBES = new Set([
@@ -152,7 +153,7 @@ if (isClusterMode && cluster.isPrimary) {
     next();
   });
 
-  // Mount static middleware strictly on the isolated /public directory
+  // Mount static middleware strictly on the resolved public directory
   app.use(express.static(PUBLIC_DIR, {
     maxAge: '1h',
     etag: true,
@@ -1745,7 +1746,10 @@ if (isClusterMode && cluster.isPrimary) {
 
   // Dedicated single-student portfolio URL route (e.g. /p/tinesh-karthik)
   app.get('/p/:slug', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'portfolio.html'));
+    const portfolioFile = fs.existsSync(path.join(__dirname, 'public', 'portfolio.html'))
+      ? path.join(__dirname, 'public', 'portfolio.html')
+      : path.join(__dirname, 'portfolio.html');
+    res.sendFile(portfolioFile);
   });
 
   const server = app.listen(PORT, () => {
@@ -1765,6 +1769,11 @@ if (isClusterMode && cluster.isPrimary) {
   });
 
   process.on('uncaughtException', (err) => {
+    // Prevent non-fatal undici socket idle timeouts from crashing the server
+    if (err && (err.message?.includes('socket idle timeout') || err.name === 'InformationalError' || err.code === 'UND_ERR_INFO')) {
+      console.warn('⚠️ [SOCKET NOTICE] Suppressed non-fatal idle socket timeout:', err.message);
+      return;
+    }
     console.error('🚨 [FATAL] Uncaught Exception:', err);
     setTimeout(() => process.exit(1), 1000).unref();
   });

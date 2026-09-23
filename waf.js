@@ -174,7 +174,7 @@ const MALICIOUS_USER_AGENTS = [
   'pangolin', 'commix', 'sublist3r', 'amass', 'whatweb', 'netsparker', 'arachni',
   'wfuzz', 'ffuf', 'sqlpowerinjector', 'absinthe', 'havij', 'sqlninja', 'morfeus',
   'webinspect', 'paros', 'cgiscan', 'sqlsus', 'golismero', 'shodan', 'censys',
-  'python-requests', 'python-urllib', 'curl/', 'wget/', 'go-http-client', 'libwww-perl'
+  'python-requests', 'python-urllib', 'curl/', 'wget/', 'libwww-perl'
 ];
 
 // 3. Instant-Ban Honeypot Probe Paths (Zero tolerance: instant 24h ban)

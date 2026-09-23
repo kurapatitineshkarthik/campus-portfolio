@@ -9,16 +9,15 @@
 
 const v8 = require('v8');
 
-// List of core built-in prototypes to freeze
+// List of core built-in prototypes to freeze against prototype pollution (CWE-1321)
+// Note: Error.prototype, Promise.prototype, Function.prototype must NOT be frozen,
+// as modern Node.js internals (undici/fetch, async hooks, error subclasses) assign instance properties.
 const CORE_PROTOTYPES = [
   Object.prototype,
   Array.prototype,
-  Function.prototype,
   String.prototype,
   Number.prototype,
   Boolean.prototype,
-  Promise.prototype,
-  Error.prototype,
   RegExp.prototype,
   Date.prototype,
   Map.prototype,

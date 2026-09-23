@@ -1,0 +1,22 @@
+# Node modules & dependencies
+node_modules/
+
+# Secrets and environment variables (NEVER COMMIT)
+.env
+*.env
+
+# Runtime Database & Backups
+data/
+*.enc
+
+# Log files
+*.log
+npm-debug.log*
+
+# Temporary files
+*.tmp
+scratch/
+
+# OS metadata
+.DS_Store
+Thumbs.db
