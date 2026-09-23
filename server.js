@@ -384,10 +384,10 @@ if (isClusterMode && cluster.isPrimary) {
           isVerified: true,
           isAdmin: true,
           course: 'B.Tech',
-          year: '3rd Year',
+          year: '1st Year',
           branch: 'Computer Science & Engineering',
-          college: 'Undergraduate College',
-          tagline: 'Platform Administrator & Full-Stack Developer',
+          college: 'KL University',
+          tagline: 'Platform Administrator & Full-Stack Developer With AI',
           bio: 'Welcome to the All UG Campus Portfolio platform! I am Tinesh Karthik, the platform creator and administrator.',
           avatarUrl: 'https://api.dicebear.com/7.x/bottts/svg?seed=TineshKarthik',
           whatILearned: [
@@ -407,193 +407,66 @@ if (isClusterMode && cluster.isPrimary) {
         users.unshift(admin);
         modified = true;
         console.log(`👑 [ADMIN SEED] Initialized default Admin account for ${ADMIN_EMAIL} (@${admin.username})`);
-      } else if (admin.username !== 'tineshkarthik@00001') {
-        admin.username = 'tineshkarthik@00001';
-        modified = true;
-        console.log(`👑 [ADMIN UPDATE] Updated Admin username to @${admin.username}`);
+      } else {
+        if (admin.username !== 'tineshkarthik@00001') {
+          admin.username = 'tineshkarthik@00001';
+          modified = true;
+        }
+        if (admin.college !== 'KL University' || admin.year !== '1st Year') {
+          admin.college = 'KL University';
+          admin.year = '1st Year';
+          admin.tagline = 'Platform Administrator & Full-Stack Developer With AI';
+          modified = true;
+        }
       }
 
-      // 2. Demo Student Accounts (including 'Joy' accounts for immediate search engine testing)
-      if (users.length <= 1) {
+      // 2. Guaranteed Preservation for Reddy. Pravalika
+      let pravalika = users.find(u => u.email.toLowerCase() === 'reddypravalika2008@gmail.com');
+      if (!pravalika) {
         const salt = await bcrypt.genSalt(10);
         const defaultHash = await bcrypt.hash('Student@123', salt);
-
-        const sampleStudents = [
-          {
-            id: 'student-joy-sharma',
-            username: 'joysharma@48192',
-            name: 'Joy Sharma',
-            email: 'joysharma@campus.edu',
-            passwordHash: defaultHash,
-            isVerified: true,
-            isAdmin: false,
-            course: 'BCA',
-            year: '2nd Year',
-            branch: 'Computer Applications',
-            college: 'Campus School of Computing',
-            tagline: 'Aspiring Full-Stack & UI/UX Developer crafting fluid web experiences.',
-            bio: '2nd-year BCA student passionate about front-end design systems, responsive interfaces, and modern JavaScript frameworks.',
-            avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=500&auto=format&fit=crop&q=80',
-            whatILearned: [
-              'Modern UI/UX Design with Figma and Tailwind CSS',
-              'Single Page Applications with React & State Management',
-              'RESTful API Integration and Web Performance'
-            ],
-            skills: ['React', 'JavaScript', 'UI/UX Design', 'Tailwind CSS', 'Figma', 'Git'],
-            projects: [
-              {
-                title: 'Campus Course Dashboard & Notes Hub',
-                category: 'Web Development',
-                description: 'Interactive dashboard allowing BCA students to access semester notes, video lectures, and live code examples.',
-                googleDocsUrl: 'https://docs.google.com',
-                githubUrl: 'https://github.com',
-                liveUrl: 'https://tinesh.in'
-              }
-            ],
-            socials: { github: 'https://github.com', linkedin: 'https://linkedin.com', email: 'joysharma@campus.edu' },
-            createdAt: new Date().toISOString()
-          },
-          {
-            id: 'student-joy-patel',
-            username: 'joypatel@59201',
-            name: 'Joy Patel',
-            email: 'joypatel@campus.edu',
-            passwordHash: defaultHash,
-            isVerified: true,
-            isAdmin: false,
-            course: 'B.Sc',
-            year: '1st Year',
-            branch: 'Computer Science',
-            college: 'Faculty of Science & Computing',
-            tagline: 'Data Science Enthusiast & Python Developer exploring Machine Learning.',
-            bio: '1st-year B.Sc Computer Science student focused on exploratory data analysis, statistics, and machine learning models in Python.',
-            avatarUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=500&auto=format&fit=crop&q=80',
-            whatILearned: [
-              'Python for Data Science (NumPy, Pandas, Matplotlib)',
-              'Statistical Inference & Probability Modeling',
-              'Relational Database Modeling with MySQL'
-            ],
-            skills: ['Python', 'Pandas', 'NumPy', 'SQL', 'Data Science', 'Statistics'],
-            projects: [
-              {
-                title: 'Student Academic Performance Predictor',
-                category: 'Data Science',
-                description: 'Machine learning model that analyzes quiz scores and attendance patterns to predict end-of-semester GPA with 89% accuracy.',
-                googleDocsUrl: 'https://docs.google.com',
-                githubUrl: 'https://github.com',
-                liveUrl: 'https://tinesh.in'
-              }
-            ],
-            socials: { github: 'https://github.com', linkedin: 'https://linkedin.com', email: 'joypatel@campus.edu' },
-            createdAt: new Date().toISOString()
-          },
-          {
-            id: 'student-rahul-joy',
-            username: 'rahuljoymukherjee@83921',
-            name: 'Rahul Joy Mukherjee',
-            email: 'rahuljoy@campus.edu',
-            passwordHash: defaultHash,
-            isVerified: true,
-            isAdmin: false,
-            course: 'B.Com',
-            year: '2nd Year',
-            branch: 'Finance & Banking',
-            college: 'College of Commerce & Economics',
-            tagline: 'FinTech Explorer & Financial Modeler bridging Finance and Tech.',
-            bio: '2nd-year B.Com student specializing in financial analytics, equity research models, and automated corporate valuation dashboards.',
-            avatarUrl: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=500&auto=format&fit=crop&q=80',
-            whatILearned: [
-              'Corporate Financial Modeling & DCF Valuation',
-              'Automated Financial Dashboards with PowerBI & Excel',
-              'FinTech Protocols & Algorithmic Trading Fundamentals'
-            ],
-            skills: ['Financial Modeling', 'Excel', 'PowerBI', 'Tableau', 'FinTech', 'Accounting'],
-            projects: [
-              {
-                title: 'Student Micro-Budget & Investment Planner',
-                category: 'FinTech',
-                description: 'Personal finance web application tailored for college students to track living expenses, split bills, and simulate SIP investments.',
-                googleDocsUrl: 'https://docs.google.com',
-                githubUrl: 'https://github.com',
-                liveUrl: 'https://tinesh.in'
-              }
-            ],
-            socials: { github: '', linkedin: 'https://linkedin.com', email: 'rahuljoy@campus.edu' },
-            createdAt: new Date().toISOString()
-          },
-          {
-            id: 'student-priya-verma',
-            username: 'priyaverma@71024',
-            name: 'Priya Verma',
-            email: 'priyaverma@campus.edu',
-            passwordHash: defaultHash,
-            isVerified: true,
-            isAdmin: false,
-            course: 'B.Tech',
-            year: '3rd Year',
-            branch: 'Information Technology',
-            college: 'Institute of Technology',
-            tagline: 'Cloud Architecture & DevOps Engineer building resilient distributed systems.',
-            bio: '3rd-year B.Tech IT student specializing in container orchestration, continuous delivery pipelines, and cloud security.',
-            avatarUrl: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=500&auto=format&fit=crop&q=80',
-            whatILearned: [
-              'Container Orchestration with Docker & Kubernetes',
-              'CI/CD Pipeline Automation with GitHub Actions',
-              'Cloud Security & Infrastructure as Code (Terraform)'
-            ],
-            skills: ['Docker', 'Kubernetes', 'AWS', 'Node.js', 'Terraform', 'CI/CD'],
-            projects: [
-              {
-                title: 'Distributed Cloud Health Monitoring Platform',
-                category: 'DevOps & Cloud',
-                description: 'Real-time telemetry and alerting service monitoring microservices across multiple cloud clusters with automated failover.',
-                googleDocsUrl: 'https://docs.google.com',
-                githubUrl: 'https://github.com',
-                liveUrl: 'https://tinesh.in'
-              }
-            ],
-            socials: { github: 'https://github.com', linkedin: 'https://linkedin.com', email: 'priyaverma@campus.edu' },
-            createdAt: new Date().toISOString()
-          },
-          {
-            id: 'student-ananya-iyer',
-            username: 'ananyaiyer@12894',
-            name: 'Ananya Iyer',
-            email: 'ananyaiyer@campus.edu',
-            passwordHash: defaultHash,
-            isVerified: true,
-            isAdmin: false,
-            course: 'BBA',
-            year: '1st Year',
-            branch: 'Business Analytics & Marketing',
-            college: 'School of Management & Business',
-            tagline: 'Product Strategist & Growth Marketer driving student startup initiatives.',
-            bio: '1st-year BBA student interested in product management, user research, data-driven brand strategies, and go-to-market execution.',
-            avatarUrl: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=500&auto=format&fit=crop&q=80',
-            whatILearned: [
-              'Consumer Behavior & User Research Methodologies',
-              'Digital Marketing, SEO & Funnel Optimization',
-              'Agile Product Management & Wireframing'
-            ],
-            skills: ['Product Strategy', 'Digital Marketing', 'Market Research', 'Analytics', 'Agile'],
-            projects: [
-              {
-                title: 'Campus Startup Growth & Launch Blueprint',
-                category: 'Product Strategy',
-                description: 'Comprehensive go-to-market guide and acquisition funnel developed for student-founded ventures on campus.',
-                googleDocsUrl: 'https://docs.google.com',
-                githubUrl: '',
-                liveUrl: 'https://tinesh.in'
-              }
-            ],
-            socials: { github: '', linkedin: 'https://linkedin.com', email: 'ananyaiyer@campus.edu' },
-            createdAt: new Date().toISOString()
-          }
-        ];
-
-        users.push(...sampleStudents);
+        pravalika = {
+          id: 'student-1790180627957',
+          username: 'reddypravalika@81563',
+          name: 'Reddy. Pravalika',
+          email: 'reddypravalika2008@gmail.com',
+          passwordHash: defaultHash,
+          isVerified: true,
+          isAdmin: false,
+          course: 'B.Sc',
+          year: '1st Year',
+          branch: 'Ai and robotics',
+          college: "Aditya women's kakinada",
+          tagline: '1st Year B.Sc (Ai and robotics) Student',
+          bio: 'Hello! I am a 1st Year student pursuing B.Sc in Ai and robotics. Welcome to my portfolio!',
+          avatarUrl: 'https://api.dicebear.com/7.x/bottts/svg?seed=Reddy.%20Pravalika',
+          whatILearned: [
+            'Core coursework in B.Sc (Ai and robotics)',
+            'Practical applications and project development'
+          ],
+          skills: ['Problem Solving', 'Analytical Skills', 'Project Work'],
+          projects: [],
+          socials: { github: '', linkedin: '', email: 'reddypravalika2008@gmail.com' },
+          createdAt: '2026-09-23T16:24:07.527Z'
+        };
+        users.push(pravalika);
         modified = true;
-        console.log(`🎓 [STUDENT SEED] Initialized ${sampleStudents.length} verified demo student accounts across B.Tech, BCA, B.Sc, B.Com, BBA.`);
+        console.log('🎓 [STUDENT RESTORE] Restored student Reddy. Pravalika (@reddypravalika@81563)');
+      }
+
+      // 3. Automated cleanup of fake test demo students
+      const FAKE_DEMO_EMAILS = new Set([
+        'joysharma@campus.edu',
+        'joypatel@campus.edu',
+        'rahuljoy@campus.edu',
+        'priyaverma@campus.edu',
+        'ananyaiyer@campus.edu'
+      ]);
+      const initialCount = users.length;
+      users = users.filter(u => !FAKE_DEMO_EMAILS.has(u.email ? u.email.toLowerCase() : ''));
+      if (users.length !== initialCount) {
+        modified = true;
+        console.log('🧹 [CLEANUP] Removed fake demo student test accounts from database.');
       }
 
       if (modified) {
