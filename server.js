@@ -454,7 +454,41 @@ if (isClusterMode && cluster.isPrimary) {
         console.log('🎓 [STUDENT RESTORE] Restored student Reddy. Pravalika (@reddypravalika@81563)');
       }
 
-      // 3. Automated cleanup of fake test demo students
+      // 3. Guaranteed Preservation for Kurapati Greeshma Sri
+      let greeshma = users.find(u => u.email.toLowerCase() === 'greeshmasrikurapati@gmail.com');
+      if (!greeshma) {
+        const salt = await bcrypt.genSalt(10);
+        const defaultHash = await bcrypt.hash('Student@123', salt);
+        greeshma = {
+          id: 'student-1790221715251',
+          username: 'kurapatigreeshmasri@48927',
+          name: 'Kurapati Greeshma Sri',
+          email: 'greeshmasrikurapati@gmail.com',
+          passwordHash: defaultHash,
+          isVerified: true,
+          isAdmin: false,
+          course: 'B.Tech',
+          year: '4th Year',
+          branch: 'Computer Science and Engineering',
+          college: 'Seshadri Rao Gudlavalleru Engineering College',
+          tagline: '4th Year B.Tech (Computer Science and Engineering) Student',
+          bio: 'Hello! I am a 4th Year student pursuing B.Tech in Computer Science and Engineering. Welcome to my portfolio!',
+          avatarUrl: 'https://api.dicebear.com/7.x/bottts/svg?seed=Kurapati%20Greeshma%20Sri',
+          whatILearned: [
+            'Core coursework in B.Tech (Computer Science and Engineering)',
+            'Practical applications and project development'
+          ],
+          skills: ['Problem Solving', 'Analytical Skills', 'Project Work'],
+          projects: [],
+          socials: { github: '', linkedin: '', email: 'greeshmasrikurapati@gmail.com' },
+          createdAt: '2026-09-24T03:48:56.314Z'
+        };
+        users.push(greeshma);
+        modified = true;
+        console.log('🎓 [STUDENT RESTORE] Restored student Kurapati Greeshma Sri (@kurapatigreeshmasri@48927)');
+      }
+
+      // 4. Automated cleanup of fake test demo students
       const FAKE_DEMO_EMAILS = new Set([
         'joysharma@campus.edu',
         'joypatel@campus.edu',

@@ -658,6 +658,8 @@ function redactSensitiveData(obj, depth = 6) {
   return cleaned;
 }
 
+let autoLiftTimeout = null;
+
 /**
  * Emergency Security Quarantine / Lockdown Engine
  */
@@ -667,10 +669,27 @@ function triggerLockdown(reason, adminTriggered = false) {
   lockdownTimestamp = Date.now();
   lockdownAdminTriggered = adminTriggered;
   console.error(`🚨🚨🚨 [EMERGENCY LOCKDOWN ACTIVATED] Reason: ${lockdownReason} (Admin: ${adminTriggered})`);
+
+  // Auto-recovery: If triggered automatically by threat score, auto-lift after 5 minutes so platform self-heals
+  if (!adminTriggered) {
+    if (autoLiftTimeout) clearTimeout(autoLiftTimeout);
+    autoLiftTimeout = setTimeout(() => {
+      if (isEmergencyLockdown && !lockdownAdminTriggered) {
+        console.log('⏰ [AUTO-RECOVERY] 5-Minute emergency quarantine period elapsed. Automatically lifting platform lockdown.');
+        liftLockdown();
+      }
+    }, 5 * 60 * 1000);
+    if (autoLiftTimeout.unref) autoLiftTimeout.unref();
+  }
+
   return getLockdownInfo();
 }
 
 function liftLockdown() {
+  if (autoLiftTimeout) {
+    clearTimeout(autoLiftTimeout);
+    autoLiftTimeout = null;
+  }
   isEmergencyLockdown = false;
   lockdownReason = '';
   lockdownTimestamp = null;
