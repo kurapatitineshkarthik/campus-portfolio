@@ -511,7 +511,10 @@ if (isClusterMode && cluster.isPrimary) {
     }
   }
 
-  ensureInitialSeedData();
+  // Connect to MongoDB Atlas (if MONGODB_URI is set), then verify seed accounts
+  atomicCache.initializeMongoAsync()
+    .catch(err => console.warn('⚠️ [MONGO ATLAS INIT WARNING]', err.message))
+    .finally(() => ensureInitialSeedData());
 
   // =======================================================================
   // 4. MULTI-PROVIDER RESILIENT EMAIL DELIVERY (Port 587 Primary + Port 465 + HTTPS)

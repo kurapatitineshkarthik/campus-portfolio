@@ -87,6 +87,50 @@ class AtomicDatabaseStore {
   }
 
   /**
+   * Connects to MongoDB Atlas if MONGODB_URI is provided.
+   * Hydrates users from the cloud database into memory.
+   */
+  async initializeMongoAsync() {
+    const uri = process.env.MONGODB_URI;
+    if (!uri || typeof uri !== 'string' || !uri.trim()) return false;
+
+    try {
+      const { MongoClient } = require('mongodb');
+      this.mongoClient = new MongoClient(uri.trim(), { serverSelectionTimeoutMS: 5000 });
+      await this.mongoClient.connect();
+      this.mongoDb = this.mongoClient.db('campus_portfolio');
+      this.mongoUsersCol = this.mongoDb.collection('users');
+
+      // Hydrate users from cloud database
+      const cloudUsers = await this.mongoUsersCol.find({}).toArray();
+      if (Array.isArray(cloudUsers) && cloudUsers.length > 0) {
+        // Strip internal MongoDB _id before deep freeze
+        const cleanUsers = cloudUsers.map(({ _id, ...rest }) => rest);
+        this._applyMemoryUpdate(cleanUsers);
+        this.saveUsersSync(cleanUsers);
+        console.log(`🍃 [MONGODB ATLAS] Connected & hydrated ${cleanUsers.length} user records from cloud database.`);
+        return true;
+      } else if (this.users.length > 0) {
+        // First boot with empty cloud: seed local memory users to MongoDB
+        for (const u of this.users) {
+          if (u && u.email) {
+            await this.mongoUsersCol.updateOne(
+              { email: u.email.toLowerCase().trim() },
+              { $set: u },
+              { upsert: true }
+            );
+          }
+        }
+        console.log(`🍃 [MONGODB ATLAS] Connected & synced initial ${this.users.length} users to cloud database.`);
+        return true;
+      }
+    } catch (err) {
+      console.warn('⚠️ [MONGODB ATLAS NOTICE] Could not connect to MongoDB:', err.message, '- Using local cache.');
+      return false;
+    }
+  }
+
+  /**
    * Internal: Rebuilds indexed maps and pre-computes public student buffer.
    */
   _applyMemoryUpdate(usersArray) {
@@ -258,6 +302,31 @@ class AtomicDatabaseStore {
     this.isPersisting = true;
     this.isDirty = false;
 
+    // 1. Asynchronously persist to MongoDB Atlas if connected
+    if (this.mongoUsersCol) {
+      try {
+        const memEmails = new Set();
+        for (const u of this.users) {
+          if (u && u.email) {
+            const cleanEmail = u.email.toLowerCase().trim();
+            memEmails.add(cleanEmail);
+            await this.mongoUsersCol.updateOne(
+              { email: cleanEmail },
+              { $set: u },
+              { upsert: true }
+            );
+          }
+        }
+        // Remove any deleted users from MongoDB
+        if (memEmails.size > 0) {
+          await this.mongoUsersCol.deleteMany({ email: { $nin: Array.from(memEmails) } });
+        }
+      } catch (mErr) {
+        console.warn('⚠️ [MONGODB ASYNC WRITE WARNING]', mErr.message);
+      }
+    }
+
+    // 2. Asynchronously mirror snapshot to local filesystem
     const snapshot = JSON.stringify(this.users, null, 2);
     const tempFile = `${this.dbPath}.${process.pid}.${Date.now()}-${Math.random().toString(36).substring(2, 8)}.tmp`;
 
